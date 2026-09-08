@@ -6,7 +6,7 @@
  *   3. ADR hygiene — numbering is unique, filenames are well-formed, each has a Status
  * See docs/kb/07-keeping-docs-current.md for the whole strategy.
  */
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, normalize, resolve } from "node:path";
 
 const failures = [];
@@ -34,7 +34,9 @@ for (const cap of CAPS) {
   for (const file of files) {
     const n = lineCount(file);
     if (n > cap.max) {
-      failures.push(`${file}: ${n} lines (max ${cap.max}) — split it or move detail to a reference doc`);
+      failures.push(
+        `${file}: ${n} lines (max ${cap.max}) — split it or move detail to a reference doc`,
+      );
     }
   }
 }
@@ -42,7 +44,8 @@ for (const cap of CAPS) {
 // ------------------------------------------------------------------- 2. links
 function markdownFiles(dir, found = []) {
   for (const entry of readdirSync(dir)) {
-    if (["node_modules", ".git", ".next", "dist", "build"].includes(entry)) continue;
+    if (["node_modules", ".git", ".next", "dist", "build"].includes(entry))
+      continue;
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) markdownFiles(full, found);
     else if (entry.endsWith(".md")) found.push(full);
@@ -58,7 +61,8 @@ for (const file of markdownFiles(".")) {
     const target = rawTarget.split("#")[0].trim();
     if (!target || /^(https?:|mailto:|#)/.test(target)) continue;
     const resolved = normalize(resolve(dirname(file), target));
-    if (!existsSync(resolved)) failures.push(`${file}: broken link → ${target}`);
+    if (!existsSync(resolved))
+      failures.push(`${file}: broken link → ${target}`);
   }
 }
 
@@ -73,7 +77,10 @@ if (existsSync(adrDir)) {
       continue;
     }
     const number = match[1];
-    if (seen.has(number)) failures.push(`${adrDir}: ADR ${number} used twice (${seen.get(number)}, ${file})`);
+    if (seen.has(number))
+      failures.push(
+        `${adrDir}: ADR ${number} used twice (${seen.get(number)}, ${file})`,
+      );
     seen.set(number, file);
     if (!/\*\*Status:\*\*/.test(readFileSync(join(adrDir, file), "utf8"))) {
       failures.push(`${adrDir}/${file}: missing a **Status:** line`);
