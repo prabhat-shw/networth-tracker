@@ -1,0 +1,38 @@
+name: Task
+description: One unit of work — one session, one branch, one PR.
+labels: []
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What this delivers and why. Link the phase brief (docs/phases/M<N>.md).
+    validations: { required: true }
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+        - [ ] Unit tests cover the new logic
+        - [ ] docs/STATE.md updated, SESSION_LOG.md appended
+    validations: { required: true }
+  - type: textarea
+    id: files
+    attributes:
+      label: Files likely touched
+      description: If this exceeds ~6 files, split the issue (docs/CONTEXT.md).
+  - type: dropdown
+    id: size
+    attributes:
+      label: Session budget
+      options:
+        - "S — up to 3 files, short session"
+        - "M — up to 6 files, one full session"
+        - "L — must be split before work starts"
+    validations: { required: true }
+  - type: textarea
+    id: security
+    attributes:
+      label: Security impact
+      description: Does this touch keys, ciphertext, network requests, or logs? If yes, how is the invariant preserved?

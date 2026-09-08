@@ -1,0 +1,12 @@
+# Served only on the tailnet (ADR-0006). APP_ORIGIN is the tailnet hostname.
+{$APP_ORIGIN:localhost} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		Cross-Origin-Opener-Policy "same-origin"
+		Permissions-Policy "geolocation=(), microphone=(), camera=(), interest-cohort=()"
+	}
+	reverse_proxy app:3000
+}
