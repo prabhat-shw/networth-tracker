@@ -12,7 +12,9 @@
     "check": "biome ci .",
     "check:docs": "node scripts/check-docs.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "docs:sync": "node scripts/sync-docs.mjs",
+    "docs:check": "node scripts/sync-docs.mjs --check"
   },
   "dependencies": {
     "next": "16.3.4",

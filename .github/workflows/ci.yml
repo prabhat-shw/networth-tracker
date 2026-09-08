@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v5
         with:
@@ -24,6 +26,15 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check:docs
+      - run: pnpm docs:check
+      - name: STATE.md must move with the code
+        if: github.event_name == 'pull_request'
+        run: |
+          changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          if echo "$changed" | grep -q '^src/' && ! echo "$changed" | grep -q '^docs/STATE.md$'; then
+            echo "::error::src/ changed but docs/STATE.md did not. Rewrite the handoff note (docs/CONTEXT.md)."
+            exit 1
+          fi
       - run: pnpm typecheck
       - run: pnpm check
       - run: pnpm test
