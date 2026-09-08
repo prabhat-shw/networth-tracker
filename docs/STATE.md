@@ -27,23 +27,20 @@ Green at session end: `pnpm test` (12) · `typecheck` · `check` · `check:docs`
 **Issue #1 — Drizzle + Postgres wiring and health check** (`size:M`). Unblocks all of M1.
 Then #2 (Vercel staging), then M1 from #3 (crypto primitives) — brief in `docs/phases/M1.md`.
 
-## In flight — check this first
+## Recently landed
 
-A **cloud** design agent is completing the net-worth **insights and projections** pass
-(contribution vs growth, XIRR, real net worth, liquidity ladder, concentration, loan
-burn-down; P10/P50/P90 projection fan, scenario sliders, FI date, per-goal funding
-probability). It runs on Anthropic infrastructure, not the owner's laptop, so it continued
-after shutdown.
+The **insights and projections** pass is complete (PR opened from `docs/ux-insights-final`):
+an Insights destination with a *This year* state (contribution-vs-growth waterfall, XIRR,
+allocation drift, liquidity ladder, concentration, loan burn-down, movers, data hygiene) and
+a *Forecast* state (P10/P50/P90 fan, live Scenario Lab, FI and coast-FI, per-goal odds,
+sensitivity, editable assumptions). The maths was verified by executing the prototype's own
+script, not eyeballed.
 
-- It works on branch **`docs/ux-insights`** and opens a PR against `main` titled
-  *"docs: net-worth insights and projections in the UX spec and prototype"*.
-- That branch's head is a **mid-write snapshot** (`wip: snapshot of the in-progress...`)
-  pushed before shutdown as insurance. The cloud agent was told to inspect, verify and fix it.
-- **First action tomorrow:** `gh pr list`. If the PR exists, review it — check the maths
-  reconciles with the household data and the embedded JS actually runs — then send the
-  prototype to the owner before merging. If no PR exists, the run failed; re-run the pass.
-- The branch also carries a superseded `docs: refresh state after M0 merges` commit whose
-  STATE edit will conflict with this file. **Keep this version.**
+**Needs the owner's judgement** (flagged in `docs/UX.md` §12.1 and editable in the prototype):
+the per-asset-class P10/P50/P90 return assumptions, the 6% inflation and 4% withdrawal-rate
+FI assumptions, and the decision to keep the fan deterministic rather than a true Monte Carlo.
+
+The stale `docs/ux-insights` branch holds only a mid-write snapshot and is superseded — ignore it.
 
 ## Gotchas / open threads
 

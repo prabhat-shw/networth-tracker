@@ -16,6 +16,7 @@
     --status-good-bg:rgba(12,163,12,0.12); --status-warning-bg:rgba(250,178,25,0.18); --status-critical-bg:rgba(208,59,59,0.12);
     --cat-1:#2a78d6; --cat-2:#eb6834; --cat-3:#1baf7a; --cat-4:#eda100; --cat-5:#e87ba4; --cat-6:#008300; --cat-7:#4a3aa7;
     --liability:#e34948;
+    --liq-1:#86b6ef; --liq-2:#5598e7; --liq-3:#2a78d6; --liq-4:#1c5cab; --liq-5:#104281;
     --gridline:#e1e0d9; --baseline:#c3c2b7;
     --shadow-float: 0 8px 24px rgba(11,11,11,0.14), 0 2px 6px rgba(11,11,11,0.08);
     --font: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -32,6 +33,7 @@
       --status-good-bg:rgba(12,163,12,0.18); --status-warning-bg:rgba(250,178,25,0.16); --status-critical-bg:rgba(208,59,59,0.18);
       --cat-1:#3987e5; --cat-2:#d95926; --cat-3:#199e70; --cat-4:#c98500; --cat-5:#d55181; --cat-6:#008300; --cat-7:#9085e9;
       --liability:#e66767;
+      --liq-1:#cde2fb; --liq-2:#9ec5f4; --liq-3:#5598e7; --liq-4:#256abf; --liq-5:#184f95;
       --gridline:#2c2c2a; --baseline:#383835;
       --shadow-float: 0 8px 24px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.4);
       color-scheme: dark;
@@ -47,6 +49,7 @@
     --status-good-bg:rgba(12,163,12,0.18); --status-warning-bg:rgba(250,178,25,0.16); --status-critical-bg:rgba(208,59,59,0.18);
     --cat-1:#3987e5; --cat-2:#d95926; --cat-3:#199e70; --cat-4:#c98500; --cat-5:#d55181; --cat-6:#008300; --cat-7:#9085e9;
     --liability:#e66767;
+    --liq-1:#cde2fb; --liq-2:#9ec5f4; --liq-3:#5598e7; --liq-4:#256abf; --liq-5:#184f95;
     --gridline:#2c2c2a; --baseline:#383835;
     --shadow-float: 0 8px 24px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.4);
     color-scheme: dark;
@@ -365,6 +368,101 @@
   .desk-hero-row .hv{ font-size:38px; font-weight:700; letter-spacing:-.02em; }
   .desk-two-col{ display:grid; grid-template-columns:1fr 320px; gap:18px; }
 
+  /* ============================= INSIGHTS & FORECAST ============================= */
+  .subtab-wrap{ margin:6px 0 16px; }
+  .insight-card{ border:1px solid var(--border); border-radius:16px; padding:15px; margin-bottom:14px; background:var(--surface); }
+  .insight-card h3{ font-size:14px; font-weight:700; margin:0 0 3px; display:flex; align-items:center; gap:6px; }
+  .insight-card .sub{ font-size:12px; color:var(--text-muted); margin-bottom:12px; }
+  .insight-card .foot-note{ font-size:12px; color:var(--text-secondary); margin-top:10px; line-height:1.5; background:var(--surface-sunken); border-radius:10px; padding:9px 11px; }
+
+  /* waterfall */
+  .waterfall-wrap{ position:relative; }
+  .wf-legend{ display:flex; gap:14px; margin-top:8px; font-size:12px; }
+  .wf-legend span{ display:flex; align-items:center; gap:5px; }
+  .wf-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .wf-breakdown{ margin-top:12px; }
+  .wf-breakdown .grp{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin:10px 0 4px; }
+  .wf-breakdown .item{ display:flex; justify-content:space-between; font-size:13px; padding:4px 0; }
+
+  /* xirr / declared-rate rows */
+  .xirr-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); gap:10px; }
+  .xirr-row:last-child{ border-bottom:none; }
+  .xirr-row .n{ font-size:13.5px; font-weight:600; }
+  .xirr-row .s{ font-size:11.5px; color:var(--text-muted); margin-top:1px; }
+  .xirr-val{ font-size:16px; font-weight:700; white-space:nowrap; }
+
+  /* liquidity ladder (ordinal single-hue stacked bar) */
+  .ladder-bar{ display:flex; width:100%; height:28px; border-radius:8px; overflow:hidden; gap:2px; }
+  .ladder-legend{ margin-top:10px; }
+  .ladder-legend .row{ padding:6px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+  .ladder-legend .row:last-child{ border-bottom:none; }
+  .ladder-legend .sw{ width:11px; height:11px; border-radius:3px; margin-top:3px; flex-shrink:0; }
+  .ladder-legend .tx{ flex:1; margin-left:9px; }
+  .ladder-legend .tx .t{ font-size:13px; font-weight:700; display:flex; justify-content:space-between; }
+  .ladder-legend .tx .n{ font-size:11.5px; color:var(--text-muted); margin-top:1px; }
+
+  /* allocation drift — diverging bars */
+  .drift-row{ margin-bottom:12px; }
+  .drift-row .top{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
+  .drift-row .top .t{ font-weight:600; }
+  .drift-track{ position:relative; height:8px; background:var(--surface-sunken); border-radius:999px; }
+  .drift-mid{ position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--baseline); }
+  .drift-fill{ position:absolute; top:0; bottom:0; border-radius:999px; }
+  .drift-fill.over{ background:var(--liability); }
+  .drift-fill.under{ background:var(--accent); }
+
+  /* concentration ranked bars */
+  .rank-row{ margin-bottom:11px; }
+  .rank-row .top{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
+  .rank-row .top .t{ font-weight:600; }
+  .rank-track{ height:8px; background:var(--surface-sunken); border-radius:999px; overflow:hidden; }
+  .rank-fill{ height:100%; background:var(--accent); border-radius:999px; }
+
+  /* liability burndown */
+  .burn-split{ display:flex; height:22px; border-radius:7px; overflow:hidden; gap:2px; margin:10px 0 6px; }
+  .burn-split div:first-child{ background:var(--cat-1); }
+  .burn-split div:last-child{ background:var(--cat-2); }
+  .burn-legend{ display:flex; gap:14px; font-size:12px; }
+  .burn-legend span{ display:flex; align-items:center; gap:5px; }
+  .burn-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  /* sliders & scenario controls */
+  .scenario-item{ padding:12px 0; border-bottom:1px solid var(--border); }
+  .scenario-item:last-child{ border-bottom:none; }
+  .scenario-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .scenario-top .t{ font-size:13.5px; font-weight:600; }
+  .scenario-top .v{ font-size:12.5px; font-weight:700; color:var(--accent); tabular-nums:auto; font-variant-numeric:tabular-nums; }
+  .range-slider{ width:100%; margin-top:8px; -webkit-appearance:none; appearance:none; height:6px; border-radius:999px; background:var(--surface-sunken); outline:none; }
+  .range-slider::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid var(--surface); box-shadow:0 1px 4px rgba(0,0,0,0.3); }
+  .range-slider::-moz-range-thumb{ width:18px; height:18px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid var(--surface); }
+
+  /* fan chart */
+  .fan-legend{ display:flex; gap:14px; margin-top:8px; font-size:12px; flex-wrap:wrap; }
+  .fan-legend span{ display:flex; align-items:center; gap:5px; }
+  .fan-legend i{ width:14px; height:2px; display:inline-block; }
+  .fan-legend i.band{ height:8px; opacity:.35; border-radius:2px; }
+
+  /* stat grid (FI / coast-FI / milestone) */
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .stat-mini{ background:var(--surface-sunken); border-radius:12px; padding:12px; }
+  .stat-mini .l{ font-size:11.5px; color:var(--text-muted); font-weight:600; }
+  .stat-mini .v{ font-size:18px; font-weight:700; margin-top:3px; }
+  .stat-mini .d{ font-size:11.5px; color:var(--text-secondary); margin-top:2px; }
+
+  /* per-goal probability */
+  .prob-row{ padding:11px 0; border-bottom:1px solid var(--border); }
+  .prob-row:last-child{ border-bottom:none; }
+  .prob-row .top{ display:flex; justify-content:space-between; align-items:center; }
+  .prob-row .name{ font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:6px; }
+  .prob-row .pct{ font-size:16px; font-weight:700; }
+  .prob-row .figs{ font-size:11.5px; color:var(--text-muted); margin-top:5px; }
+
+  .assumption-note{ font-size:11.5px; color:var(--text-muted); line-height:1.5; }
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--border); gap:10px; }
+  .toggle-row:last-child{ border-bottom:none; }
+  .toggle-row .t{ font-size:13.5px; font-weight:600; }
+  .toggle-row .s{ font-size:11.5px; color:var(--text-muted); margin-top:2px; }
+
   @media (max-width: 860px){
     .desk-shell{ display:none; }
   }
@@ -402,6 +500,9 @@
     <g id="ic-refresh"><path d="M4 12a8 8 0 0 1 14-5.2M20 12a8 8 0 0 1-14 5.2"/><polyline points="17.5 3.5 17.8 6.9 14.4 7.1"/><polyline points="6.5 20.5 6.2 17.1 9.6 16.9"/></g>
     <g id="ic-cloud-off"><path d="M9 8.5A5 5 0 0 1 18 11a4 4 0 0 1-.4 8H8a4.6 4.6 0 0 1-2.9-8.1"/><line x1="3" y1="3" x2="21" y2="21"/></g>
     <g id="ic-tag"><path d="M20 12.5 12.5 20 4 11.5V4h7.5Z" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/></g>
+    <g id="ic-insights"><path d="M4 19V10"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M20 19V9"/><path d="M3 19h18"/></g>
+    <g id="ic-sliders"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2" fill="var(--surface)"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="var(--surface)"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="11" cy="18" r="2" fill="var(--surface)"/></g>
+    <g id="ic-info"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.7" r="0.9" fill="currentColor" stroke="none"/></g>
   </defs>
 </svg>
 
@@ -422,6 +523,7 @@
     <button data-goto="home">Home</button>
     <button data-goto="networth">Net worth</button>
     <button data-goto="accounts">Accounts</button>
+    <button data-goto="insights">Insights</button>
     <button data-goto="goals">Goals</button>
     <button data-goto="goaldetail">Goal detail</button>
     <button data-goto="household">Household</button>
@@ -430,11 +532,12 @@
   <div class="screen-jump" id="desktopJump" style="display:none">
     <button data-dgoto="home" class="active">Home</button>
     <button data-dgoto="accounts">Accounts</button>
+    <button data-dgoto="insights">Insights</button>
     <button data-dgoto="goals">Goals</button>
     <button data-dgoto="household">Household</button>
     <button data-dgoto="settings">Settings</button>
   </div>
-  <div class="hint">Click through like the real app — lens switch, FAB "+", account rows and goal cards are all live. Sample household: Rohit &amp; Priya Sharma, Bengaluru.</div>
+  <div class="hint">Click through like the real app — lens switch, FAB "+", account rows, goal cards and the Insights sliders are all live. Sample household: Rohit &amp; Priya Sharma, Bengaluru.</div>
 </div>
 
 <div class="stage">
@@ -533,6 +636,10 @@
               <label class="row gap-8" style="font-size:12.5px; font-weight:600; color:var(--text-secondary); margin:10px 0 4px;">
                 <input type="checkbox" id="compareToggle"/> Compare Rohit &amp; Priya
               </label>
+              <label class="row gap-8" style="font-size:12.5px; font-weight:600; color:var(--text-secondary); margin:0 0 4px;">
+                <input type="checkbox" id="realToggle"/> Show real (inflation-adjusted) net worth
+              </label>
+              <div class="foot-note" id="realNoteInline" style="display:none;"></div>
               <a class="table-link" id="viewTableLink">View as table</a>
               <table class="as-table" id="dataTable"><thead><tr><th>Month</th><th>Household</th></tr></thead><tbody></tbody></table>
 
@@ -561,6 +668,204 @@
             <div class="app-content">
               <div class="search-input"><svg class="icon icon-sm"><use href="#ic-search"/></svg> Search accounts…</div>
               <div id="accountsList"></div>
+            </div>
+          </section>
+
+          <!-- ===================== SCREEN: INSIGHTS ===================== -->
+          <section class="screen" id="screen-insights">
+            <div class="app-header" style="padding-top:12px;"><h1 style="margin-bottom:6px;">Insights</h1></div>
+            <div style="padding:0 18px;">
+              <div class="seg" id="insightsSubtab" style="width:100%;">
+                <button data-sub="year" class="active" style="flex:1; justify-content:center;">This year</button>
+                <button data-sub="forecast" style="flex:1; justify-content:center;">Forecast</button>
+              </div>
+            </div>
+            <div class="app-content">
+
+              <!-- ---------- THIS YEAR ---------- -->
+              <div id="insightsYearPanel">
+
+                <div class="insight-card">
+                  <h3>🌉 Where this year's growth came from</h3>
+                  <div class="sub">The single most useful number in this app — how much you added vs. what the market did</div>
+                  <div class="waterfall-wrap">
+                    <div class="comp-bar" id="wfBar" style="height:34px; border-radius:9px;"></div>
+                    <div class="wf-legend" id="wfLegend"></div>
+                  </div>
+                  <div class="wf-breakdown" id="wfBreakdown"></div>
+                  <div class="foot-note">This year's realised growth (₹5.25L, ~2%) ran below our long-run planning assumption (~6% blended) because of the Jan–Mar 2026 correction. Forecasts below use long-run averages, not last year's result — see the Forecast tab.</div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>📐 Money-weighted returns (XIRR)</h3>
+                  <div class="sub">Accounts for when you actually put money in — a flat annual return would overstate irregular SIPs</div>
+                  <div id="xirrList"></div>
+                  <div class="xirr-row">
+                    <div><div class="n">EPF / PPF / NPS / SSY</div><div class="s" id="declaredNote"></div></div>
+                    <div class="xirr-val" id="declaredVal"></div>
+                  </div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>📉 Nominal vs. real growth</h3>
+                  <div class="sub">Inflation quietly eats into "growth" — this app never hides that</div>
+                  <div id="realVsNominalStat"></div>
+                  <button class="btn btn-secondary btn-block" style="margin-top:12px;" data-nav-real="1">View on the net worth timeline →</button>
+                </div>
+
+                <div class="insight-card">
+                  <h3>⚖️ Asset allocation vs. target</h3>
+                  <div class="sub">Your household's own policy vs. where the money actually sits today</div>
+                  <div id="driftRows"></div>
+                  <div class="foot-note" id="driftNudge"></div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>💧 Liquidity ladder</h3>
+                  <div class="sub">How fast you could actually turn each rupee into cash</div>
+                  <div class="ladder-bar" id="ladderBar"></div>
+                  <div class="ladder-legend" id="ladderLegend"></div>
+                  <div class="foot-note">Reachable within a month: ₹42.27L — but most of it is already earmarked to Retirement or Education. Only ₹8L is tagged for emergencies (see the Emergency Fund goal).</div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>🎯 Concentration risk</h3>
+                  <div class="sub">How many eggs are in how few baskets</div>
+                  <div id="concentrationStats"></div>
+                  <div id="concentrationRanks" style="margin-top:14px;"></div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>🏦 Home loan burn-down</h3>
+                  <div class="sub" id="loanSub"></div>
+                  <div class="burn-split" id="burnSplit"></div>
+                  <div class="burn-legend" id="burnLegend"></div>
+                  <div class="foot-note" id="loanNote"></div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>📊 What changed this month</h3>
+                  <div class="sub">Biggest movers, both directions</div>
+                  <div id="moversList"></div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>🧹 Data hygiene</h3>
+                  <div class="sub">Manually-tracked values dragging on how much you can trust the number</div>
+                  <div id="staleList"></div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>🏁 Milestone</h3>
+                  <div id="milestoneStats"></div>
+                </div>
+
+              </div>
+
+              <!-- ---------- FORECAST ---------- -->
+              <div id="insightsForecastPanel" style="display:none;">
+
+                <div class="insight-card">
+                  <h3>🔮 Net worth projection</h3>
+                  <div class="sub">A fan, never a single line — the band is P10–P90, the solid line is the midpoint</div>
+                  <div class="range-pills" id="horizonPills">
+                    <button data-horizon="1">1Y</button>
+                    <button data-horizon="3">3Y</button>
+                    <button data-horizon="5" class="active">5Y</button>
+                    <button data-horizon="10">10Y</button>
+                    <button data-horizon="20">20Y</button>
+                  </div>
+                  <div class="chart-wrap">
+                    <svg id="fanChart" width="100%" height="200" viewBox="0 0 326 200" preserveAspectRatio="none"></svg>
+                    <div class="chart-tooltip" id="fanTip"></div>
+                  </div>
+                  <div class="fan-legend">
+                    <span><i style="background:var(--accent);"></i>Actual</span>
+                    <span><i style="background:var(--accent);"></i>P50 (midpoint estimate)</span>
+                    <span><i class="band" style="background:var(--accent);"></i>P10–P90 range</span>
+                  </div>
+                  <a class="table-link" id="fanTableLink">View as table</a>
+                  <table class="as-table" id="fanTable"><thead><tr><th>Year</th><th>P10</th><th>P50</th><th>P90</th></tr></thead><tbody></tbody></table>
+                  <div class="foot-note">Every projection is an estimate, not a promise — it depends on the assumptions below, which you can change.</div>
+                </div>
+
+                <div class="insight-card">
+                  <h3><svg class="icon icon-sm"><use href="#ic-sliders"/></svg> Scenario lab</h3>
+                  <div class="sub">Move anything — the chart above recomputes for real, live</div>
+
+                  <div class="scenario-item">
+                    <div class="scenario-top"><span class="t">Extra monthly SIP</span><span class="v" id="sipVal">+₹0/mo</span></div>
+                    <input type="range" class="range-slider" id="sipSlider" min="0" max="50000" step="5000" value="0">
+                  </div>
+                  <div class="scenario-item">
+                    <div class="scenario-top"><span class="t">Salary hike (applied to all savings)</span><span class="v" id="hikeVal">+0%</span></div>
+                    <input type="range" class="range-slider" id="hikeSlider" min="0" max="30" step="5" value="0">
+                  </div>
+                  <div class="toggle-row">
+                    <div><div class="t">Market crash today (−30% equity &amp; RSU)</div></div>
+                    <div class="switch" id="swCrash"><div class="knob"></div></div>
+                  </div>
+                  <div class="toggle-row">
+                    <div><div class="t">6 months without income</div><div class="s">Pauses new contributions for 6 months</div></div>
+                    <div class="switch" id="swNoIncome"><div class="knob"></div></div>
+                  </div>
+                  <div class="toggle-row">
+                    <div><div class="t">Buy a second property in year 3</div><div class="s">₹25L down payment, ₹1.25Cr home, ₹1Cr new loan</div></div>
+                    <div class="switch" id="swBuyHouse"><div class="knob"></div></div>
+                  </div>
+                  <div class="toggle-row">
+                    <div><div class="t">Ananya's college withdrawal, 2038</div><div class="s">₹40L drawn from Investments/Retirement/RSU</div></div>
+                    <div class="switch" id="swCollege"><div class="knob"></div></div>
+                  </div>
+
+                  <div class="section-label">Prepay vs. invest — same lump sum, both answers</div>
+                  <div class="scenario-item" style="border:none; padding-top:4px;">
+                    <div class="scenario-top"><span class="t">Lump sum available today</span><span class="v" id="lumpVal">₹5,00,000</span></div>
+                    <input type="range" class="range-slider" id="lumpSlider" min="0" max="2000000" step="50000" value="500000">
+                  </div>
+                  <div class="stat-grid" style="margin-top:6px;">
+                    <div class="stat-mini"><div class="l">If you prepay the home loan</div><div class="v" id="prepayResult"></div><div class="d" id="prepayResultSub"></div></div>
+                    <div class="stat-mini"><div class="l">If you invest it instead (12%, same years)</div><div class="v" id="investResult"></div><div class="d">At the loan's remaining tenure — no verdict, just the two numbers</div></div>
+                  </div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>🏝️ Financial independence</h3>
+                  <div class="scenario-item" style="border:none;">
+                    <div class="scenario-top"><span class="t">Annual expenses in retirement</span><span class="v" id="expensesVal">₹18,00,000/yr</span></div>
+                    <input type="range" class="range-slider" id="expensesSlider" min="1000000" max="3000000" step="100000" value="1800000">
+                  </div>
+                  <div class="scenario-item" style="border:none; padding-top:0;">
+                    <div class="scenario-top"><span class="t">Safe withdrawal rate</span><span class="v" id="swrVal">4.0%</span></div>
+                    <input type="range" class="range-slider" id="swrSlider" min="3" max="5" step="0.5" value="4">
+                  </div>
+                  <div class="stat-grid">
+                    <div class="stat-mini"><div class="l">Corpus needed</div><div class="v" id="fiCorpusVal"></div></div>
+                    <div class="stat-mini"><div class="l">Projected FI year (P50)</div><div class="v" id="fiYearVal"></div></div>
+                  </div>
+                  <div class="foot-note" id="coastFiNote"></div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>🎲 Odds of funding each goal</h3>
+                  <div class="sub">From your baseline plan — not the scenario toggles above</div>
+                  <div id="goalOddsList"></div>
+                </div>
+
+                <div class="insight-card">
+                  <h3>🔍 What actually moves your 10-year number</h3>
+                  <div class="sub">Each assumption bumped by +1 point, one at a time, on your baseline plan</div>
+                  <div id="sensitivityList"></div>
+                </div>
+
+                <div class="insight-card">
+                  <h3><svg class="icon icon-sm"><use href="#ic-info"/></svg> Assumptions — yours to change</h3>
+                  <div class="sub">Long-run nominal annual return, median case. Nothing here is buried.</div>
+                  <div id="assumptionsInputs"></div>
+                  <div class="assumption-note">Inflation assumption: <input type="number" id="inflationInput" value="6.0" step="0.5" style="width:56px; background:var(--surface-sunken); border:1px solid var(--border); border-radius:6px; padding:3px 5px; color:var(--text-primary);">% per year. These are starting points, not certainties — the owner should sanity-check them against their own return expectations before shipping.</div>
+                </div>
+
+              </div>
             </div>
           </section>
 
@@ -667,6 +972,7 @@
           <nav class="app-tabbar" id="tabbar">
             <button data-nav="home" class="active"><svg class="icon"><use href="#ic-home"/></svg>Home</button>
             <button data-nav="accounts"><svg class="icon"><use href="#ic-list"/></svg>Accounts</button>
+            <button data-nav="insights"><svg class="icon"><use href="#ic-insights"/></svg>Insights</button>
             <button data-nav="goals"><svg class="icon"><use href="#ic-target"/></svg>Goals</button>
             <button data-nav="more"><svg class="icon"><use href="#ic-menu"/></svg>More</button>
           </nav>
@@ -734,6 +1040,7 @@
         <nav id="deskNav">
           <button data-dnav="home" class="active"><svg class="icon icon-sm"><use href="#ic-home"/></svg>Home</button>
           <button data-dnav="accounts"><svg class="icon icon-sm"><use href="#ic-list"/></svg>Accounts</button>
+          <button data-dnav="insights"><svg class="icon icon-sm"><use href="#ic-insights"/></svg>Insights</button>
           <button data-dnav="goals"><svg class="icon icon-sm"><use href="#ic-target"/></svg>Goals</button>
           <button data-dnav="household"><svg class="icon icon-sm"><use href="#ic-users"/></svg>Household</button>
           <button data-dnav="settings"><svg class="icon icon-sm"><use href="#ic-settings"/></svg>Settings</button>
@@ -797,6 +1104,121 @@
               <tbody id="deskAccountsBody"></tbody>
             </table>
             <p class="hint" style="margin-top:10px;">Keyboard: <b>j / k</b> move selection · <b>Enter</b> open · <b>e</b> edit inline · <b>a</b> add new</p>
+          </div>
+
+          <!-- DESKTOP INSIGHTS -->
+          <div class="desk-screen" id="desk-insights">
+            <div class="seg" id="insightsSubtabDesk" style="margin-bottom:16px;">
+              <button data-sub="year" class="active">This year</button>
+              <button data-sub="forecast">Forecast</button>
+            </div>
+
+            <div id="insightsYearPanelDesk">
+              <div class="desk-grid3">
+                <div class="insight-card">
+                  <h3>🌉 Where this year's growth came from</h3>
+                  <div class="sub">Contribution vs. market growth, decomposed</div>
+                  <div class="comp-bar" id="wfBarDesk" style="height:34px; border-radius:9px;"></div>
+                  <div class="wf-legend" id="wfLegendDesk"></div>
+                  <div class="wf-breakdown" id="wfBreakdownDesk"></div>
+                </div>
+                <div class="insight-card">
+                  <h3>📐 Money-weighted returns</h3>
+                  <div class="sub">XIRR, solved from real cash flows</div>
+                  <div id="xirrListDesk"></div>
+                  <div class="xirr-row"><div><div class="n">EPF / PPF / NPS / SSY</div><div class="s" id="declaredNoteDesk"></div></div><div class="xirr-val" id="declaredValDesk"></div></div>
+                </div>
+              </div>
+              <div class="desk-grid3" style="margin-top:16px;">
+                <div class="insight-card">
+                  <h3>⚖️ Allocation vs. target</h3>
+                  <div id="driftRowsDesk"></div>
+                  <div class="foot-note" id="driftNudgeDesk"></div>
+                </div>
+                <div class="insight-card">
+                  <h3>🎯 Concentration risk</h3>
+                  <div id="concentrationStatsDesk"></div>
+                  <div id="concentrationRanksDesk" style="margin-top:14px;"></div>
+                </div>
+              </div>
+              <div class="desk-grid3" style="margin-top:16px;">
+                <div class="insight-card">
+                  <h3>💧 Liquidity ladder</h3>
+                  <div class="ladder-bar" id="ladderBarDesk"></div>
+                  <div class="ladder-legend" id="ladderLegendDesk"></div>
+                </div>
+                <div class="insight-card">
+                  <h3>🏦 Home loan burn-down</h3>
+                  <div class="sub" id="loanSubDesk"></div>
+                  <div class="burn-split" id="burnSplitDesk"></div>
+                  <div class="burn-legend" id="burnLegendDesk"></div>
+                  <div class="foot-note" id="loanNoteDesk"></div>
+                </div>
+              </div>
+              <div class="desk-grid3" style="margin-top:16px;">
+                <div class="insight-card">
+                  <h3>📊 What changed this month</h3>
+                  <div id="moversListDesk"></div>
+                </div>
+                <div class="insight-card">
+                  <h3>🧹 Data hygiene &amp; 🏁 milestone</h3>
+                  <div id="staleListDesk"></div>
+                  <div class="divider"></div>
+                  <div id="milestoneStatsDesk"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="insightsForecastPanelDesk" style="display:none;">
+              <div class="desk-two-col">
+                <div class="insight-card">
+                  <h3>🔮 Net worth projection</h3>
+                  <div class="range-pills" id="horizonPillsDesk">
+                    <button data-horizon="1">1Y</button><button data-horizon="3">3Y</button>
+                    <button data-horizon="5" class="active">5Y</button><button data-horizon="10">10Y</button><button data-horizon="20">20Y</button>
+                  </div>
+                  <div class="chart-wrap">
+                    <svg id="fanChartDesk" width="100%" height="260" viewBox="0 0 700 260" preserveAspectRatio="none"></svg>
+                    <div class="chart-tooltip" id="fanTipDesk"></div>
+                  </div>
+                  <div class="fan-legend">
+                    <span><i style="background:var(--accent);"></i>Actual / P50</span>
+                    <span><i class="band" style="background:var(--accent);"></i>P10–P90 range</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="insight-card">
+                    <h3><svg class="icon icon-sm"><use href="#ic-sliders"/></svg> Scenario lab</h3>
+                    <div class="scenario-item">
+                      <div class="scenario-top"><span class="t">Extra monthly SIP</span><span class="v" id="sipValDesk">+₹0/mo</span></div>
+                      <input type="range" class="range-slider" id="sipSliderDesk" min="0" max="50000" step="5000" value="0">
+                    </div>
+                    <div class="toggle-row"><div class="t">Market crash today</div><div class="switch" id="swCrashDesk"><div class="knob"></div></div></div>
+                    <div class="toggle-row"><div class="t">6 months no income</div><div class="switch" id="swNoIncomeDesk"><div class="knob"></div></div></div>
+                    <div class="toggle-row"><div class="t">Buy 2nd property, yr 3</div><div class="switch" id="swBuyHouseDesk"><div class="knob"></div></div></div>
+                    <div class="toggle-row"><div class="t">College withdrawal, 2038</div><div class="switch" id="swCollegeDesk"><div class="knob"></div></div></div>
+                  </div>
+                  <div class="insight-card">
+                    <h3>🏝️ Financial independence</h3>
+                    <div class="stat-grid">
+                      <div class="stat-mini"><div class="l">Corpus needed (4%)</div><div class="v" id="fiCorpusValDesk"></div></div>
+                      <div class="stat-mini"><div class="l">Projected FI year</div><div class="v" id="fiYearValDesk"></div></div>
+                    </div>
+                    <div class="foot-note" id="coastFiNoteDesk"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="desk-grid3" style="margin-top:16px;">
+                <div class="insight-card">
+                  <h3>🎲 Odds of funding each goal</h3>
+                  <div id="goalOddsListDesk"></div>
+                </div>
+                <div class="insight-card">
+                  <h3>🔍 What moves your 10-year number</h3>
+                  <div id="sensitivityListDesk"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- DESKTOP GOALS -->
@@ -871,7 +1293,7 @@
     {id:'mf1', cat:'invest', icon:'📈', name:'Parag Parikh Flexi Cap', inst:'PPFAS Mutual Fund', value:620000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:false, tagged:310000, extra:'Direct plan · growth'},
     {id:'mf2', cat:'invest', icon:'📈', name:'Axis Small Cap Fund', inst:'Axis Mutual Fund', value:210000, owners:[{n:'Priya',p:100}], asOf:'8 Sep 2026', manual:false, tagged:0, extra:'Direct plan · growth'},
     {id:'mf3', cat:'invest', icon:'📈', name:'SBI PSU Fund', inst:'SBI Mutual Fund', value:115000, owners:[{n:'Rohit',p:50},{n:'Priya',p:50}], asOf:'8 Sep 2026', manual:false, tagged:57500, extra:null},
-    {id:'epfR', cat:'retire', icon:'🏛️', name:'EPF — Rohit', inst:'TCS', value:1840000, owners:[{n:'Rohit',p:100}], asOf:'31 Aug 2026', manual:false, tagged:1840000, extra:null},
+    {id:'epfR', cat:'retire', icon:'🏛️', name:'EPF — Rohit', inst:'Salesforce India Pvt Ltd', value:1840000, owners:[{n:'Rohit',p:100}], asOf:'31 Aug 2026', manual:false, tagged:1840000, extra:null},
     {id:'epfP', cat:'retire', icon:'🏛️', name:'EPF — Priya', inst:'Infosys', value:920000, owners:[{n:'Priya',p:100}], asOf:'31 Aug 2026', manual:false, tagged:920000, extra:null},
     {id:'ppf', cat:'retire', icon:'🏛️', name:'PPF — Priya', inst:'State Bank of India', value:650000, owners:[{n:'Priya',p:100}], asOf:'8 Sep 2026', manual:true, tagged:650000, extra:null},
     {id:'nps', cat:'retire', icon:'🏛️', name:'NPS Tier 1 — Rohit', inst:'HDFC Pension', value:380000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:false, tagged:380000, extra:null},
@@ -889,20 +1311,20 @@
   var GOALS = [
     {id:'retirement', icon:'🏛️', name:'Retirement', status:'good', label:'On track',
      targetToday:25000000, targetDate:'2046', years:20, inflation:6, inflated:80178250,
-     current:4865000, reqSip:46900, curSip:48500,
+     current:4865000, reqSip:42400, curSip:48500, expectedReturn:11,
      funding:[
-       {n:'EPF — Rohit (TCS)', a:1840000},{n:'EPF — Priya (Infosys)', a:920000},
-       {n:'PPF — Priya', a:650000},{n:'NPS Tier 1 — Rohit', a:380000},
-       {n:'US RSU — Rohit (50% tagged)', a:765000},{n:'Parag Parikh Flexi Cap (50% tagged)', a:310000}
+       {n:'EPF — Rohit (Salesforce India)', a:1840000, cat:'retire'},{n:'EPF — Priya (Infosys)', a:920000, cat:'retire'},
+       {n:'PPF — Priya', a:650000, cat:'retire'},{n:'NPS Tier 1 — Rohit', a:380000, cat:'retire'},
+       {n:'US RSU — Rohit (50% tagged)', a:765000, cat:'foreign'},{n:'Parag Parikh Flexi Cap (50% tagged)', a:310000, cat:'invest'}
      ],
-     note:'Contributing ₹48,500/mo across EPF, NPS, PPF & SIP, you are projected to reach about ₹8.09Cr by 2046 — just ahead of the ₹8.02Cr inflated target.'},
+     note:'Contributing ₹48,500/mo across EPF, NPS, PPF & SIP, you are projected to reach about ₹8.55Cr by 2046 — comfortably ahead of the ₹8.02Cr inflated target. See Insights → Forecast for the odds, not just the midpoint.'},
     {id:'education', icon:'🎓', name:"Ananya's Education", status:'warning', label:'At risk',
      targetToday:5000000, targetDate:'2040', years:14, inflation:10, inflated:18987492,
-     current:477500, reqSip:42300, curSip:9000,
+     current:477500, reqSip:42340, curSip:9000, expectedReturn:11,
      funding:[
-       {n:'Sukanya Samriddhi — Ananya', a:420000},{n:'SBI PSU Fund (50% tagged)', a:57500}
+       {n:'Sukanya Samriddhi — Ananya', a:420000, cat:'retire'},{n:'SBI PSU Fund (50% tagged)', a:57500, cat:'invest'}
      ],
-     note:'At ₹9,000/mo you will reach about ₹56.6L by 2040 — ₹1.33Cr short of the ₹1.90Cr target. Raising the SIP to ₹42,300/mo closes the gap.'},
+     note:'At ₹9,000/mo you will reach about ₹57.8L by 2040 — ₹1.32Cr short of the ₹1.90Cr target. Raising the SIP to ₹42,340/mo closes the gap exactly — see Insights → Forecast for the odds either way.'},
     {id:'emergency', icon:'🛟', name:'Emergency Fund', status:'critical', label:'Off track',
      targetToday:900000, targetDate:'Nov 2026', years:0, inflation:0, inflated:900000,
      current:800000, reqSip:null, curSip:null,
@@ -912,6 +1334,116 @@
      ],
      note:'₹5,00,000 of this goal sits in an FD maturing Dec 2027 — after the Nov 2026 target date. Effective liquid progress is ₹3,00,000 of ₹9,00,000 (33%), not the ₹8,00,000 (89%) the raw total suggests.'}
   ];
+
+  /* ============================================================================
+     INSIGHTS & FORECAST DATA — added in the "much better insights + predictability"
+     pass. Every figure below reconciles with the household data above: the
+     waterfall's start+contributions+growth equals today's net worth, the liquidity
+     ladder sums to total assets, the XIRR cash-flows reconcile to today's category
+     values, and the loan's solved rate reproduces the stated EMI exactly. See
+     docs/UX.md §11–12 for the full method and the assumptions the owner should
+     sanity-check (return bands, inflation, expense/FI assumptions).
+     ========================================================================== */
+
+  // ---- This year: contribution vs growth waterfall (the hero of "Insights") ----
+  // Reconciles exactly: 17,240,000 (start, 12mo ago) + 1,530,000 (contributions) + 525,300 (growth) = 19,295,300 (today).
+  var WATERFALL = {
+    start: 17240000,
+    end: 19295300,
+    contributions: {
+      total: 1530000,
+      items: [
+        {label:'Bank savings set aside', amount:120000},
+        {label:'EPF + NPS + PPF contributions', amount:420000},
+        {label:'Mutual fund SIPs', amount:180000},
+        {label:'RSU vested this year', amount:600000},
+        {label:'Home loan principal repaid', amount:210000}
+      ]
+    },
+    growth: {
+      total: 525300,
+      items: [
+        {label:'Equity mutual funds', amount:95000},
+        {label:'US RSU (price + FX)', amount:101000},
+        {label:'EPF / PPF / NPS / SSY interest', amount:284000},
+        {label:'Property & gold (unrealised)', amount:45300}
+      ]
+    }
+  };
+
+  // ---- XIRR: money-weighted returns from real cash-flow series (solved live, not hardcoded) ----
+  // Each series' start+contributions+growth reconciles to its current category value.
+  var XIRR_SERIES = [
+    {name:'Household portfolio', note:'Financial assets only — excludes property, gold & money lent', start:6227300, monthly:110000, end:8027300},
+    {name:'Equity mutual funds', note:'Parag Parikh + Axis Small Cap + SBI PSU', start:670000, monthly:15000, end:945000},
+    {name:'US RSU (Salesforce)', note:'INR terms — includes FX movement', start:829000, monthly:50000, end:1530000}
+  ];
+  var DECLARED_RATE = {name:'EPF / PPF / NPS / SSY', rate:8.23, note:'Blended declared/expected rate — not market-linked, so a money-weighted XIRR would be misleading precision'};
+
+  // ---- Liquidity ladder — reconciles exactly to total assets (27,137,300) ----
+  var LIQUIDITY = [
+    {tier:'Reachable today', amount:842300, note:'Cash & bank balances', step:0},
+    {tier:'Reachable within a month', amount:3385000, note:'Open-ended mutual funds, vested RSU, gold (at a resale discount), and your FD if broken early', step:1},
+    {tier:'Reachable within a year', amount:200000, note:'Money lent to Sandeep — expected back Mar 2027, not guaranteed', step:2},
+    {tier:'Locked until retirement', amount:4210000, note:'EPF, PPF, NPS & Sukanya Samriddhi — legally restricted', step:3},
+    {tier:'Illiquid', amount:18500000, note:'Your home — sellable, but timeline & price are unpredictable', step:4}
+  ];
+
+  // ---- Asset allocation target (household-set policy) vs actual, for drift ----
+  var ALLOC_TARGET = {cash:5, deposits:5, invest:20, retire:20, foreign:10, property:35, lending:5};
+
+  // ---- Concentration risk ----
+  var CONCENTRATION = {
+    employerName: 'Salesforce (EPF + RSU)',
+    employerAmount: 1840000+1530000,
+    singleStockName: 'US RSU — single stock (Salesforce)',
+    singleStockAmount: 1530000,
+    institutions: [
+      {name:'Salesforce (EPF + RSU)', amount:1840000+1530000},
+      {name:'State Bank of India (FD + PPF + MF)', amount:500000+650000+115000},
+      {name:'Infosys (EPF)', amount:920000},
+      {name:'HDFC Bank (Savings)', amount:842300}
+    ]
+  };
+
+  // ---- Home loan — amortisation solved live from the stated facts (outstanding, EMI, tenure) ----
+  var LOAN = { outstanding:7800000, emi:68500, monthsRemaining:168, originalTermMonths:240 };
+
+  // ---- What changed this month — reconciles exactly to the household delta (+1,79,000) ----
+  var MOVERS = [
+    {name:'US RSU — Rohit', delta:92000, reason:'Vesting event + price move'},
+    {name:'HDFC Joint Savings', delta:55300, reason:'Salary credit, net of spending'},
+    {name:'Parag Parikh Flexi Cap', delta:38500, reason:'Market up this month'},
+    {name:'Gold — jewellery & coins', delta:14200, reason:'Price tick (see data hygiene — feed is 2 days stale)'},
+    {name:'Axis Small Cap Fund', delta:-21000, reason:'Small-cap dip'}
+  ];
+
+  // ---- Data hygiene — which manually-tracked values are stale enough to drag on credibility ----
+  var STALE_ITEMS = [
+    {name:'Whitefield 3BHK Flat', asOf:'1 Apr 2026', ageDays:160, share:0.697, note:'70% of your net worth is priced off a 5-month-old manual estimate. A property this large deserves a refresh — even a rough one.'},
+    {name:'Gold — jewellery & coins', asOf:'6 Sep 2026', ageDays:2, share:0.015, note:'Market feed lag, not neglect — will clear on next price sync.'}
+  ];
+
+  // ---- Projection assumptions — OWNER SHOULD REVIEW THESE (see UX.md §12.1) ----
+  var ASSUMPTIONS = {
+    inflation: 6.0,
+    annualExpenses: 1800000,
+    withdrawalRate: 4.0,
+    currentAge: 38,
+    retireAge: 60,
+    returns: {
+      cash:    {p10:2.0,  p50:3.5,  p90:5.0},
+      deposits:{p10:6.0,  p50:7.0,  p90:7.5},
+      invest:  {p10:6.0,  p50:12.0, p90:18.0},
+      retire:  {p10:7.5,  p50:8.2,  p90:9.0},
+      foreign: {p10:-2.0, p50:10.0, p90:22.0},
+      property:{p10:2.0,  p50:5.0,  p90:8.0},
+      lending: {p10:0.0,  p50:2.0,  p90:4.0}
+    },
+    // baseline recurring annual contribution by category, derived from this year's actuals above
+    annualContribution: {cash:120000, deposits:0, invest:180000, retire:420000, foreign:600000, property:0, lending:0}
+  };
+
 
   var CATEGORY_MENU = [
     {key:'cash', em:'🏦', t:'Cash & Bank', ex:'Savings, current, cash, UPI wallet'},
@@ -947,6 +1479,204 @@
     return formatIndian(neg?-n:n);
   }
   function pct(n){ return n.toFixed(0)+'%'; }
+  function pctSigned(n){ return (n>=0?'+':'')+n.toFixed(1)+'%'; }
+
+  /* ============================= MATH ENGINE (Insights + Forecast) =============================
+     Every function here is pure and framework-free — mirrors the real app's src/domain/ split
+     (see docs/UX.md §11). Nothing here is hardcoded output: XIRR is solved from cash flows,
+     the loan rate is solved from the stated EMI, and every projection is a genuine month-by-month
+     compounding loop, so scenario toggles actually change the numbers, not swap canned strings. */
+
+  // ---- Generic XIRR (money-weighted return) via bisection on NPV = 0 ----
+  function buildMonthlyCashflows(startDate, start, monthly, months, end){
+    var flows = [{date:new Date(startDate), amount:-start}];
+    for(var m=1;m<=months;m++){
+      var d = new Date(startDate); d.setMonth(d.getMonth()+m);
+      flows.push({date:d, amount: m===months ? (end-monthly) : -monthly});
+    }
+    return flows;
+  }
+  function xirr(cashflows){
+    var d0 = cashflows[0].date;
+    function npv(rate){
+      return cashflows.reduce(function(sum,cf){
+        var years = (cf.date - d0)/(365*24*3600*1000);
+        return sum + cf.amount/Math.pow(1+rate, years);
+      },0);
+    }
+    var lo=-0.9, hi=10, mid=0;
+    for(var i=0;i<200;i++){
+      mid=(lo+hi)/2;
+      var v = npv(mid);
+      if(Math.abs(v)<0.5) break;
+      if(v>0) lo=mid; else hi=mid;
+    }
+    return mid;
+  }
+  function xirrFor(series){
+    var flows = buildMonthlyCashflows('2025-09-08', series.start, series.monthly, 12, series.end);
+    return xirr(flows)*100;
+  }
+
+  // ---- Loan amortisation: solve the monthly rate that reproduces the stated EMI, then derive
+  //      original principal (assuming the stated original term), interest paid to date, and a
+  //      live prepayment calculator. All four numbers are computed, not authored. ----
+  function emiFor(P, r, n){ return P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1); }
+  function solveLoanMonthlyRate(P, emi, n){
+    var lo=0.0001, hi=0.03, mid=0;
+    for(var i=0;i<200;i++){
+      mid=(lo+hi)/2;
+      var e = emiFor(P, mid, n);
+      if(Math.abs(e-emi)<0.001) break;
+      if(e>emi) hi=mid; else lo=mid;
+    }
+    return mid;
+  }
+  function monthsToPayoff(balance, r, emi){
+    var num = emi/(emi-balance*r);
+    if(num<=0) return Infinity;
+    return Math.log(num)/Math.log(1+r);
+  }
+  var LOAN_RATE = solveLoanMonthlyRate(LOAN.outstanding, LOAN.emi, LOAN.monthsRemaining);
+  var LOAN_MONTHS_PAID = LOAN.originalTermMonths - LOAN.monthsRemaining;
+  var LOAN_ORIGINAL_PRINCIPAL = LOAN.emi * (Math.pow(1+LOAN_RATE, LOAN.originalTermMonths)-1) / (LOAN_RATE*Math.pow(1+LOAN_RATE, LOAN.originalTermMonths));
+  var LOAN_PRINCIPAL_PAID = LOAN_ORIGINAL_PRINCIPAL - LOAN.outstanding;
+  var LOAN_INTEREST_PAID = (LOAN.emi*LOAN_MONTHS_PAID) - LOAN_PRINCIPAL_PAID;
+  function loanPrepaySavings(lumpSum){
+    var newBalance = Math.max(0, LOAN.outstanding-lumpSum);
+    var newN = newBalance<=0 ? 0 : monthsToPayoff(newBalance, LOAN_RATE, LOAN.emi);
+    var origRemInterest = LOAN.emi*LOAN.monthsRemaining - LOAN.outstanding;
+    var newRemInterest = LOAN.emi*newN - newBalance;
+    return { newMonths:newN, monthsSaved:LOAN.monthsRemaining-newN, interestSaved: origRemInterest-newRemInterest };
+  }
+
+  // ---- Real (inflation-adjusted) series: deflate nominal to base-period (start of trend) rupees ----
+  function realSeries(nominalSeries, inflationPct){
+    return nominalSeries.map(function(v,i){ return v/Math.pow(1+inflationPct/100, i/12); });
+  }
+
+  // ---- Multi-year, month-stepped net-worth projection. Pure function of (percentile, scenario).
+  //      Returns an array of {year, assets, liability, net} from year 0 (today) to maxYears. ----
+  function runProjection(percentile, scenario, maxYears){
+    scenario = scenario || {};
+    var cat = {}; CATS.forEach(function(c){ cat[c.key] = LENS.household.cats[c.key]; });
+    if(scenario.crash){ cat.invest*=0.7; cat.foreign*=0.7; }
+    var loanBalance = LOAN.outstanding;
+    var path = [{year:0, assets:sumCats(cat), liability:loanBalance, net:sumCats(cat)-loanBalance}];
+    var totalMonths = maxYears*12;
+    for(var m=1; m<=totalMonths; m++){
+      CATS.forEach(function(c){
+        var annualR = ASSUMPTIONS.returns[c.key][percentile]/100;
+        var mr = Math.pow(1+annualR,1/12)-1;
+        var contribAnnual = ASSUMPTIONS.annualContribution[c.key]||0;
+        if(c.key==='invest' && scenario.extraSip) contribAnnual += scenario.extraSip*12;
+        if(scenario.salaryHikePct) contribAnnual *= (1+scenario.salaryHikePct/100);
+        if(scenario.noIncome6mo && m<=6) contribAnnual = 0;
+        cat[c.key] = cat[c.key]*(1+mr) + contribAnnual/12;
+      });
+      if(loanBalance>1){
+        var interest = loanBalance*LOAN_RATE;
+        var principal = Math.min(LOAN.emi-interest, loanBalance);
+        loanBalance = Math.max(0, loanBalance-principal);
+      }
+      if(scenario.buyHouseY3 && m===36){
+        var down=2500000, newLoan=10000000, newHome=12500000;
+        var pool = cat.cash+cat.deposits+cat.invest;
+        var actualDown = Math.min(down, pool*0.9);
+        ['cash','deposits','invest'].forEach(function(k){ cat[k] -= actualDown*(cat[k]/pool); });
+        cat.property += newHome;
+        loanBalance += newLoan;
+      }
+      if(scenario.collegeWithdrawal2038 && m===144){
+        var need=4000000;
+        var pool2 = cat.invest+cat.retire+cat.foreign;
+        var actualNeed = Math.min(need, pool2*0.9);
+        ['invest','retire','foreign'].forEach(function(k){ cat[k] -= actualNeed*(cat[k]/pool2); });
+      }
+      if(m%12===0) path.push({year:m/12, assets:sumCats(cat), liability:loanBalance, net:sumCats(cat)-loanBalance});
+    }
+    return path;
+  }
+  function sumCats(o){ return CATS.reduce(function(s,c){ return s+o[c.key]; },0); }
+
+  // ---- Financial independence: corpus needed, P50 crossing year, coast-FI check ----
+  function fiCorpus(){ return ASSUMPTIONS.annualExpenses/(ASSUMPTIONS.withdrawalRate/100); }
+  function fiCrossingYear(path){
+    var corpus = fiCorpus();
+    for(var i=0;i<path.length;i++){ if(path[i].net>=corpus) return i; }
+    return null;
+  }
+  function coastFiCheck(){
+    var financialOnly = ['cash','deposits','invest','retire','foreign'].reduce(function(s,k){ return s+LENS.household.cats[k]; },0);
+    var weighted = 0;
+    ['cash','deposits','invest','retire','foreign'].forEach(function(k){ weighted += (LENS.household.cats[k]/financialOnly)*ASSUMPTIONS.returns[k].p50; });
+    var years = ASSUMPTIONS.retireAge-ASSUMPTIONS.currentAge;
+    var fv = financialOnly*Math.pow(1+weighted/100, years);
+    return { financialOnly:financialOnly, blendedReturn:weighted, years:years, futureValue:fv, isCoastFi: fv>=fiCorpus() };
+  }
+
+  // ---- Sensitivity: bump each return assumption +1pp (and contributions +10%), measure the
+  //      Year-10 P50 impact. Ranks which lever actually matters for THIS household. ----
+  function sensitivityRanking(){
+    var base = runProjection('p50', {}, 10)[10].net;
+    var rows = [];
+    CATS.forEach(function(c){
+      var saved = ASSUMPTIONS.returns[c.key].p50;
+      ASSUMPTIONS.returns[c.key].p50 = saved+1;
+      var v = runProjection('p50', {}, 10)[10].net;
+      ASSUMPTIONS.returns[c.key].p50 = saved;
+      rows.push({label:c.label+' return +1pp', delta:v-base});
+    });
+    var savedC = {}; Object.keys(ASSUMPTIONS.annualContribution).forEach(function(k){ savedC[k]=ASSUMPTIONS.annualContribution[k]; ASSUMPTIONS.annualContribution[k]*=1.1; });
+    var vC = runProjection('p50', {}, 10)[10].net;
+    Object.keys(savedC).forEach(function(k){ ASSUMPTIONS.annualContribution[k]=savedC[k]; });
+    rows.push({label:'All contributions +10%', delta:vC-base});
+    rows.sort(function(a,b){ return b.delta-a.delta; });
+    return rows;
+  }
+
+  // ---- Per-goal probability of funding: derive a P10/P90 band width from the categories that
+  //      actually fund the goal, centred on the goal's own stated expected return, then locate
+  //      the target within that band. A calibrated heuristic, not a real distribution — see
+  //      docs/UX.md §12.5 for the caveat this ships with in the UI. ----
+  function goalCategoryWeights(goal){
+    var byCat = {};
+    // each funding item is explicitly tagged with its asset-class key (see GOALS data) —
+    // deliberately not inferred from the display label, which is free text and can't be trusted
+    goal.funding.forEach(function(f){
+      var key = f.cat || 'cash';
+      byCat[key] = (byCat[key]||0) + f.a;
+    });
+    return byCat;
+  }
+  function goalFv(goal, rate, sip){
+    var months = Math.round(goal.years*12);
+    var mr = rate/100/12;
+    return goal.current*Math.pow(1+mr,months) + sip*((Math.pow(1+mr,months)-1)/mr);
+  }
+  function goalProbabilityAtSip(goal, sip){
+    var weights = goalCategoryWeights(goal);
+    var total = Object.keys(weights).reduce(function(s,k){ return s+weights[k]; },0);
+    var p10=0, p90=0;
+    Object.keys(weights).forEach(function(k){
+      p10 += (weights[k]/total)*ASSUMPTIONS.returns[k].p10;
+      p90 += (weights[k]/total)*ASSUMPTIONS.returns[k].p90;
+    });
+    var halfWidth = (p90-p10)/2;
+    var fvP10 = goalFv(goal, goal.expectedReturn-halfWidth, sip);
+    var fvP50 = goalFv(goal, goal.expectedReturn, sip);
+    var fvP90 = goalFv(goal, goal.expectedReturn+halfWidth, sip);
+    var target = goal.inflated, prob;
+    if(target<=fvP10) prob=90;
+    else if(target<=fvP50) prob=50+(fvP50-target)/(fvP50-fvP10)*40;
+    else if(target<=fvP90) prob=10+(fvP90-target)/(fvP90-fvP50)*40;
+    else prob=8;
+    return { p10:fvP10, p50:fvP50, p90:fvP90, probability:Math.round(prob) };
+  }
+  function goalProbability(goal){
+    if(!goal.reqSip) return null; // e.g. Emergency Fund — a liquidity problem, not a returns one
+    return goalProbabilityAtSip(goal, goal.curSip);
+  }
 
   /* ============================= STATE ============================= */
   var state = { lens:'household', device:'mobile', mobileScreen:'unlock', compMode:'type', range:13, compare:false };
@@ -1125,7 +1855,7 @@
   }
 
   /* ============================= ACCOUNTS LIST ============================= */
-  function catLabel(k){ return CATEGORY_MENU.filter((c)=> c.key===k)[0].t; }
+  function catLabel(k){ var found = CATS.filter((c)=> c.key===k)[0]; return found ? found.label : k; }
 
   function renderAccounts(){
     var byGroup = {};
@@ -1233,6 +1963,20 @@
       series.push({ key:'rohit', color:'--cat-1', data: hh.map((v)=> v*LENS.me.ratio) });
       series.push({ key:'priya', color:'--cat-2', data: hh.map((v)=> v*LENS.priya.ratio) });
     }
+    if(state.showReal){
+      series.push({ key:'real', color:'--cat-3', dash:true, data: realSeries(hh, ASSUMPTIONS.inflation).map((v)=> v*LENS[state.lens].ratio) });
+      var note = document.getElementById('realNoteInline');
+      if(note){
+        var g = hh[hh.length-1]-hh[0];
+        var realArr = realSeries(hh, ASSUMPTIONS.inflation);
+        var rg = realArr[realArr.length-1]-realArr[0];
+        note.style.display='block';
+        note.textContent = 'Of the '+formatIndian(g)+' nominal change shown, about '+formatIndian(rg)+' was real — the rest reflects '+ASSUMPTIONS.inflation.toFixed(1)+'% annual inflation, not new wealth.';
+      }
+    } else {
+      var noteOff = document.getElementById('realNoteInline');
+      if(noteOff) noteOff.style.display='none';
+    }
     var allVals = series.reduce((acc,s)=> acc.concat(s.data),[]);
     var min = Math.min.apply(null,allVals), max = Math.max.apply(null,allVals);
     var pad = (max-min)*0.12 || 1;
@@ -1254,10 +1998,12 @@
       var d = s.data.map((v,i)=> (i===0?'M':'L')+x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ');
       var areaD = si===0 ? d+' L'+x(s.data.length-1)+','+(H-padB)+' L'+x(0)+','+(H-padB)+' Z' : '';
       var last = s.data.length-1;
+      var dashAttr = s.dash ? ' stroke-dasharray="5 4"' : '';
+      var label = s.key==='household'?'Household':s.key==='rohit'?'Rohit':s.key==='priya'?'Priya':'Real';
       return (si===0?'<path d="'+areaD+'" fill="'+col+'" opacity="0.10"></path>':'')+
-        '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>'+
+        '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'+dashAttr+'></path>'+
         '<circle cx="'+x(last)+'" cy="'+y(s.data[last])+'" r="4" fill="'+col+'" stroke="var(--surface)" stroke-width="2"></circle>'+
-        '<text x="'+(x(last)-2)+'" y="'+(y(s.data[last])-8)+'" font-size="9" font-weight="700" fill="'+col+'" text-anchor="end">'+(s.key==='household'?'Household':s.key==='rohit'?'Rohit':'Priya')+'</text>';
+        '<text x="'+(x(last)-2)+'" y="'+(y(s.data[last])-8)+'" font-size="9" font-weight="700" fill="'+col+'" text-anchor="end">'+label+'</text>';
     }).join('');
 
     svg.innerHTML = gridHtml + axisHtml + seriesHtml +
@@ -1347,6 +2093,7 @@
     });
   });
   document.getElementById('compareToggle').addEventListener('change', (e)=> { state.compare = e.target.checked; drawMainChart(); });
+  document.getElementById('realToggle').addEventListener('change', (e)=> { state.showReal = e.target.checked; drawMainChart(); });
   document.querySelectorAll('.range-pills button').forEach((b)=> {
     b.addEventListener('click', ()=> {
       document.querySelectorAll('.range-pills button').forEach((x)=> {x.classList.remove('active');});
@@ -1542,10 +2289,455 @@
     });
   });
 
+  /* ============================= INSIGHTS: THIS YEAR — render functions ============================= */
+  function el(id){ return document.getElementById(id); }
+
+  function renderWaterfall(sfx){
+    sfx = sfx||'';
+    var bar = el('wfBar'+sfx), legend = el('wfLegend'+sfx), breakdown = el('wfBreakdown'+sfx);
+    if(!bar) return;
+    var startPct = WATERFALL.start/WATERFALL.end*100;
+    var contribPct = WATERFALL.contributions.total/WATERFALL.end*100;
+    var growthPct = WATERFALL.growth.total/WATERFALL.end*100;
+    bar.innerHTML =
+      '<div class="comp-seg" style="width:'+startPct+'%; background:var(--text-muted); opacity:.4;" title="12 months ago"></div>'+
+      '<div class="comp-seg" style="width:'+contribPct+'%; background:var(--cat-1);" title="Contributions"></div>'+
+      '<div class="comp-seg" style="width:'+growthPct+'%; background:var(--cat-3);" title="Market growth"></div>';
+    legend.innerHTML =
+      '<span><i style="background:var(--text-muted); opacity:.4;"></i>12mo ago: '+formatCompact(WATERFALL.start)+'</span>'+
+      '<span><i style="background:var(--cat-1);"></i>You added: '+formatCompact(WATERFALL.contributions.total)+'</span>'+
+      '<span><i style="background:var(--cat-3);"></i>Markets returned: '+formatCompact(WATERFALL.growth.total)+'</span>';
+    var html = '<div class="grp">Where the '+formatCompact(WATERFALL.contributions.total)+' you added came from</div>';
+    WATERFALL.contributions.items.forEach(function(it){ html += '<div class="item"><span class="muted">'+it.label+'</span><span class="tabular" style="font-weight:600;">'+formatIndian(it.amount)+'</span></div>'; });
+    html += '<div class="grp">Where the '+formatCompact(WATERFALL.growth.total)+' of market growth came from</div>';
+    WATERFALL.growth.items.forEach(function(it){ html += '<div class="item"><span class="muted">'+it.label+'</span><span class="tabular" style="font-weight:600;">'+formatIndian(it.amount)+'</span></div>'; });
+    breakdown.innerHTML = html;
+  }
+
+  function renderXirr(sfx){
+    sfx = sfx||'';
+    var list = el('xirrList'+sfx);
+    if(!list) return;
+    list.innerHTML = XIRR_SERIES.map(function(s){
+      var v = xirrFor(s);
+      return '<div class="xirr-row"><div><div class="n">'+s.name+'</div><div class="s">'+s.note+'</div></div>'+
+        '<div class="xirr-val" style="color:var(--status-good-text);">'+v.toFixed(2)+'%</div></div>';
+    }).join('');
+    el('declaredNote'+sfx).textContent = DECLARED_RATE.note;
+    el('declaredVal'+sfx).textContent = DECLARED_RATE.rate.toFixed(2)+'%';
+  }
+
+  function renderRealVsNominal(){
+    var target = el('realVsNominalStat'); if(!target) return;
+    var nominalRs = TREND_HOUSEHOLD.map(function(v){ return v*1e5; });
+    var realRs = realSeries(nominalRs, ASSUMPTIONS.inflation);
+    var nominalGrowth = nominalRs[nominalRs.length-1]-nominalRs[0];
+    var realGrowth = realRs[realRs.length-1]-realRs[0];
+    var drag = nominalGrowth-realGrowth;
+    target.innerHTML =
+      '<div class="row between" style="font-size:13px;"><span class="muted">Nominal gain this year</span><span class="tabular" style="font-weight:700;">'+formatIndian(nominalGrowth)+'</span></div>'+
+      '<div class="row between" style="font-size:13px; margin-top:6px;"><span class="muted">Real gain (after '+ASSUMPTIONS.inflation.toFixed(1)+'% inflation)</span><span class="tabular" style="font-weight:700; color:var(--status-good-text);">'+formatIndian(realGrowth)+'</span></div>'+
+      '<div class="row between" style="font-size:13px; margin-top:6px;"><span class="muted">Erased by inflation</span><span class="tabular" style="font-weight:700; color:var(--status-critical);">'+formatIndian(drag)+'</span></div>';
+  }
+
+  function renderDrift(sfx){
+    sfx = sfx||'';
+    var container = el('driftRows'+sfx), nudge = el('driftNudge'+sfx);
+    if(!container) return;
+    var maxAbs = 40;
+    var html = '';
+    var worst = {key:null, drift:0};
+    CATS.forEach(function(c){
+      var actual = LENS.household.cats[c.key]/LENS.household.assets*100;
+      var target = ALLOC_TARGET[c.key];
+      var drift = actual-target;
+      if(Math.abs(drift)>Math.abs(worst.drift)) worst = {key:c.key, drift:drift, label:c.label};
+      var fillPct = Math.min(50, Math.abs(drift)/maxAbs*50);
+      var dir = drift>0 ? 'over' : 'under';
+      html += '<div class="drift-row"><div class="top"><span class="t">'+c.label+'</span><span class="tabular">'+actual.toFixed(1)+'% <span class="muted">(target '+target+'%)</span></span></div>'+
+        '<div class="drift-track"><div class="drift-mid"></div>'+
+        '<div class="drift-fill '+dir+'" style="'+(dir==='over' ? 'left:50%;' : 'right:50%;')+'width:'+fillPct+'%;"></div>'+
+        '</div></div>';
+    });
+    container.innerHTML = html;
+    if(nudge){
+      nudge.textContent = worst.label+' is '+(worst.drift>0?'':'')+Math.abs(worst.drift).toFixed(0)+' points '+(worst.drift>0?'over':'under')+' target — '+
+        (worst.drift>0
+          ? (worst.key==='property' ? 'mostly your home, which is not wrong, but it means new savings should probably go elsewhere until the mix rebalances naturally.' : 'consider directing new contributions toward the underweight categories instead.')
+          : 'this is where new savings would do the most to bring your mix back to policy.');
+    }
+  }
+
+  function renderLiquidity(sfx){
+    sfx = sfx||'';
+    var bar = el('ladderBar'+sfx), legend = el('ladderLegend'+sfx);
+    if(!bar) return;
+    var total = LIQUIDITY.reduce(function(s,t){ return s+t.amount; },0);
+    bar.innerHTML = LIQUIDITY.map(function(t){
+      return '<div class="comp-seg" style="width:'+(t.amount/total*100)+'%; background:var(--liq-'+(t.step+1)+');" title="'+t.tier+'"></div>';
+    }).join('');
+    legend.innerHTML = LIQUIDITY.map(function(t){
+      return '<div class="row ladder-legend-row">'+
+        '<span class="sw" style="background:var(--liq-'+(t.step+1)+');"></span>'+
+        '<div class="tx"><div class="t"><span>'+t.tier+'</span><span class="tabular">'+formatCompact(t.amount)+'</span></div><div class="n">'+t.note+'</div></div>'+
+      '</div>';
+    }).join('');
+  }
+
+  function renderConcentration(sfx){
+    sfx = sfx||'';
+    var stats = el('concentrationStats'+sfx), ranks = el('concentrationRanks'+sfx);
+    if(!stats) return;
+    var nw = LENS.household.net, assets = LENS.household.assets;
+    stats.innerHTML =
+      '<div class="row between" style="font-size:13px;"><span class="muted">'+CONCENTRATION.employerName+'</span><span class="tabular" style="font-weight:700;">'+formatCompact(CONCENTRATION.employerAmount)+' · '+(CONCENTRATION.employerAmount/nw*100).toFixed(0)+'% of net worth</span></div>'+
+      '<div class="row between" style="font-size:13px; margin-top:6px;"><span class="muted">Single stock (RSU)</span><span class="tabular" style="font-weight:700;">'+formatCompact(CONCENTRATION.singleStockAmount)+' · '+(CONCENTRATION.singleStockAmount/assets*100).toFixed(1)+'% of assets</span></div>'+
+      '<div class="foot-note" style="margin-top:10px;">Rohit’s salary, EPF and RSU all come from the same employer — three different balance-sheet lines riding on one company’s fortunes.</div>';
+    var max = Math.max.apply(null, CONCENTRATION.institutions.map(function(i){return i.amount;}));
+    ranks.innerHTML = '<div class="section-label" style="margin-top:0;">By institution</div>'+CONCENTRATION.institutions.map(function(i){
+      return '<div class="rank-row"><div class="top"><span class="t">'+i.name+'</span><span class="tabular">'+formatCompact(i.amount)+'</span></div>'+
+        '<div class="rank-track"><div class="rank-fill" style="width:'+(i.amount/max*100)+'%;"></div></div></div>';
+    }).join('');
+  }
+
+  function renderLoanBurndown(sfx){
+    sfx = sfx||'';
+    var sub = el('loanSub'+sfx), split = el('burnSplit'+sfx), legend = el('burnLegend'+sfx), note = el('loanNote'+sfx);
+    if(!sub) return;
+    sub.textContent = formatCompact(LOAN.outstanding)+' outstanding · EMI '+formatIndian(LOAN.emi)+'/mo · '+(LOAN_RATE*1200).toFixed(2)+'% p.a. (solved from your stated EMI)';
+    var totalPaid = LOAN_PRINCIPAL_PAID+LOAN_INTEREST_PAID;
+    split.innerHTML =
+      '<div style="width:'+(LOAN_PRINCIPAL_PAID/totalPaid*100)+'%;"></div>'+
+      '<div style="width:'+(LOAN_INTEREST_PAID/totalPaid*100)+'%;"></div>';
+    legend.innerHTML =
+      '<span><i style="background:var(--cat-1);"></i>Principal repaid: '+formatCompact(LOAN_PRINCIPAL_PAID)+'</span>'+
+      '<span><i style="background:var(--cat-2);"></i>Interest paid: '+formatCompact(LOAN_INTEREST_PAID)+'</span>';
+    var payoffYears = Math.ceil(LOAN.monthsRemaining/12);
+    note.textContent = 'At the current EMI, this loan clears in about '+payoffYears+' years (around late '+(2026+payoffYears)+'). '+
+      formatCompact(LOAN_ORIGINAL_PRINCIPAL)+' was borrowed '+Math.round(LOAN_MONTHS_PAID/12)+' years ago; '+formatCompact(LOAN_INTEREST_PAID)+' of what you have paid so far was interest.';
+  }
+
+  function renderMovers(sfx){
+    sfx = sfx||'';
+    var list = el('moversList'+sfx); if(!list) return;
+    var sorted = MOVERS.slice().sort(function(a,b){ return Math.abs(b.delta)-Math.abs(a.delta); });
+    list.innerHTML = sorted.map(function(m){
+      var up = m.delta>=0;
+      return '<div class="xirr-row"><div><div class="n">'+m.name+'</div><div class="s">'+m.reason+'</div></div>'+
+        '<div class="xirr-val" style="color:'+(up?'var(--status-good-text)':'var(--status-critical)')+'; font-size:14px; display:flex; align-items:center; gap:4px;">'+
+        '<svg class="icon icon-sm"><use href="#'+(up?'ic-up':'ic-down')+'"/></svg>'+(up?'+':'')+formatIndian(m.delta)+'</div></div>';
+    }).join('');
+  }
+
+  function renderStale(sfx){
+    sfx = sfx||'';
+    var list = el('staleList'+sfx); if(!list) return;
+    list.innerHTML = STALE_ITEMS.map(function(s){
+      return '<div class="nudge-card warn" style="margin-bottom:8px;"><svg class="icon"><use href="#ic-alert"/></svg><div><b>'+s.name+' — as of '+s.asOf+' ('+s.ageDays+' days ago)</b><p>'+s.note+'</p></div></div>';
+    }).join('');
+  }
+
+  function renderMilestone(sfx){
+    sfx = sfx||'';
+    var target = el('milestoneStats'+sfx); if(!target) return;
+    var nw = LENS.household.net;
+    var nextRound = Math.ceil(nw/10000000)*10000000; // next crore-multiple that is also a "clean" figure
+    if(nextRound-nw < 500000) nextRound += 10000000; // if already essentially there, aim at the next one
+    // pick the friendlier "2 crore"-style milestone if closer
+    var candidates = [20000000, 25000000, 30000000, 50000000].filter(function(v){ return v>nw; });
+    if(candidates.length) nextRound = Math.min(nextRound, candidates[0]);
+    var gap = nextRound-nw;
+    var lastYearGrowth = (TREND_HOUSEHOLD[TREND_HOUSEHOLD.length-1]-TREND_HOUSEHOLD[0])*1e5;
+    var monthlyPace = lastYearGrowth/12;
+    var monthsAway = gap/monthlyPace;
+    var growthRate = lastYearGrowth/(TREND_HOUSEHOLD[0]*1e5);
+    var doublingYears = Math.log(2)/Math.log(1+growthRate);
+    target.innerHTML =
+      '<div class="row between" style="font-size:13px;"><span class="muted">Next milestone</span><span style="font-weight:700;">'+formatCompact(nextRound)+'</span></div>'+
+      '<div class="meter-track" style="margin:8px 0;"><div class="meter-fill good" style="width:'+(nw/nextRound*100)+'%;"></div></div>'+
+      '<div class="row between" style="font-size:12.5px;"><span class="muted">'+formatCompact(gap)+' to go</span><span class="muted">~'+monthsAway.toFixed(1)+' months at your current pace</span></div>'+
+      '<div class="foot-note" style="margin-top:10px;">Doubling time at last year’s overall growth rate (including new savings, not a pure investment return): ~'+doublingYears.toFixed(1)+' years. That is a pace, not a promise.</div>';
+  }
+
+  /* ============================= FORECAST — render functions ============================= */
+  var scenario = {};
+
+  function currentScenario(){
+    var s = {};
+    if(el('sipSlider') && +el('sipSlider').value>0) s.extraSip = +el('sipSlider').value;
+    if(el('hikeSlider') && +el('hikeSlider').value>0) s.salaryHikePct = +el('hikeSlider').value;
+    if(el('swCrash') && el('swCrash').classList.contains('on')) s.crash = true;
+    if(el('swNoIncome') && el('swNoIncome').classList.contains('on')) s.noIncome6mo = true;
+    if(el('swBuyHouse') && el('swBuyHouse').classList.contains('on')) s.buyHouseY3 = true;
+    if(el('swCollege') && el('swCollege').classList.contains('on')) s.collegeWithdrawal2038 = true;
+    return s;
+  }
+
+  function drawFanChart(svgId, tipId, horizonYears){
+    var svg = el(svgId); if(!svg) return;
+    var vb = svg.getAttribute('viewBox').split(' ').map(Number);
+    var W=vb[2], H=vb[3], padL=8, padR=8, padT=14, padB=22;
+    scenario = currentScenario();
+    var p10path = runProjection('p10', scenario, horizonYears);
+    var p50path = runProjection('p50', scenario, horizonYears);
+    var p90path = runProjection('p90', scenario, horizonYears);
+    // historical anchor: 12 months ago -> today, at x = -1 .. 0
+    var histStart = TREND_HOUSEHOLD[0]*1e5, histEnd = TREND_HOUSEHOLD[TREND_HOUSEHOLD.length-1]*1e5;
+    var xs = [-1].concat(p50path.map(function(p){ return p.year; })); // -1, 0, 1, 2, ... horizonYears
+    var totalSpan = horizonYears+1;
+    var x = function(yr){ return padL + (yr+1)/totalSpan*(W-padL-padR); };
+    var maxV = p90path[p90path.length-1].net;
+    var minV = Math.min(histStart, p10path[0].net)*0.95;
+    var y = function(v){ return padT + (1-((v-minV)/(maxV-minV)))*(H-padT-padB); };
+
+    var gridHtml = '';
+    for(var g=0; g<=3; g++){ var gy = padT+g/3*(H-padT-padB); gridHtml += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="var(--gridline)" stroke-width="1"/>'; }
+
+    // band path P10..P90 (year 0 to horizon)
+    var topPts = p90path.map(function(p){ return [x(p.year), y(p.net)]; });
+    var botPts = p10path.map(function(p){ return [x(p.year), y(p.net)]; }).reverse();
+    var bandD = 'M'+topPts.map(function(pt){return pt.join(',');}).join(' L')+' L'+botPts.map(function(pt){return pt.join(',');}).join(' L')+' Z';
+
+    var p50D = p50path.map(function(p,i){ return (i===0?'M':'L')+x(p.year)+','+y(p.net); }).join(' ');
+    var histD = 'M'+x(-1)+','+y(histStart)+' L'+x(0)+','+y(histEnd);
+
+    var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    var lastP50 = p50path[p50path.length-1];
+    svg.innerHTML = gridHtml+
+      '<path d="'+bandD+'" fill="'+accent+'" opacity="0.13"></path>'+
+      '<path d="'+histD+'" fill="none" stroke="'+accent+'" stroke-width="2.5" stroke-linecap="round"></path>'+
+      '<path d="'+p50D+'" fill="none" stroke="'+accent+'" stroke-width="2" stroke-linecap="round"></path>'+
+      '<circle cx="'+x(0)+'" cy="'+y(histEnd)+'" r="4" fill="'+accent+'" stroke="var(--surface)" stroke-width="2"></circle>'+
+      '<line x1="'+x(0)+'" y1="'+padT+'" x2="'+x(0)+'" y2="'+(H-padB)+'" stroke="var(--baseline)" stroke-width="1"></line>'+
+      '<text x="'+x(0)+'" y="'+(padT-3)+'" font-size="9" fill="var(--text-muted)" text-anchor="middle">Today</text>'+
+      '<text x="'+x(lastP50.year)+'" y="'+(y(lastP50.net)-8)+'" font-size="9" font-weight="700" fill="'+accent+'" text-anchor="end">'+formatCompact(lastP50.net)+'</text>'+
+      '<text x="'+padL+'" y="'+(H-6)+'" font-size="9" fill="var(--text-muted)">12mo ago</text>'+
+      '<text x="'+(W-padR)+'" y="'+(H-6)+'" font-size="9" fill="var(--text-muted)" text-anchor="end">Year '+horizonYears+'</text>'+
+      '<rect id="'+svgId+'catcher" x="0" y="0" width="'+W+'" height="'+H+'" fill="transparent"/>';
+
+    if(tipId){
+      var tip = el(tipId), catcher = el(svgId+'catcher');
+      catcher.onmousemove = function(evt){
+        var rect = svg.getBoundingClientRect();
+        var relX = (evt.clientX-rect.left)/rect.width*W;
+        var yr = Math.round((relX-padL)/(W-padL-padR)*totalSpan)-1;
+        yr = Math.max(0, Math.min(horizonYears, yr));
+        var row10=p10path[yr], row50=p50path[yr], row90=p90path[yr];
+        tip.innerHTML = '<div class="d">Year '+yr+'</div><div class="v tabular">P50 '+formatCompact(row50.net)+'</div><div class="d tabular">P10 '+formatCompact(row10.net)+' · P90 '+formatCompact(row90.net)+'</div>';
+        tip.classList.add('show');
+        var leftPx = Math.max(0, Math.min(rect.width-120, (x(yr)/W*rect.width)-50));
+        tip.style.left = leftPx+'px'; tip.style.top='4px';
+      };
+      catcher.onmouseleave = function(){ tip.classList.remove('show'); };
+    }
+    return {p10path:p10path, p50path:p50path, p90path:p90path};
+  }
+
+  var currentHorizon = 5;
+  function updateForecast(){
+    var res = drawFanChart('fanChart','fanTip', currentHorizon);
+    drawFanChart('fanChartDesk','fanTipDesk', currentHorizon);
+    if(res){
+      var tbody = document.querySelector('#fanTable tbody');
+      if(tbody) tbody.innerHTML = res.p50path.map(function(p,i){
+        return '<tr><td>Year '+p.year+'</td><td class="tabular">'+formatIndian(res.p10path[i].net)+'</td><td class="tabular">'+formatIndian(res.p50path[i].net)+'</td><td class="tabular">'+formatIndian(res.p90path[i].net)+'</td></tr>';
+      }).join('');
+    }
+    renderFI();
+    renderPrepayVsInvest();
+  }
+
+  function renderFI(){
+    var scn = currentScenario();
+    var path = runProjection('p50', scn, 20);
+    var corpus = fiCorpus();
+    var crossYear = fiCrossingYear(path);
+    ['','Desk'].forEach(function(sfx){
+      var cv = el('fiCorpusVal'+sfx), fy = el('fiYearVal'+sfx), cn = el('coastFiNote'+sfx);
+      if(!cv) return;
+      cv.textContent = formatCompact(corpus);
+      fy.textContent = crossYear===null ? 'beyond 20 years' : (crossYear===0 ? 'already there' : (2026+crossYear)+' (in '+crossYear+' yrs)');
+      if(cn){
+        var coast = coastFiCheck();
+        cn.textContent = coast.isCoastFi
+          ? 'Coast-FI check: your investable assets alone (excluding property), left untouched, are on pace to clear this corpus by age '+ASSUMPTIONS.retireAge+' at a blended '+coast.blendedReturn.toFixed(1)+'% — even without another rupee saved.'
+          : 'Coast-FI check: investable assets alone would reach '+formatCompact(coast.futureValue)+' by age '+ASSUMPTIONS.retireAge+' at a blended '+coast.blendedReturn.toFixed(1)+'% — short of the corpus above without continued contributions.';
+      }
+    });
+  }
+
+  function renderPrepayVsInvest(){
+    var lump = el('lumpSlider') ? +el('lumpSlider').value : 500000;
+    var savings = loanPrepaySavings(lump);
+    var prepayEl = el('prepayResult'), prepaySub = el('prepayResultSub'), investEl = el('investResult');
+    if(prepayEl){
+      prepayEl.textContent = formatCompact(savings.interestSaved)+' interest saved';
+      prepaySub.textContent = 'Payoff moves '+savings.monthsSaved.toFixed(0)+' months sooner';
+    }
+    if(investEl){
+      var years = LOAN.monthsRemaining/12;
+      var fv = lump*Math.pow(1.12, years);
+      investEl.textContent = formatCompact(fv-lump)+' gained (nominal)';
+    }
+  }
+
+  function renderGoalOdds(sfx){
+    sfx = sfx||'';
+    var list = el('goalOddsList'+sfx); if(!list) return;
+    list.innerHTML = GOALS.map(function(g){
+      var res = goalProbability(g);
+      if(!res){
+        return '<div class="prob-row"><div class="top"><span class="name">'+g.icon+' '+g.name+'</span><span class="pct muted">N/A</span></div>'+
+          '<div class="figs">Not a returns question — see the Liquidity Ladder above and the goal’s own suitability warning.</div></div>';
+      }
+      var extra = '';
+      if(g.id==='education'){
+        var fixed = goalProbabilityAtSip(g, g.reqSip);
+        extra = '<div class="figs">At the required '+formatIndian(g.reqSip)+'/mo instead of '+formatIndian(g.curSip)+'/mo: ~'+fixed.probability+'% likely.</div>';
+      }
+      return '<div class="prob-row"><div class="top"><span class="name">'+g.icon+' '+g.name+'</span><span class="pct" style="color:'+(res.probability>=50?'var(--status-good-text)':res.probability>=25?'var(--status-warning-text)':'var(--status-critical)')+';">~'+res.probability+'%</span></div>'+
+        '<div class="figs">P10 '+formatCompact(res.p10)+' · P50 '+formatCompact(res.p50)+' · P90 '+formatCompact(res.p90)+' vs. target '+formatCompact(g.inflated)+'</div>'+extra+'</div>';
+    }).join('');
+  }
+
+  function renderSensitivity(sfx){
+    sfx = sfx||'';
+    var list = el('sensitivityList'+sfx); if(!list) return;
+    var rows = sensitivityRanking();
+    var max = Math.max.apply(null, rows.map(function(r){ return Math.abs(r.delta); }));
+    list.innerHTML = rows.map(function(r){
+      return '<div class="rank-row"><div class="top"><span class="t">'+r.label+'</span><span class="tabular">'+(r.delta>=0?'+':'')+formatCompact(r.delta)+'</span></div>'+
+        '<div class="rank-track"><div class="rank-fill" style="width:'+(Math.abs(r.delta)/max*100)+'%;"></div></div></div>';
+    }).join('');
+  }
+
+  function renderAssumptions(){
+    var container = el('assumptionsInputs'); if(!container) return;
+    container.innerHTML = CATS.map(function(c){
+      return '<div class="row between" style="padding:7px 0; border-bottom:1px solid var(--border); font-size:13px;">'+
+        '<span>'+c.label+'</span>'+
+        '<span><input type="number" class="assumption-return-input" data-catkey="'+c.key+'" value="'+ASSUMPTIONS.returns[c.key].p50.toFixed(1)+'" step="0.5" min="-20" max="30" style="width:56px; background:var(--surface-sunken); border:1px solid var(--border); border-radius:6px; padding:3px 5px; color:var(--text-primary); text-align:right;">%</span>'+
+      '</div>';
+    }).join('');
+    container.querySelectorAll('.assumption-return-input').forEach(function(inp){
+      inp.addEventListener('input', function(){
+        var key = inp.getAttribute('data-catkey');
+        // clamp to a sane band — a return outside ±(20,30)% is almost certainly a typo, and an
+        // unclamped extreme (e.g. -150%) can send the monthly-rate math to NaN via a fractional
+        // power of a negative number. Real implementation: validate against each asset class's
+        // own plausible range, not one shared band.
+        var v = Math.min(30, Math.max(-20, parseFloat(inp.value)));
+        if(!isNaN(v)) ASSUMPTIONS.returns[key].p50 = v;
+        updateForecast();
+      });
+    });
+  }
+
+  function renderAllInsights(){
+    renderWaterfall(''); renderWaterfall('Desk');
+    renderXirr(''); renderXirr('Desk');
+    renderRealVsNominal();
+    renderDrift(''); renderDrift('Desk');
+    renderLiquidity(''); renderLiquidity('Desk');
+    renderConcentration(''); renderConcentration('Desk');
+    renderLoanBurndown(''); renderLoanBurndown('Desk');
+    renderMovers(''); renderMovers('Desk');
+    renderStale(''); renderStale('Desk');
+    renderMilestone(''); renderMilestone('Desk');
+    renderAssumptions();
+    updateForecast();
+    renderGoalOdds(''); renderGoalOdds('Desk');
+    renderSensitivity(''); renderSensitivity('Desk');
+  }
+
+  /* ============================= INSIGHTS — interaction wiring ============================= */
+  ['insightsSubtab','insightsSubtabDesk'].forEach(function(segId){
+    var segEl = el(segId); if(!segEl) return;
+    segEl.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        segEl.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active');
+        var sub = b.getAttribute('data-sub');
+        var suffix = segId==='insightsSubtabDesk' ? 'Desk' : '';
+        el('insightsYearPanel'+suffix).style.display = sub==='year' ? '' : 'none';
+        el('insightsForecastPanel'+suffix).style.display = sub==='forecast' ? '' : 'none';
+        if(sub==='forecast') updateForecast();
+      });
+    });
+  });
+
+  ['horizonPills','horizonPillsDesk'].forEach(function(pillsId){
+    var wrap = el(pillsId); if(!wrap) return;
+    wrap.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        wrap.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active');
+        currentHorizon = +b.getAttribute('data-horizon');
+        updateForecast();
+      });
+    });
+  });
+
+  function wireScenarioControl(id, evt, handler){
+    var node = el(id); if(!node) return;
+    node.addEventListener(evt, handler);
+  }
+  ['sipSlider','sipSliderDesk'].forEach(function(id){
+    wireScenarioControl(id, 'input', function(){
+      var v = +el(id).value;
+      ['sipVal','sipValDesk'].forEach(function(vid){ if(el(vid)) el(vid).textContent = '+'+formatIndian(v)+'/mo'; });
+      ['sipSlider','sipSliderDesk'].forEach(function(sid){ if(el(sid) && el(sid)!==el(id)) el(sid).value = v; });
+      updateForecast();
+    });
+  });
+  wireScenarioControl('hikeSlider','input', function(){
+    el('hikeVal').textContent = '+'+el('hikeSlider').value+'%';
+    updateForecast();
+  });
+  ['swCrash','swNoIncome','swBuyHouse','swCollege'].forEach(function(id){
+    [id, id+'Desk'].forEach(function(realId){
+      wireScenarioControl(realId, 'click', function(){
+        el(realId).classList.toggle('on');
+        var mirror = realId.endsWith('Desk') ? realId.replace('Desk','') : realId+'Desk';
+        if(el(mirror)) el(mirror).classList.toggle('on', el(realId).classList.contains('on'));
+        updateForecast();
+      });
+    });
+  });
+  wireScenarioControl('lumpSlider','input', function(){
+    el('lumpVal').textContent = formatIndian(+el('lumpSlider').value);
+    renderPrepayVsInvest();
+  });
+  wireScenarioControl('expensesSlider','input', function(){
+    ASSUMPTIONS.annualExpenses = +el('expensesSlider').value;
+    el('expensesVal').textContent = formatIndian(ASSUMPTIONS.annualExpenses)+'/yr';
+    renderFI();
+  });
+  wireScenarioControl('swrSlider','input', function(){
+    ASSUMPTIONS.withdrawalRate = +el('swrSlider').value;
+    el('swrVal').textContent = ASSUMPTIONS.withdrawalRate.toFixed(1)+'%';
+    renderFI();
+  });
+  wireScenarioControl('inflationInput','input', function(){
+    var v = parseFloat(el('inflationInput').value);
+    if(!isNaN(v)){ ASSUMPTIONS.inflation = v; renderRealVsNominal(); }
+  });
+  wireScenarioControl('fanTableLink','click', function(){ el('fanTable').classList.toggle('open'); });
+  wireScenarioControl('driftNudge','click', function(){});
+
+  document.querySelectorAll('[data-nav-real]').forEach(function(b){
+    b.addEventListener('click', function(){
+      go('networth');
+      var cb = el('realToggle');
+      if(cb && !cb.checked){ cb.checked = true; cb.dispatchEvent(new Event('change')); }
+    });
+  });
+
   /* ============================= INIT ============================= */
   renderNudges();
   renderGoals();
   applyLens('household');
+  renderAllInsights();
   go('unlock');
   drawSparkline();
 })();
