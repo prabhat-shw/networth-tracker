@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>NetWorth Tracker — UX Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  /* ============================= DESIGN TOKENS ============================= */
+  :root{
+    --page-bg:#f9f9f7; --surface:#fcfcfb; --surface-sunken:#f2f1ee; --surface-hover:#f0efeb;
+    --border:rgba(11,11,11,0.10); --border-strong:rgba(11,11,11,0.18);
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#898781;
+    --accent:#2a78d6; --accent-contrast:#ffffff; --accent-wash:rgba(42,120,214,0.10);
+    --focus-ring:#2a78d6;
+    --status-good:#0ca30c; --status-good-text:#006300; --status-warning:#fab219; --status-warning-text:#8a5a00; --status-critical:#d03b3b;
+    --status-good-bg:rgba(12,163,12,0.12); --status-warning-bg:rgba(250,178,25,0.18); --status-critical-bg:rgba(208,59,59,0.12);
+    --cat-1:#2a78d6; --cat-2:#eb6834; --cat-3:#1baf7a; --cat-4:#eda100; --cat-5:#e87ba4; --cat-6:#008300; --cat-7:#4a3aa7;
+    --liability:#e34948;
+    --gridline:#e1e0d9; --baseline:#c3c2b7;
+    --shadow-float: 0 8px 24px rgba(11,11,11,0.14), 0 2px 6px rgba(11,11,11,0.08);
+    --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page-bg:#0d0d0d; --surface:#1a1a19; --surface-sunken:#242423; --surface-hover:#2a2a28;
+      --border:rgba(255,255,255,0.10); --border-strong:rgba(255,255,255,0.20);
+      --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+      --accent:#3987e5; --accent-contrast:#ffffff; --accent-wash:rgba(57,135,229,0.16);
+      --focus-ring:#3987e5;
+      --status-good:#0ca30c; --status-good-text:#0ca30c; --status-warning:#fab219; --status-warning-text:#fab219; --status-critical:#e66767;
+      --status-good-bg:rgba(12,163,12,0.18); --status-warning-bg:rgba(250,178,25,0.16); --status-critical-bg:rgba(208,59,59,0.18);
+      --cat-1:#3987e5; --cat-2:#d95926; --cat-3:#199e70; --cat-4:#c98500; --cat-5:#d55181; --cat-6:#008300; --cat-7:#9085e9;
+      --liability:#e66767;
+      --gridline:#2c2c2a; --baseline:#383835;
+      --shadow-float: 0 8px 24px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.4);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page-bg:#0d0d0d; --surface:#1a1a19; --surface-sunken:#242423; --surface-hover:#2a2a28;
+    --border:rgba(255,255,255,0.10); --border-strong:rgba(255,255,255,0.20);
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#898781;
+    --accent:#3987e5; --accent-contrast:#ffffff; --accent-wash:rgba(57,135,229,0.16);
+    --focus-ring:#3987e5;
+    --status-good:#0ca30c; --status-good-text:#0ca30c; --status-warning:#fab219; --status-warning-text:#fab219; --status-critical:#e66767;
+    --status-good-bg:rgba(12,163,12,0.18); --status-warning-bg:rgba(250,178,25,0.16); --status-critical-bg:rgba(208,59,59,0.18);
+    --cat-1:#3987e5; --cat-2:#d95926; --cat-3:#199e70; --cat-4:#c98500; --cat-5:#d55181; --cat-6:#008300; --cat-7:#9085e9;
+    --liability:#e66767;
+    --gridline:#2c2c2a; --baseline:#383835;
+    --shadow-float: 0 8px 24px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.4);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font); background:var(--page-bg); color:var(--text-primary);
+    -webkit-font-smoothing:antialiased;
+  }
+  button, input, select, textarea{ font-family:inherit; color:inherit; }
+  button{ cursor:pointer; background:none; border:none; }
+  a{ color:inherit; }
+  :focus-visible{ outline: 2px solid var(--focus-ring); outline-offset:2px; border-radius:4px; }
+  .icon{ width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; display:block; flex-shrink:0; }
+  .icon-sm{ width:16px; height:16px; }
+  .icon-lg{ width:28px; height:28px; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+  .sr-only{ position:absolute; width:1px;height:1px; padding:0;margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+  /* ============================= CONTROL BAR (outside app chrome) ============================= */
+  .control-bar{
+    position:sticky; top:0; z-index:50;
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--border);
+  }
+  .control-bar .brand{ font-weight:700; font-size:15px; margin-right:8px; white-space:nowrap; }
+  .control-bar .brand span{ color:var(--text-muted); font-weight:500; }
+  .seg{ display:inline-flex; background:var(--surface-sunken); border-radius:10px; padding:3px; gap:2px; }
+  .seg button{ padding:6px 12px; border-radius:8px; font-size:13px; font-weight:600; color:var(--text-secondary); display:flex; align-items:center; gap:6px; }
+  .seg button.active{ background:var(--surface); color:var(--text-primary); box-shadow:0 1px 3px rgba(11,11,11,0.12); }
+  .screen-jump{ display:flex; flex-wrap:wrap; gap:6px; margin-left:auto; }
+  .screen-jump button{ padding:6px 10px; border-radius:8px; font-size:12.5px; font-weight:600; color:var(--text-secondary); border:1px solid var(--border); }
+  .screen-jump button.active{ background:var(--accent); color:var(--accent-contrast); border-color:transparent; }
+  .icon-btn{ width:34px;height:34px; display:flex; align-items:center; justify-content:center; border-radius:9px; border:1px solid var(--border); color:var(--text-secondary); }
+  .icon-btn:hover{ background:var(--surface-hover); }
+  .hint{ width:100%; font-size:12px; color:var(--text-muted); padding-top:2px; }
+
+  /* ============================= STAGE ============================= */
+  .stage{ display:flex; justify-content:center; padding:36px 16px 80px; }
+  .frame{ display:none; }
+  .frame.active{ display:block; }
+
+  /* ---------- phone chrome ---------- */
+  .phone-shell{
+    width:390px; background:linear-gradient(160deg,#2b2b2b,#111); border-radius:46px; padding:14px;
+    box-shadow: var(--shadow-float);
+  }
+  .phone-screen{
+    width:362px; height:780px; border-radius:34px; overflow:hidden; position:relative;
+    background:var(--page-bg); display:flex; flex-direction:column;
+    border:1px solid rgba(0,0,0,0.4);
+  }
+  .statusbar{ display:flex; justify-content:space-between; align-items:center; padding:10px 22px 2px; font-size:13px; font-weight:600; color:var(--text-primary); flex-shrink:0; }
+  .statusbar .dot-icons{ display:flex; gap:4px; align-items:center; }
+
+  .app{ flex:1; display:flex; flex-direction:column; min-height:0; position:relative; }
+  .app.pre-auth .app-tabbar, .app.pre-auth .fab{ display:none; }
+  .app-header{ padding:10px 18px 0; flex-shrink:0; }
+  .app-header h1{ font-size:20px; font-weight:700; margin:2px 0 10px; letter-spacing:-0.01em; }
+  .app-header .back-row{ display:flex; align-items:center; gap:8px; margin-bottom:2px; }
+  .app-header .back-row button{ display:flex; align-items:center; gap:2px; color:var(--accent); font-weight:600; font-size:14px; padding:4px 2px; }
+
+  .lensbar{ display:flex; padding:0 18px 10px; flex-shrink:0; }
+  .lensbar .seg{ width:100%; }
+  .lensbar .seg button{ flex:1; justify-content:center; }
+
+  .app-content{ flex:1; overflow-y:auto; padding:0 18px 100px; -webkit-overflow-scrolling:touch; }
+  .app-content::-webkit-scrollbar{ width:0; }
+  .screen{ display:none; animation:fadeIn .18s ease-out; }
+  .screen.active{ display:block; }
+  #screen-unlock.active{ display:flex; flex:1; flex-direction:column; min-height:0; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+
+  .app-tabbar{
+    display:flex; border-top:1px solid var(--border); background:var(--surface);
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom, 10px)); flex-shrink:0;
+  }
+  .app-tabbar button{ flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px; color:var(--text-muted); font-size:10.5px; font-weight:600; border-radius:10px; }
+  .app-tabbar button.active{ color:var(--accent); }
+
+  .fab{
+    position:absolute; right:18px; bottom:78px; width:52px; height:52px; border-radius:50%;
+    background:var(--accent); color:var(--accent-contrast); display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 16px rgba(42,120,214,0.45); z-index:20;
+  }
+  .fab:active{ transform:scale(0.94); }
+
+  /* ============================= PRIMITIVES ============================= */
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; }
+  .section-label{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); margin:20px 0 8px; }
+  .section-label:first-child{ margin-top:0; }
+  .muted{ color:var(--text-muted); }
+  .secondary-text{ color:var(--text-secondary); }
+  .row{ display:flex; align-items:center; }
+  .between{ justify-content:space-between; }
+  .gap-8{ gap:8px; } .gap-12{ gap:12px; } .gap-4{gap:4px;}
+  .stack-4>*+*{ margin-top:4px; } .stack-8>*+*{ margin-top:8px; } .stack-12>*+*{ margin-top:12px; } .stack-16>*+*{ margin-top:16px; }
+
+  .badge{ display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+  .badge-good{ background:var(--status-good-bg); color:var(--status-good-text); }
+  .badge-warning{ background:var(--status-warning-bg); color:var(--status-warning-text); }
+  .badge-critical{ background:var(--status-critical-bg); color:var(--status-critical); }
+  .badge-neutral{ background:var(--surface-sunken); color:var(--text-secondary); }
+
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; font-weight:700; font-size:14px; padding:11px 18px; border-radius:11px; }
+  .btn-primary{ background:var(--accent); color:var(--accent-contrast); }
+  .btn-secondary{ background:var(--surface-sunken); color:var(--text-primary); }
+  .btn-ghost{ color:var(--accent); }
+  .btn-block{ width:100%; }
+  .btn:disabled{ opacity:.45; pointer-events:none; }
+
+  .avatar{ width:26px;height:26px;border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:700; display:flex;align-items:center;justify-content:center; flex-shrink:0; border:2px solid var(--surface); }
+  .avatar.a2{ background:var(--cat-5); }
+  .avatar-stack{ display:flex; }
+  .avatar-stack .avatar:not(:first-child){ margin-left:-8px; }
+
+  .input-label{ font-size:12.5px; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:6px; }
+  .input, .select{ width:100%; background:var(--surface-sunken); border:1px solid var(--border); border-radius:10px; padding:11px 12px; font-size:15px; color:var(--text-primary); }
+  .input:focus, .select:focus{ background:var(--surface); border-color:var(--accent); }
+  .field{ margin-bottom:14px; }
+  .field .hint-text{ font-size:12px; color:var(--text-muted); margin-top:5px; }
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field{ flex:1; }
+
+  .chip{ display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:600; padding:7px 12px; border-radius:999px; border:1px solid var(--border); color:var(--text-secondary); }
+  .chip.selected{ background:var(--accent-wash); border-color:var(--accent); color:var(--accent); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+
+  .alert{ display:flex; gap:10px; padding:12px 14px; border-radius:12px; font-size:13px; line-height:1.45; }
+  .alert-warning{ background:var(--status-warning-bg); color:var(--text-primary); }
+  .alert-critical{ background:var(--status-critical-bg); color:var(--text-primary); }
+  .alert-info{ background:var(--accent-wash); color:var(--text-primary); }
+  .alert .icon{ color:inherit; margin-top:1px; }
+  .alert b{ display:block; margin-bottom:2px; }
+
+  .divider{ height:1px; background:var(--border); margin:14px 0; border:none; }
+
+  .skel{ background:linear-gradient(90deg, var(--surface-sunken) 25%, var(--surface-hover) 37%, var(--surface-sunken) 63%); background-size:400% 100%; animation:shimmer 1.6s ease infinite; border-radius:8px; }
+  @keyframes shimmer{ 0%{background-position:100% 0;} 100%{background-position:0 0;} }
+
+  /* ============================= HOME ============================= */
+  .hero-value{ font-size:34px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; margin:2px 0 4px; }
+  .hero-delta{ display:flex; align-items:center; gap:5px; font-size:13.5px; font-weight:700; }
+  .hero-delta.good{ color:var(--status-good-text); } .hero-delta.bad{ color:var(--status-critical); }
+  .sparkline-wrap{ margin-top:12px; }
+  .comp-bar{ display:flex; width:100%; height:26px; border-radius:7px; overflow:hidden; gap:2px; background:var(--surface); }
+  .comp-seg{ height:100%; min-width:2px; }
+  .comp-legend{ display:flex; flex-wrap:wrap; gap:10px 16px; margin-top:12px; }
+  .comp-legend-item{ display:flex; align-items:center; gap:7px; font-size:12.5px; }
+  .comp-swatch{ width:10px;height:10px;border-radius:3px; flex-shrink:0; }
+  .comp-legend-item .amt{ color:var(--text-secondary); font-weight:600; margin-left:2px; }
+
+  .nudge-card{ display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:12px; border:1px solid var(--border); margin-bottom:8px; }
+  .nudge-card .icon{ margin-top:1px; }
+  .nudge-card b{ font-size:13.5px; display:block; }
+  .nudge-card p{ margin:2px 0 0; font-size:12.5px; color:var(--text-secondary); }
+  .nudge-card.warn{ background:var(--status-warning-bg); }
+  .nudge-card.crit{ background:var(--status-critical-bg); }
+  .nudge-card.info{ background:var(--accent-wash); }
+
+  .goal-carousel{ display:flex; gap:10px; overflow-x:auto; margin:0 -18px; padding:0 18px 4px; scroll-snap-type:x mandatory; }
+  .goal-mini{ scroll-snap-align:start; flex:0 0 210px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:13px; }
+  .goal-mini .name{ font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px; }
+  .goal-mini .meter-track{ margin:9px 0 7px; }
+  .goal-mini .figs{ font-size:12px; color:var(--text-secondary); }
+
+  /* ============================= METER ============================= */
+  .meter-track{ height:10px; border-radius:999px; background:var(--surface-sunken); overflow:hidden; position:relative; }
+  .meter-fill{ height:100%; border-radius:999px; }
+  .meter-fill.good{ background:var(--status-good); } .meter-fill.warning{ background:var(--status-warning); } .meter-fill.critical{ background:var(--status-critical); }
+
+  /* ============================= ACCOUNTS ============================= */
+  .search-input{ display:flex; align-items:center; gap:8px; background:var(--surface-sunken); border-radius:10px; padding:10px 12px; margin-bottom:14px; color:var(--text-muted); font-size:14px; }
+  .acc-group{ margin-bottom:6px; }
+  .acc-group-head{ display:flex; justify-content:space-between; align-items:center; padding:8px 2px; }
+  .acc-group-head .t{ font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); }
+  .acc-group-head .n{ font-size:12px; color:var(--text-muted); }
+  .acc-row-wrap{ position:relative; overflow:hidden; border-radius:12px; margin-bottom:6px; }
+  .acc-row-actions{ position:absolute; right:0; top:0; bottom:0; display:flex; }
+  .acc-row-actions button{ width:56px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:10px; font-weight:700; color:#fff; }
+  .acc-row-actions .edit{ background:var(--accent); }
+  .acc-row-actions .del{ background:var(--status-critical); }
+  .acc-row{ position:relative; display:flex; gap:11px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; transition:transform .18s ease; z-index:1; }
+  .acc-row.revealed{ transform:translateX(-112px); }
+  .acc-row .emoji{ font-size:20px; width:30px; text-align:center; flex-shrink:0; margin-top:1px; }
+  .acc-row .main{ flex:1; min-width:0; }
+  .acc-row .name-line{ display:flex; justify-content:space-between; gap:8px; }
+  .acc-row .name{ font-weight:700; font-size:14px; }
+  .acc-row .value{ font-weight:700; font-size:14px; white-space:nowrap; }
+  .acc-row .meta{ font-size:12px; color:var(--text-muted); margin-top:2px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .acc-row .tagbar{ margin-top:7px; height:5px; border-radius:999px; background:var(--surface-sunken); overflow:hidden; display:flex; }
+  .acc-row.liability .value{ color:var(--status-critical); }
+
+  /* ============================= GOALS ============================= */
+  .goal-card{ padding:15px; border-radius:16px; border:1px solid var(--border); background:var(--surface); margin-bottom:10px; cursor:pointer; }
+  .goal-card:hover{ border-color:var(--border-strong); }
+  .goal-card .head{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .goal-card .name{ font-weight:700; font-size:15px; display:flex; align-items:center; gap:7px; }
+  .goal-card .meter-track{ margin:11px 0 8px; height:9px; }
+  .goal-card .figs{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-secondary); }
+  .goal-card .sip{ font-size:12.5px; color:var(--text-muted); margin-top:6px; }
+  .unalloc-card{ border-style:dashed; opacity:.85; }
+
+  /* ============================= SHEET / DIALOG (overlay) ============================= */
+  .scrim{ position:absolute; inset:0; background:rgba(0,0,0,0.45); opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:30; }
+  .scrim.open{ opacity:1; pointer-events:auto; }
+  .sheet{
+    position:absolute; left:0; right:0; bottom:0; max-height:86%; background:var(--surface);
+    border-radius:20px 20px 0 0; transform:translateY(100%); transition:transform .26s cubic-bezier(.2,.8,.2,1);
+    z-index:31; display:flex; flex-direction:column; box-shadow:var(--shadow-float);
+  }
+  .sheet.open{ transform:translateY(0); }
+  .sheet-handle{ width:36px; height:4px; background:var(--border-strong); border-radius:999px; margin:9px auto 2px; flex-shrink:0; }
+  .sheet-head{ display:flex; align-items:center; gap:10px; padding:10px 16px 6px; flex-shrink:0; }
+  .sheet-head h2{ font-size:16px; font-weight:700; margin:0; flex:1; }
+  .sheet-body{ overflow-y:auto; padding:6px 16px 24px; }
+  .cat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+  .cat-tile{ display:flex; flex-direction:column; align-items:flex-start; gap:6px; padding:14px 12px; border-radius:14px; border:1px solid var(--border); background:var(--surface-sunken); text-align:left; }
+  .cat-tile .em{ font-size:22px; }
+  .cat-tile .t{ font-weight:700; font-size:13.5px; }
+  .cat-tile .ex{ font-size:11px; color:var(--text-muted); line-height:1.3; }
+  .type-list button{ width:100%; text-align:left; padding:13px 4px; border-bottom:1px solid var(--border); font-size:14.5px; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+  .type-list button:last-child{ border-bottom:none; }
+  .accordion-trigger{ display:flex; justify-content:space-between; align-items:center; padding:11px 0; font-weight:700; font-size:13.5px; color:var(--text-secondary); border-top:1px solid var(--border); }
+  .accordion-body{ display:none; padding-bottom:12px; }
+  .accordion-body.open{ display:block; }
+  .own-toggle{ display:flex; gap:8px; margin-bottom:10px; }
+  .own-toggle button{ flex:1; padding:9px; border-radius:10px; border:1px solid var(--border); font-weight:700; font-size:13px; }
+  .own-toggle button.active{ background:var(--accent-wash); border-color:var(--accent); color:var(--accent); }
+  .own-split{ display:none; gap:10px; margin-bottom:10px; }
+  .own-split.open{ display:flex; }
+  .remainder-chip{ font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background:var(--surface-sunken); color:var(--text-secondary); display:inline-block; margin-top:6px; }
+  .remainder-chip.bad{ background:var(--status-warning-bg); color:var(--status-warning-text); }
+
+  /* ============================= TOAST ============================= */
+  .toast{ position:absolute; left:16px; right:16px; bottom:100px; background:var(--text-primary); color:var(--page-bg); padding:12px 14px; border-radius:12px; font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:8px; transform:translateY(20px); opacity:0; transition:all .25s ease; z-index:40; pointer-events:none; }
+  :root[data-theme="dark"] .toast, @media (prefers-color-scheme:dark){ .toast{} }
+  .toast.show{ transform:translateY(0); opacity:1; }
+
+  /* ============================= CHART ============================= */
+  .chart-wrap{ position:relative; }
+  .chart-tooltip{ position:absolute; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:12px; box-shadow:var(--shadow-float); pointer-events:none; opacity:0; transition:opacity .1s; white-space:nowrap; z-index:5; }
+  .chart-tooltip.show{ opacity:1; }
+  .chart-tooltip .d{ color:var(--text-muted); font-size:11px; }
+  .chart-tooltip .v{ font-weight:700; font-size:13px; }
+  .range-pills{ display:flex; gap:6px; margin-bottom:12px; }
+  .range-pills button{ padding:6px 12px; border-radius:999px; font-size:12.5px; font-weight:700; color:var(--text-secondary); background:var(--surface-sunken); }
+  .range-pills button.active{ background:var(--accent); color:#fff; }
+  .table-link{ font-size:12.5px; color:var(--accent); font-weight:700; margin-top:8px; display:inline-block; }
+  .as-table{ display:none; width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+  .as-table.open{ display:table; }
+  .as-table th, .as-table td{ text-align:right; padding:5px 6px; border-bottom:1px solid var(--border); }
+  .as-table th:first-child, .as-table td:first-child{ text-align:left; }
+
+  /* ============================= UNLOCK ============================= */
+  .unlock-wrap{ height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 30px; text-align:center; }
+  .unlock-mark{ width:60px; height:60px; border-radius:18px; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:16px; font-weight:800; font-size:22px; }
+  .unlock-wrap h2{ font-size:19px; margin:0 0 2px; }
+  .unlock-wrap .hh{ color:var(--text-muted); font-size:13.5px; margin-bottom:26px; }
+  .unlock-wrap .btn{ width:100%; }
+  .unlock-alt{ margin-top:14px; font-size:13.5px; font-weight:700; color:var(--accent); }
+  .unlock-passphrase{ display:none; width:100%; margin-top:16px; }
+  .unlock-passphrase.open{ display:block; }
+  .unlock-error{ display:none; color:var(--status-critical); font-size:12.5px; margin-top:8px; text-align:left; }
+  .unlock-error.show{ display:block; }
+  .unlock-reassure{ position:absolute; bottom:26px; left:30px; right:30px; font-size:11.5px; color:var(--text-muted); line-height:1.5; display:flex; gap:8px; }
+
+  /* ============================= HOUSEHOLD / SETTINGS ============================= */
+  .member-row{ display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; }
+  .member-row .av{ width:38px;height:38px; }
+  .member-row .info{ flex:1; }
+  .member-row .info .n{ font-weight:700; font-size:14px; }
+  .member-row .info .r{ font-size:12px; color:var(--text-muted); }
+  .own-edit-row{ padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; }
+  .own-edit-row .top{ display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; margin-bottom:8px; }
+  .split-bar{ display:flex; height:8px; border-radius:999px; overflow:hidden; gap:2px; margin-bottom:6px; }
+  .split-bar div:first-child{ background:var(--accent); } .split-bar div:last-child{ background:var(--cat-5); }
+  .split-labels{ display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-muted); }
+
+  .settings-group{ margin-bottom:18px; }
+  .settings-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:13px 2px; border-bottom:1px solid var(--border); }
+  .settings-row .l{ flex:1; }
+  .settings-row .l .t{ font-size:14px; font-weight:600; }
+  .settings-row .l .s{ font-size:12px; color:var(--text-muted); margin-top:1px; }
+  .switch{ width:42px; height:24px; border-radius:999px; background:var(--surface-sunken); border:1px solid var(--border); position:relative; flex-shrink:0; }
+  .switch .knob{ position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:var(--text-muted); transition:.18s ease; }
+  .switch.on{ background:var(--accent); border-color:var(--accent); }
+  .switch.on .knob{ left:20px; background:#fff; }
+
+  /* ============================= DESKTOP ============================= */
+  .desk-shell{ width:min(1180px, 92vw); height:740px; background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--shadow-float); display:flex; }
+  .desk-rail{ width:216px; flex-shrink:0; background:var(--surface-sunken); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:16px 12px; }
+  .desk-rail .brandline{ font-weight:800; font-size:15px; padding:6px 8px 18px; }
+  .desk-rail nav{ display:flex; flex-direction:column; gap:2px; flex:1; }
+  .desk-rail nav button{ display:flex; align-items:center; gap:10px; padding:10px 10px; border-radius:9px; font-weight:600; font-size:13.5px; color:var(--text-secondary); text-align:left; }
+  .desk-rail nav button.active{ background:var(--accent-wash); color:var(--accent); }
+  .desk-rail .foot{ font-size:11px; color:var(--text-muted); padding:8px; }
+  .desk-main{ flex:1; display:flex; flex-direction:column; min-width:0; }
+  .desk-topbar{ display:flex; align-items:center; gap:14px; padding:12px 22px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .desk-topbar .kbd{ font-size:11px; border:1px solid var(--border); border-radius:5px; padding:1px 5px; color:var(--text-muted); }
+  .desk-search{ flex:1; max-width:340px; display:flex; align-items:center; gap:8px; background:var(--surface-sunken); border-radius:9px; padding:8px 12px; color:var(--text-muted); font-size:13px; }
+  .desk-sync{ margin-left:auto; font-size:12.5px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+  .desk-content{ flex:1; overflow-y:auto; padding:22px 26px; }
+  .desk-grid3{ display:grid; grid-template-columns:1.3fr 1fr; gap:16px; }
+  .desk-grid-goals{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .desk-screen{ display:none; }
+  .desk-screen.active{ display:block; }
+  .desk-table{ width:100%; border-collapse:collapse; font-size:13px; }
+  .desk-table th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); padding:9px 10px; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; }
+  .desk-table td{ padding:10px; border-bottom:1px solid var(--border); }
+  .desk-table tbody tr:hover{ background:var(--surface-hover); }
+  .desk-table td.num, .desk-table th.num{ text-align:right; }
+  .desk-hero-row{ display:flex; gap:22px; align-items:flex-end; margin-bottom:6px; }
+  .desk-hero-row .hv{ font-size:38px; font-weight:700; letter-spacing:-.02em; }
+  .desk-two-col{ display:grid; grid-template-columns:1fr 320px; gap:18px; }
+
+  @media (max-width: 860px){
+    .desk-shell{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =============================================================== SVG ICON SPRITE =============================================================== -->
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <g id="ic-home"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></g>
+    <g id="ic-list"><rect x="3" y="4.5" width="18" height="4" rx="1.2"/><rect x="3" y="10" width="18" height="4" rx="1.2"/><rect x="3" y="15.5" width="18" height="4" rx="1.2"/></g>
+    <g id="ic-target"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></g>
+    <g id="ic-menu"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></g>
+    <g id="ic-plus"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></g>
+    <g id="ic-chev-l"><polyline points="15 18 9 12 15 6"/></g>
+    <g id="ic-chev-r"><polyline points="9 18 15 12 9 6"/></g>
+    <g id="ic-x"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></g>
+    <g id="ic-check"><polyline points="20 6 9 17 4 12"/></g>
+    <g id="ic-alert"><path d="M12 3 2 20h20L12 3Z" stroke-linejoin="round"/><line x1="12" y1="9.5" x2="12" y2="14"/><circle cx="12" cy="16.7" r="0.9" fill="currentColor" stroke="none"/></g>
+    <g id="ic-xcircle"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></g>
+    <g id="ic-up"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="9 7 17 7 17 15"/></g>
+    <g id="ic-down"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 9 17 17 9 17"/></g>
+    <g id="ic-sun"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2.5" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="21.5"/><line x1="4.2" y1="12" x2="2.2" y2="12"/><line x1="21.8" y1="12" x2="19.8" y2="12"/><line x1="5.3" y1="5.3" x2="6.7" y2="6.7"/><line x1="17.3" y1="17.3" x2="18.7" y2="18.7"/><line x1="5.3" y1="18.7" x2="6.7" y2="17.3"/><line x1="17.3" y1="6.7" x2="18.7" y2="5.3"/></g>
+    <g id="ic-moon"><path d="M20 14.2A8.2 8.2 0 1 1 9.8 4a6.7 6.7 0 0 0 10.2 10.2Z" stroke-linejoin="round"/></g>
+    <g id="ic-monitor"><rect x="3" y="4.5" width="18" height="12" rx="1.5"/><line x1="8.5" y1="20" x2="15.5" y2="20"/><line x1="12" y1="16.5" x2="12" y2="20"/></g>
+    <g id="ic-phone"><rect x="7.5" y="2.5" width="9" height="19" rx="2"/><line x1="10.7" y1="18.2" x2="13.3" y2="18.2"/></g>
+    <g id="ic-search"><circle cx="11" cy="11" r="6.5"/><line x1="20" y1="20" x2="15.8" y2="15.8"/></g>
+    <g id="ic-finger"><path d="M12 3.2a7.3 7.3 0 0 0-7.3 7.3c0 3 .6 4.9 1.1 7.5"/><path d="M12 3.2a7.3 7.3 0 0 1 7.3 7.3c0 1.8-.1 3.4-.5 5"/><path d="M8.2 10.5a3.8 3.8 0 0 1 7.6 0c0 4 .7 6 1.4 7.8"/><path d="M8.2 10.5c0 4.6.9 6.6 1.9 8.6"/><line x1="12" y1="10.5" x2="12" y2="14.2"/></g>
+    <g id="ic-lock"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M7.5 10.5V8a4.5 4.5 0 0 1 9 0v2.5"/></g>
+    <g id="ic-edit"><path d="M4 20h4L18.5 9.5l-4-4L4 16v4Z" stroke-linejoin="round"/></g>
+    <g id="ic-trash"><path d="M5 7h14"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></g>
+    <g id="ic-users"><circle cx="9" cy="8" r="3"/><path d="M3.2 20c0-3.5 2.6-6 5.8-6s5.8 2.5 5.8 6"/><circle cx="17.3" cy="9.2" r="2.3"/><path d="M15.8 14.3c2.4.4 4.2 2.4 4.2 5.7"/></g>
+    <g id="ic-settings"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.4M12 18.6V21M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M3 12h2.4M18.6 12H21M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></g>
+    <g id="ic-refresh"><path d="M4 12a8 8 0 0 1 14-5.2M20 12a8 8 0 0 1-14 5.2"/><polyline points="17.5 3.5 17.8 6.9 14.4 7.1"/><polyline points="6.5 20.5 6.2 17.1 9.6 16.9"/></g>
+    <g id="ic-cloud-off"><path d="M9 8.5A5 5 0 0 1 18 11a4 4 0 0 1-.4 8H8a4.6 4.6 0 0 1-2.9-8.1"/><line x1="3" y1="3" x2="21" y2="21"/></g>
+    <g id="ic-tag"><path d="M20 12.5 12.5 20 4 11.5V4h7.5Z" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/></g>
+  </defs>
+</svg>
+
+<!-- =============================================================== CONTROL BAR =============================================================== -->
+<div class="control-bar">
+  <div class="brand">NetWorth Tracker <span>— UX prototype</span></div>
+  <div class="seg" id="deviceSeg">
+    <button data-device="mobile" class="active"><svg class="icon icon-sm"><use href="#ic-phone"/></svg>Mobile</button>
+    <button data-device="desktop"><svg class="icon icon-sm"><use href="#ic-monitor"/></svg>Desktop</button>
+  </div>
+  <div class="seg" id="themeSeg">
+    <button data-theme-choice="system" class="active">System</button>
+    <button data-theme-choice="light" aria-label="Light theme"><svg class="icon icon-sm"><use href="#ic-sun"/></svg></button>
+    <button data-theme-choice="dark" aria-label="Dark theme"><svg class="icon icon-sm"><use href="#ic-moon"/></svg></button>
+  </div>
+  <div class="screen-jump" id="mobileJump">
+    <button data-goto="unlock" class="active">Unlock</button>
+    <button data-goto="home">Home</button>
+    <button data-goto="networth">Net worth</button>
+    <button data-goto="accounts">Accounts</button>
+    <button data-goto="goals">Goals</button>
+    <button data-goto="goaldetail">Goal detail</button>
+    <button data-goto="household">Household</button>
+    <button data-goto="settings">Settings</button>
+  </div>
+  <div class="screen-jump" id="desktopJump" style="display:none">
+    <button data-dgoto="home" class="active">Home</button>
+    <button data-dgoto="accounts">Accounts</button>
+    <button data-dgoto="goals">Goals</button>
+    <button data-dgoto="household">Household</button>
+    <button data-dgoto="settings">Settings</button>
+  </div>
+  <div class="hint">Click through like the real app — lens switch, FAB "+", account rows and goal cards are all live. Sample household: Rohit &amp; Priya Sharma, Bengaluru.</div>
+</div>
+
+<div class="stage">
+
+  <!-- =============================================================== MOBILE FRAME =============================================================== -->
+  <div class="frame frame-mobile active" id="mobileFrame">
+    <div class="phone-shell">
+      <div class="phone-screen">
+        <div class="statusbar">
+          <span>9:41</span>
+          <span class="dot-icons">●●●&nbsp;&nbsp;100%</span>
+        </div>
+
+        <div class="app" id="appRoot">
+
+          <!-- ===================== SCREEN: UNLOCK ===================== -->
+          <section class="screen active" id="screen-unlock">
+            <div class="unlock-wrap" style="position:relative; flex:1;">
+              <div class="unlock-mark">NW</div>
+              <h2>Unlock your household</h2>
+              <div class="hh">Sharma Household · Rohit &amp; Priya</div>
+              <button class="btn btn-primary btn-block" id="btnBiometric">
+                <svg class="icon"><use href="#ic-finger"/></svg> Unlock with Face ID
+              </button>
+              <button class="unlock-alt" id="btnPassAlt">Use passphrase instead</button>
+              <div class="unlock-passphrase" id="passphraseBox">
+                <input class="input" type="password" placeholder="Enter passphrase" id="passInput" style="margin-bottom:10px;"/>
+                <button class="btn btn-secondary btn-block" id="btnPassSubmit">Unlock</button>
+                <div class="unlock-error" id="unlockErr">That passphrase didn't work — try again, or use your recovery kit.</div>
+              </div>
+              <div class="unlock-reassure">
+                <svg class="icon icon-sm" style="margin-top:1px;"><use href="#ic-lock"/></svg>
+                <span>Encrypted on this device with AES-256. We can never see your data — even we couldn't unlock this for you.</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================== SCREEN: HOME ===================== -->
+          <section class="screen" id="screen-home">
+            <div class="lensbar">
+              <div class="seg lens-seg">
+                <button data-lens="me">Me</button>
+                <button data-lens="household" class="active">Household</button>
+                <button data-lens="priya">Priya</button>
+              </div>
+            </div>
+            <div class="app-content">
+              <div class="section-label" style="margin-top:6px;">Household net worth</div>
+              <div class="hero-value tabular" data-bind="hero-net">₹1,92,95,300</div>
+              <div class="hero-delta good" data-bind="hero-delta">
+                <svg class="icon icon-sm"><use href="#ic-up"/></svg> +₹1,79,000 this month
+              </div>
+              <div class="sparkline-wrap">
+                <svg id="sparkline" width="100%" height="56" viewBox="0 0 326 56" preserveAspectRatio="none"></svg>
+              </div>
+
+              <div class="section-label">Net worth by type</div>
+              <div class="comp-bar" id="compBarHome"></div>
+              <div class="comp-legend" id="compLegendHome"></div>
+
+              <div class="section-label">Nudges</div>
+              <div id="nudgeList"></div>
+
+              <div class="row between" style="margin-top:20px;">
+                <div class="section-label" style="margin:0;">Goals</div>
+                <button class="btn-ghost" style="font-size:12.5px; font-weight:700;" data-nav="goals">See all →</button>
+              </div>
+              <div class="goal-carousel" id="goalCarousel"></div>
+              <div style="height:6px;"></div>
+            </div>
+          </section>
+
+          <!-- ===================== SCREEN: NET WORTH DETAIL ===================== -->
+          <section class="screen" id="screen-networth">
+            <div class="app-header">
+              <div class="back-row"><button data-nav="home"><svg class="icon icon-sm"><use href="#ic-chev-l"/></svg>Home</button></div>
+              <h1>Net worth timeline</h1>
+            </div>
+            <div class="lensbar">
+              <div class="seg lens-seg">
+                <button data-lens="me">Me</button>
+                <button data-lens="household" class="active">Household</button>
+                <button data-lens="priya">Priya</button>
+              </div>
+            </div>
+            <div class="app-content">
+              <div class="range-pills">
+                <button data-range="3" >3M</button>
+                <button data-range="6">6M</button>
+                <button data-range="13" class="active">1Y</button>
+              </div>
+              <div class="chart-wrap">
+                <svg id="mainChart" width="100%" height="190" viewBox="0 0 326 190" preserveAspectRatio="none"></svg>
+                <div class="chart-tooltip" id="chartTip"></div>
+              </div>
+              <label class="row gap-8" style="font-size:12.5px; font-weight:600; color:var(--text-secondary); margin:10px 0 4px;">
+                <input type="checkbox" id="compareToggle"/> Compare Rohit &amp; Priya
+              </label>
+              <a class="table-link" id="viewTableLink">View as table</a>
+              <table class="as-table" id="dataTable"><thead><tr><th>Month</th><th>Household</th></tr></thead><tbody></tbody></table>
+
+              <div class="row between" style="margin-top:22px;">
+                <div class="section-label" style="margin:0;">Composition</div>
+                <div class="seg" id="compModeSeg" style="padding:2px;">
+                  <button data-mode="type" class="active" style="font-size:11.5px; padding:5px 9px;">By type</button>
+                  <button data-mode="member" style="font-size:11.5px; padding:5px 9px;">By member</button>
+                </div>
+              </div>
+              <div class="comp-bar" id="compBarDetail" style="margin-top:10px;"></div>
+              <div class="comp-legend" id="compLegendDetail"></div>
+            </div>
+          </section>
+
+          <!-- ===================== SCREEN: ACCOUNTS ===================== -->
+          <section class="screen" id="screen-accounts">
+            <div class="lensbar">
+              <div class="seg lens-seg">
+                <button data-lens="me">Me</button>
+                <button data-lens="household" class="active">Household</button>
+                <button data-lens="priya">Priya</button>
+              </div>
+            </div>
+            <div class="app-header" style="padding-top:0;"><h1 style="margin-bottom:8px;">Accounts</h1></div>
+            <div class="app-content">
+              <div class="search-input"><svg class="icon icon-sm"><use href="#ic-search"/></svg> Search accounts…</div>
+              <div id="accountsList"></div>
+            </div>
+          </section>
+
+          <!-- ===================== SCREEN: GOALS ===================== -->
+          <section class="screen" id="screen-goals">
+            <div class="app-header" style="padding-top:12px;"><h1 style="margin-bottom:2px;">Goals</h1></div>
+            <div class="app-content">
+              <div class="card" style="margin-bottom:16px; background:var(--surface-sunken); border:none;">
+                <div class="row between">
+                  <span class="secondary-text" style="font-size:13px; font-weight:600;">Earmarked of net worth</span>
+                  <span style="font-weight:700; font-size:13px;">₹61.4L of ₹1.93Cr</span>
+                </div>
+                <div class="meter-track" style="margin-top:8px;"><div class="meter-fill good" style="width:32%; background:var(--accent);"></div></div>
+              </div>
+              <div id="goalList"></div>
+            </div>
+          </section>
+
+          <!-- ===================== SCREEN: GOAL DETAIL ===================== -->
+          <section class="screen" id="screen-goaldetail">
+            <div class="app-header">
+              <div class="back-row"><button data-nav="goals"><svg class="icon icon-sm"><use href="#ic-chev-l"/></svg>Goals</button></div>
+              <h1 id="gd-title">Ananya's Education</h1>
+            </div>
+            <div class="app-content" id="goalDetailContent"></div>
+          </section>
+
+          <!-- ===================== SCREEN: HOUSEHOLD ===================== -->
+          <section class="screen" id="screen-household">
+            <div class="app-header" style="padding-top:12px;"><h1 style="margin-bottom:2px;">Household &amp; sharing</h1></div>
+            <div class="app-content">
+              <div class="section-label" style="margin-top:6px;">Members</div>
+              <div class="member-row">
+                <div class="avatar av">RS</div>
+                <div class="info"><div class="n">Rohit Sharma (you)</div><div class="r">Owner</div></div>
+                <span class="badge badge-good"><svg class="icon icon-sm" style="width:12px;height:12px;"><use href="#ic-check"/></svg>Has access</span>
+              </div>
+              <div class="member-row">
+                <div class="avatar av a2">PS</div>
+                <div class="info"><div class="n">Priya Sharma</div><div class="r">Member</div></div>
+                <span class="badge badge-good"><svg class="icon icon-sm" style="width:12px;height:12px;"><use href="#ic-check"/></svg>Has access</span>
+              </div>
+              <button class="btn btn-secondary btn-block" style="margin-top:6px;"><svg class="icon icon-sm"><use href="#ic-plus"/></svg> Invite a member</button>
+              <p class="hint-text" style="text-align:center; margin-top:8px;">They'll be able to unlock and see this household's data on their own device.</p>
+
+              <div class="section-label">Ownership on joint records</div>
+              <div class="own-edit-row">
+                <div class="top"><span>HDFC Joint Savings</span><span class="muted">₹8,42,300</span></div>
+                <div class="split-bar"><div style="width:50%"></div><div style="width:50%"></div></div>
+                <div class="split-labels"><span>Rohit 50%</span><span>Priya 50%</span></div>
+              </div>
+              <div class="own-edit-row">
+                <div class="top"><span>Whitefield 3BHK Flat</span><span class="muted">₹1.85Cr</span></div>
+                <div class="split-bar"><div style="width:60%"></div><div style="width:40%"></div></div>
+                <div class="split-labels"><span>Rohit 60%</span><span>Priya 40%</span></div>
+              </div>
+              <div class="own-edit-row">
+                <div class="top"><span>Gold — jewellery &amp; coins</span><span class="muted">₹4,10,000</span></div>
+                <div class="split-bar"><div style="width:50%"></div><div style="width:50%"></div></div>
+                <div class="split-labels"><span>Rohit 50%</span><span>Priya 50%</span></div>
+              </div>
+              <div class="own-edit-row">
+                <div class="top"><span>SBI PSU Fund</span><span class="muted">₹1,15,000</span></div>
+                <div class="split-bar"><div style="width:50%"></div><div style="width:50%"></div></div>
+                <div class="split-labels"><span>Rohit 50%</span><span>Priya 50%</span></div>
+              </div>
+              <div class="own-edit-row">
+                <div class="top"><span>Home Loan — Whitefield Flat</span><span class="muted">₹78,00,000</span></div>
+                <div class="split-bar"><div style="width:60%"></div><div style="width:40%"></div></div>
+                <div class="split-labels"><span>Rohit 60%</span><span>Priya 40%</span></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================== SCREEN: SETTINGS ===================== -->
+          <section class="screen" id="screen-settings">
+            <div class="app-header" style="padding-top:12px;"><h1 style="margin-bottom:2px;">Settings</h1></div>
+            <div class="app-content">
+              <div class="settings-group">
+                <div class="section-label" style="margin-top:6px;">Security</div>
+                <div class="settings-row"><div class="l"><div class="t">Change passphrase</div></div><svg class="icon icon-sm muted"><use href="#ic-chev-r"/></svg></div>
+                <div class="settings-row"><div class="l"><div class="t">View recovery kit</div><div class="s">24-word offline backup</div></div><svg class="icon icon-sm muted"><use href="#ic-chev-r"/></svg></div>
+                <div class="settings-row"><div class="l"><div class="t">Biometric unlock</div></div><div class="switch on" id="swBio"><div class="knob"></div></div></div>
+                <div class="settings-row"><div class="l"><div class="t">Auto-lock after</div><div class="s">5 minutes of inactivity</div></div><svg class="icon icon-sm muted"><use href="#ic-chev-r"/></svg></div>
+              </div>
+              <div class="settings-group">
+                <div class="section-label">Appearance</div>
+                <div class="settings-row"><div class="l"><div class="t">Theme</div><div class="s">Use the control bar above to preview</div></div></div>
+              </div>
+              <div class="settings-group">
+                <div class="section-label">Data</div>
+                <div class="settings-row"><div class="l"><div class="t">Export encrypted backup</div></div><svg class="icon icon-sm muted"><use href="#ic-chev-r"/></svg></div>
+                <div class="settings-row" style="opacity:.5;"><div class="l"><div class="t">Import from CAS / statement</div><div class="s">Coming soon</div></div></div>
+              </div>
+              <div class="settings-group">
+                <div class="section-label">About</div>
+                <div class="settings-row"><div class="l"><div class="t">Sharma Household</div><div class="s">v0.1.0 · zero-knowledge encrypted</div></div></div>
+              </div>
+              <button class="btn btn-secondary btn-block" id="btnLockSettings" style="color:var(--status-critical);"><svg class="icon icon-sm"><use href="#ic-lock"/></svg> Lock now</button>
+            </div>
+          </section>
+
+          <!-- ===================== BOTTOM TAB BAR ===================== -->
+          <nav class="app-tabbar" id="tabbar">
+            <button data-nav="home" class="active"><svg class="icon"><use href="#ic-home"/></svg>Home</button>
+            <button data-nav="accounts"><svg class="icon"><use href="#ic-list"/></svg>Accounts</button>
+            <button data-nav="goals"><svg class="icon"><use href="#ic-target"/></svg>Goals</button>
+            <button data-nav="more"><svg class="icon"><use href="#ic-menu"/></svg>More</button>
+          </nav>
+          <button class="fab" id="fabAdd" aria-label="Add an account, holding, or liability"><svg class="icon icon-lg" style="stroke-width:2;"><use href="#ic-plus"/></svg></button>
+
+          <!-- ===================== MORE SHEET ===================== -->
+          <div class="scrim" id="moreScrim"></div>
+          <div class="sheet" id="moreSheet" style="max-height:40%;">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head"><h2>More</h2><button id="moreClose" aria-label="Close"><svg class="icon"><use href="#ic-x"/></svg></button></div>
+            <div class="sheet-body">
+              <button class="settings-row" style="width:100%;" data-nav="household"><svg class="icon" style="margin-right:10px;"><use href="#ic-users"/></svg><span class="t" style="font-weight:600;">Household &amp; sharing</span></button>
+              <button class="settings-row" style="width:100%;" data-nav="settings"><svg class="icon" style="margin-right:10px;"><use href="#ic-settings"/></svg><span class="t" style="font-weight:600;">Settings</span></button>
+              <button class="settings-row" id="btnLockMore" style="width:100%; color:var(--status-critical);"><svg class="icon" style="margin-right:10px;"><use href="#ic-lock"/></svg><span class="t" style="font-weight:600;">Lock now</span></button>
+            </div>
+          </div>
+
+          <!-- ===================== ADD FLOW SHEET ===================== -->
+          <div class="scrim" id="addScrim"></div>
+          <div class="sheet" id="addSheet" style="max-height:90%;">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head">
+              <button id="addBack" style="display:none;" aria-label="Back"><svg class="icon"><use href="#ic-chev-l"/></svg></button>
+              <h2 id="addTitle">What would you like to add?</h2>
+              <button id="addClose" aria-label="Close add flow"><svg class="icon"><use href="#ic-x"/></svg></button>
+            </div>
+            <div class="sheet-body">
+              <div id="addStep1">
+                <div class="search-input"><svg class="icon icon-sm"><use href="#ic-search"/></svg> Search — e.g. "SBI FD"</div>
+                <div class="section-label" style="margin-top:4px;">Frequently added</div>
+                <div class="chip-row" style="margin-bottom:6px;">
+                  <button class="chip" data-quick="mf">Mutual fund</button>
+                  <button class="chip" data-quick="fd">Fixed deposit</button>
+                  <button class="chip" data-quick="sip">Update a SIP</button>
+                </div>
+                <div class="section-label">Categories</div>
+                <div class="cat-grid" id="catGrid"></div>
+              </div>
+              <div id="addStep2" style="display:none;">
+                <div class="type-list" id="typeList"></div>
+              </div>
+              <div id="addStep3" style="display:none;"></div>
+            </div>
+          </div>
+
+          <!-- ===================== ALLOCATION EDITOR SHEET ===================== -->
+          <div class="scrim" id="allocScrim"></div>
+          <div class="sheet" id="allocSheet" style="max-height:70%;">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head"><h2>Tag to goals</h2><button id="allocClose" aria-label="Close"><svg class="icon"><use href="#ic-x"/></svg></button></div>
+            <div class="sheet-body" id="allocBody"></div>
+          </div>
+
+          <div class="toast" id="toast"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================== DESKTOP FRAME =============================================================== -->
+  <div class="frame frame-desktop" id="desktopFrame">
+    <div class="desk-shell">
+      <div class="desk-rail">
+        <div class="brandline">NetWorth</div>
+        <nav id="deskNav">
+          <button data-dnav="home" class="active"><svg class="icon icon-sm"><use href="#ic-home"/></svg>Home</button>
+          <button data-dnav="accounts"><svg class="icon icon-sm"><use href="#ic-list"/></svg>Accounts</button>
+          <button data-dnav="goals"><svg class="icon icon-sm"><use href="#ic-target"/></svg>Goals</button>
+          <button data-dnav="household"><svg class="icon icon-sm"><use href="#ic-users"/></svg>Household</button>
+          <button data-dnav="settings"><svg class="icon icon-sm"><use href="#ic-settings"/></svg>Settings</button>
+        </nav>
+        <div class="foot">Sharma Household<br/>Rohit Sharma</div>
+      </div>
+      <div class="desk-main">
+        <div class="desk-topbar">
+          <div class="seg lens-seg-desk">
+            <button data-lens="me">Me</button>
+            <button data-lens="household" class="active">Household</button>
+            <button data-lens="priya">Priya</button>
+          </div>
+          <div class="desk-search"><svg class="icon icon-sm"><use href="#ic-search"/></svg> Search or add anything… <span class="kbd" style="margin-left:auto;">⌘K</span></div>
+          <div class="desk-sync"><svg class="icon icon-sm"><use href="#ic-refresh"/></svg> Synced 2 min ago</div>
+        </div>
+        <div class="desk-content">
+
+          <!-- DESKTOP HOME -->
+          <div class="desk-screen active" id="desk-home">
+            <div class="desk-hero-row">
+              <div>
+                <div class="section-label" style="margin-top:0;">Household net worth</div>
+                <div class="hv tabular" data-bind="hero-net">₹1,92,95,300</div>
+                <div class="hero-delta good" data-bind="hero-delta" style="margin-top:4px;"><svg class="icon icon-sm"><use href="#ic-up"/></svg>+₹1,79,000 this month</div>
+              </div>
+              <div style="flex:1;">
+                <svg id="sparklineDesk" width="100%" height="70" viewBox="0 0 500 70" preserveAspectRatio="none"></svg>
+              </div>
+            </div>
+            <div class="desk-two-col" style="margin-top:18px;">
+              <div class="card">
+                <div class="row between"><span class="section-label" style="margin:0;">Net worth by type</span></div>
+                <div class="comp-bar" id="compBarDeskHome" style="margin-top:10px;"></div>
+                <div class="comp-legend" id="compLegendDeskHome"></div>
+              </div>
+              <div class="card">
+                <div class="section-label" style="margin:0 0 10px;">Nudges</div>
+                <div id="nudgeListDesk"></div>
+              </div>
+            </div>
+            <div class="row between" style="margin-top:20px;">
+              <div class="section-label" style="margin:0;">Goals</div>
+              <button class="btn-ghost" style="font-weight:700; font-size:13px;" data-dnav="goals">See all →</button>
+            </div>
+            <div class="desk-grid-goals" id="goalGridDeskHome" style="margin-top:10px;"></div>
+          </div>
+
+          <!-- DESKTOP ACCOUNTS -->
+          <div class="desk-screen" id="desk-accounts">
+            <div class="row between" style="margin-bottom:14px;">
+              <div class="desk-search" style="max-width:280px;"><svg class="icon icon-sm"><use href="#ic-search"/></svg> Filter accounts…</div>
+              <button class="btn btn-primary" id="deskAddBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add</button>
+            </div>
+            <table class="desk-table">
+              <thead><tr>
+                <th>Name</th><th>Institution</th><th>Owner(s)</th>
+                <th class="num" id="sortValueHeader" style="cursor:pointer;">Value ▾</th>
+                <th>Allocation</th><th>As of</th>
+              </tr></thead>
+              <tbody id="deskAccountsBody"></tbody>
+            </table>
+            <p class="hint" style="margin-top:10px;">Keyboard: <b>j / k</b> move selection · <b>Enter</b> open · <b>e</b> edit inline · <b>a</b> add new</p>
+          </div>
+
+          <!-- DESKTOP GOALS -->
+          <div class="desk-screen" id="desk-goals">
+            <div class="card" style="margin-bottom:16px; background:var(--surface-sunken); border:none; max-width:420px;">
+              <div class="row between"><span class="secondary-text" style="font-size:13px; font-weight:600;">Earmarked of net worth</span><span style="font-weight:700; font-size:13px;">₹61.4L of ₹1.93Cr</span></div>
+              <div class="meter-track" style="margin-top:8px;"><div class="meter-fill" style="width:32%; background:var(--accent);"></div></div>
+            </div>
+            <div class="desk-grid-goals" id="goalGridDesk"></div>
+          </div>
+
+          <!-- DESKTOP HOUSEHOLD -->
+          <div class="desk-screen" id="desk-household">
+            <div style="max-width:560px;">
+              <div class="section-label" style="margin-top:0;">Members</div>
+              <div class="member-row"><div class="avatar av">RS</div><div class="info"><div class="n">Rohit Sharma (you)</div><div class="r">Owner</div></div><span class="badge badge-good">Has access</span></div>
+              <div class="member-row"><div class="avatar av a2">PS</div><div class="info"><div class="n">Priya Sharma</div><div class="r">Member</div></div><span class="badge badge-good">Has access</span></div>
+              <div class="section-label">Ownership on joint records</div>
+              <div class="own-edit-row"><div class="top"><span>HDFC Joint Savings</span><span class="muted">₹8,42,300</span></div><div class="split-bar"><div style="width:50%"></div><div style="width:50%"></div></div><div class="split-labels"><span>Rohit 50%</span><span>Priya 50%</span></div></div>
+              <div class="own-edit-row"><div class="top"><span>Whitefield 3BHK Flat</span><span class="muted">₹1.85Cr</span></div><div class="split-bar"><div style="width:60%"></div><div style="width:40%"></div></div><div class="split-labels"><span>Rohit 60%</span><span>Priya 40%</span></div></div>
+            </div>
+          </div>
+
+          <!-- DESKTOP SETTINGS -->
+          <div class="desk-screen" id="desk-settings">
+            <div style="max-width:520px;">
+              <div class="settings-group">
+                <div class="section-label" style="margin-top:0;">Security</div>
+                <div class="settings-row"><div class="l"><div class="t">Change passphrase</div></div></div>
+                <div class="settings-row"><div class="l"><div class="t">Biometric unlock</div></div><div class="switch on"><div class="knob"></div></div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(()=> {
+  "use strict";
+
+  /* ============================= DATA ============================= */
+  var CATS = [
+    {key:'cash', label:'Cash & Bank', v:'--cat-1'},
+    {key:'deposits', label:'Deposits', v:'--cat-2'},
+    {key:'invest', label:'Investments', v:'--cat-3'},
+    {key:'retire', label:'Retirement & Small Savings', v:'--cat-4'},
+    {key:'foreign', label:'Foreign (US stocks/RSU)', v:'--cat-5'},
+    {key:'property', label:'Property & Valuables', v:'--cat-6'},
+    {key:'lending', label:'Insurance & Lending', v:'--cat-7'}
+  ];
+
+  var LENS = {
+    household:{ net:19295300, assets:27137300, liab:7842000, ratio:1,
+      cats:{cash:842300,deposits:500000,invest:945000,retire:4210000,foreign:1530000,property:18910000,lending:200000} },
+    me:{ net:12131650, assets:16853650, liab:4722000, ratio:0.62884,
+      cats:{cash:421150,deposits:500000,invest:677500,retire:2220000,foreign:1530000,property:11305000,lending:200000} },
+    priya:{ net:7163650, assets:10283650, liab:3120000, ratio:0.37116,
+      cats:{cash:421150,deposits:0,invest:267500,retire:1990000,foreign:0,property:7605000,lending:0} }
+  };
+
+  var TREND_LABELS = ['Sep25','Oct25','Nov25','Dec25','Jan26','Feb26','Mar26','Apr26','May26','Jun26','Jul26','Aug26','Sep26'];
+  var TREND_HOUSEHOLD = [172.4,174.1,176.8,179.5,178.2,174.6,171.9,176.3,181.0,187.4,189.8,191.16,192.95]; // in lakh
+
+  var ACCOUNTS = [
+    {id:'savings', cat:'cash', icon:'🏦', name:'HDFC Joint Savings', inst:'HDFC Bank', value:842300, owners:[{n:'Rohit',p:50},{n:'Priya',p:50}], asOf:'8 Sep 2026', manual:true, tagged:300000, extra:null},
+    {id:'fd', cat:'deposits', icon:'💰', name:'SBI Fixed Deposit', inst:'State Bank of India', value:500000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:true, tagged:500000, extra:'7.1% · matures 12 Dec 2027'},
+    {id:'mf1', cat:'invest', icon:'📈', name:'Parag Parikh Flexi Cap', inst:'PPFAS Mutual Fund', value:620000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:false, tagged:310000, extra:'Direct plan · growth'},
+    {id:'mf2', cat:'invest', icon:'📈', name:'Axis Small Cap Fund', inst:'Axis Mutual Fund', value:210000, owners:[{n:'Priya',p:100}], asOf:'8 Sep 2026', manual:false, tagged:0, extra:'Direct plan · growth'},
+    {id:'mf3', cat:'invest', icon:'📈', name:'SBI PSU Fund', inst:'SBI Mutual Fund', value:115000, owners:[{n:'Rohit',p:50},{n:'Priya',p:50}], asOf:'8 Sep 2026', manual:false, tagged:57500, extra:null},
+    {id:'epfR', cat:'retire', icon:'🏛️', name:'EPF — Rohit', inst:'TCS', value:1840000, owners:[{n:'Rohit',p:100}], asOf:'31 Aug 2026', manual:false, tagged:1840000, extra:null},
+    {id:'epfP', cat:'retire', icon:'🏛️', name:'EPF — Priya', inst:'Infosys', value:920000, owners:[{n:'Priya',p:100}], asOf:'31 Aug 2026', manual:false, tagged:920000, extra:null},
+    {id:'ppf', cat:'retire', icon:'🏛️', name:'PPF — Priya', inst:'State Bank of India', value:650000, owners:[{n:'Priya',p:100}], asOf:'8 Sep 2026', manual:true, tagged:650000, extra:null},
+    {id:'nps', cat:'retire', icon:'🏛️', name:'NPS Tier 1 — Rohit', inst:'HDFC Pension', value:380000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:false, tagged:380000, extra:null},
+    {id:'ssy', cat:'retire', icon:'🏛️', name:'Sukanya Samriddhi — Ananya', inst:'Post Office', value:420000, owners:[{n:'Priya',p:100}], asOf:'8 Sep 2026', manual:true, tagged:420000, extra:'Guardian: Priya'},
+    {id:'rsu', cat:'foreign', icon:'🌎', name:'US RSU — Rohit', inst:'Salesforce Inc.', value:1530000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:false, tagged:765000, extra:'620 units vested · 1 USD = ₹83.40'},
+    {id:'flat', cat:'property', icon:'🏠', name:'Whitefield 3BHK Flat', inst:'Bengaluru', value:18500000, owners:[{n:'Rohit',p:60},{n:'Priya',p:40}], asOf:'1 Apr 2026', manual:true, tagged:0, extra:'Linked liability: Home loan'},
+    {id:'gold', cat:'property', icon:'✨', name:'Gold — jewellery & coins', inst:'Home locker', value:410000, owners:[{n:'Rohit',p:50},{n:'Priya',p:50}], asOf:'6 Sep 2026', manual:false, tagged:0, extra:null, stale:true},
+    {id:'lent', cat:'lending', icon:'🤝', name:'Lent to Sandeep (cousin)', inst:'Personal', value:200000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:true, tagged:0, extra:'Interest-free · expected Mar 2027'}
+  ];
+  var LIABILITIES = [
+    {id:'homeloan', icon:'🏦', name:'Home Loan — Whitefield Flat', inst:'HDFC Ltd.', value:7800000, owners:[{n:'Rohit',p:60},{n:'Priya',p:40}], asOf:'8 Sep 2026', extra:'EMI ₹68,500/mo · 14 yrs remaining'},
+    {id:'cc', icon:'💳', name:'Credit Card Outstanding', inst:'ICICI Bank', value:42000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', extra:'Statement due 20 Sep'}
+  ];
+
+  var GOALS = [
+    {id:'retirement', icon:'🏛️', name:'Retirement', status:'good', label:'On track',
+     targetToday:25000000, targetDate:'2046', years:20, inflation:6, inflated:80178250,
+     current:4865000, reqSip:46900, curSip:48500,
+     funding:[
+       {n:'EPF — Rohit (TCS)', a:1840000},{n:'EPF — Priya (Infosys)', a:920000},
+       {n:'PPF — Priya', a:650000},{n:'NPS Tier 1 — Rohit', a:380000},
+       {n:'US RSU — Rohit (50% tagged)', a:765000},{n:'Parag Parikh Flexi Cap (50% tagged)', a:310000}
+     ],
+     note:'Contributing ₹48,500/mo across EPF, NPS, PPF & SIP, you are projected to reach about ₹8.09Cr by 2046 — just ahead of the ₹8.02Cr inflated target.'},
+    {id:'education', icon:'🎓', name:"Ananya's Education", status:'warning', label:'At risk',
+     targetToday:5000000, targetDate:'2040', years:14, inflation:10, inflated:18987492,
+     current:477500, reqSip:42300, curSip:9000,
+     funding:[
+       {n:'Sukanya Samriddhi — Ananya', a:420000},{n:'SBI PSU Fund (50% tagged)', a:57500}
+     ],
+     note:'At ₹9,000/mo you will reach about ₹56.6L by 2040 — ₹1.33Cr short of the ₹1.90Cr target. Raising the SIP to ₹42,300/mo closes the gap.'},
+    {id:'emergency', icon:'🛟', name:'Emergency Fund', status:'critical', label:'Off track',
+     targetToday:900000, targetDate:'Nov 2026', years:0, inflation:0, inflated:900000,
+     current:800000, reqSip:null, curSip:null,
+     funding:[
+       {n:'SBI Fixed Deposit (matures Dec 2027)', a:500000, warn:true},
+       {n:'HDFC Joint Savings (tagged portion)', a:300000}
+     ],
+     note:'₹5,00,000 of this goal sits in an FD maturing Dec 2027 — after the Nov 2026 target date. Effective liquid progress is ₹3,00,000 of ₹9,00,000 (33%), not the ₹8,00,000 (89%) the raw total suggests.'}
+  ];
+
+  var CATEGORY_MENU = [
+    {key:'cash', em:'🏦', t:'Cash & Bank', ex:'Savings, current, cash, UPI wallet'},
+    {key:'deposits', em:'💰', t:'Deposits', ex:'FD, RD, corporate FD, post-office TD'},
+    {key:'invest', em:'📈', t:'Investments', ex:'MF, stocks, ETF, US stocks, RSU, crypto'},
+    {key:'retire', em:'🏛️', t:'Retirement & Small Savings', ex:'EPF, PPF, NPS, Sukanya Samriddhi'},
+    {key:'property', em:'🏠', t:'Property & Valuables', ex:'Real estate, vehicle, gold'},
+    {key:'insurance', em:'🛡️', t:'Insurance', ex:'Endowment, ULIP, term'},
+    {key:'lending', em:'🤝', t:'Lending & Loans', ex:'Money lent, chit fund — or a loan you owe'}
+  ];
+  var TYPE_MENU = {
+    cash: ['Savings account','Current account','Cash in hand','UPI / wallet balance'],
+    deposits: ['Fixed deposit','Recurring deposit','Corporate FD','Post-office TD / MIS'],
+    invest: ['Mutual fund','Indian stocks','ETF','US stocks','RSU / ESPP','Crypto','Digital gold','Bonds / SGB'],
+    retire: ['EPF','PPF','VPF','NPS (Tier 1/2)','Sukanya Samriddhi','NSC','KVP','SCSS'],
+    property: ['Real estate','Vehicle','Physical gold / jewellery','Other valuables'],
+    insurance: ['Endowment / money-back','ULIP','Term (₹0 asset, tracks cover)'],
+    lending: ['Money lent to someone','Security deposit','Chit fund','Home loan','Car loan','Personal loan','Credit card outstanding','Borrowed from family']
+  };
+
+  /* ============================= FORMATTERS ============================= */
+  function formatIndian(n){
+    n = Math.round(n); var neg = n<0; n = Math.abs(n);
+    var s = n.toString();
+    var last3 = s.slice(-3), other = s.slice(0,-3);
+    if(other !== ''){ other = other.replace(/\B(?=(\d{2})+(?!\d))/g,','); last3 = ','+last3; }
+    return (neg?'-':'') + '₹' + other + last3;
+  }
+  function formatCompact(n){
+    var neg = n<0; n = Math.abs(n);
+    if(n >= 1e7) return (neg?'-':'')+'₹'+(n/1e7).toFixed(2)+'Cr';
+    if(n >= 1e5) return (neg?'-':'')+'₹'+(n/1e5).toFixed(2)+'L';
+    return formatIndian(neg?-n:n);
+  }
+  function pct(n){ return n.toFixed(0)+'%'; }
+
+  /* ============================= STATE ============================= */
+  var state = { lens:'household', device:'mobile', mobileScreen:'unlock', compMode:'type', range:13, compare:false };
+
+  /* ============================= LENS ============================= */
+  function shareValue(acc, lensKey){
+    if(lensKey === 'household') return acc.value;
+    var name = lensKey === 'me' ? 'Rohit' : 'Priya';
+    var owner = acc.owners.find((o)=> o.n === name);
+    return owner ? acc.value * owner.p/100 : 0;
+  }
+  function ownerLabel(acc, lensKey){
+    if(acc.owners.length === 1) return null;
+    var parts = acc.owners.map((o)=> o.n+' '+o.p+'%').join(' · ');
+    return '◐ '+parts;
+  }
+
+  function applyLens(lensKey){
+    state.lens = lensKey;
+    var d = LENS[lensKey];
+    document.querySelectorAll('[data-bind="hero-net"]').forEach((el)=> { animateNumber(el, d.net); });
+    var deltaLakh = (TREND_HOUSEHOLD[TREND_HOUSEHOLD.length-1]-TREND_HOUSEHOLD[TREND_HOUSEHOLD.length-2]) * 1e5 * d.ratio;
+    document.querySelectorAll('[data-bind="hero-delta"]').forEach((el)=> {
+      el.innerHTML = '<svg class="icon icon-sm"><use href="#ic-up"/></svg> +'+formatIndian(deltaLakh)+' this month';
+    });
+    document.querySelectorAll('.lens-seg button, .lens-seg-desk button').forEach((b)=> {
+      b.classList.toggle('active', b.getAttribute('data-lens')===lensKey);
+    });
+    renderComposition('compBarHome','compLegendHome', lensKey);
+    renderComposition('compBarDeskHome','compLegendDeskHome', lensKey);
+    if(state.compMode === 'type') renderComposition('compBarDetail','compLegendDetail', lensKey);
+    else renderMemberComposition();
+    renderAccounts();
+    renderDeskAccounts();
+    drawSparkline();
+    drawMainChart();
+  }
+
+  function animateNumber(el, target){
+    var start = 0;
+    var text = el.textContent.replace(/[₹,]/g,'');
+    start = parseFloat(text) || 0;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){ el.textContent = formatIndian(target); return; }
+    var t0 = performance.now(), dur=180;
+    function step(t){
+      var p = Math.min(1,(t-t0)/dur);
+      var v = start + (target-start)*p;
+      el.textContent = formatIndian(v);
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ============================= COMPOSITION BAR ============================= */
+  function renderComposition(barId, legendId, lensKey){
+    var bar = document.getElementById(barId), legend = document.getElementById(legendId);
+    if(!bar) return;
+    var d = LENS[lensKey];
+    var total = 0;
+    CATS.forEach((c)=> { total += d.cats[c.key]; });
+    bar.innerHTML = '';
+    legend.innerHTML = '';
+    CATS.forEach((c)=> {
+      var val = d.cats[c.key];
+      if(val <= 0) return;
+      var w = (val/total*100);
+      var seg = document.createElement('div');
+      seg.className = 'comp-seg';
+      seg.style.width = w+'%';
+      seg.style.background = 'var('+c.v+')';
+      seg.title = c.label+': '+formatCompact(val);
+      bar.appendChild(seg);
+      var li = document.createElement('div');
+      li.className = 'comp-legend-item';
+      li.innerHTML = '<span class="comp-swatch" style="background:var('+c.v+')"></span>'+c.label+'<span class="amt">'+formatCompact(val)+'</span>';
+      legend.appendChild(li);
+    });
+  }
+
+  function renderMemberComposition(){
+    var d = LENS.household;
+    var bar = document.getElementById('compBarDetail'), legend = document.getElementById('compLegendDetail');
+    var rohit = LENS.me.net, priya = LENS.priya.net, total = rohit+priya;
+    bar.innerHTML = '<div class="comp-seg" style="width:'+(rohit/total*100)+'%; background:var(--cat-1);" title="Rohit"></div>'+
+                     '<div class="comp-seg" style="width:'+(priya/total*100)+'%; background:var(--cat-2);" title="Priya"></div>';
+    legend.innerHTML = '<div class="comp-legend-item"><span class="comp-swatch" style="background:var(--cat-1)"></span>Rohit<span class="amt">'+formatCompact(rohit)+' ('+pct(rohit/total*100)+')</span></div>'+
+                        '<div class="comp-legend-item"><span class="comp-swatch" style="background:var(--cat-2)"></span>Priya<span class="amt">'+formatCompact(priya)+' ('+pct(priya/total*100)+')</span></div>';
+  }
+
+  /* ============================= NUDGES ============================= */
+  function renderNudges(){
+    var html =
+      '<div class="nudge-card info"><svg class="icon"><use href="#ic-tag"/></svg><div><b>₹2.10Cr is unallocated</b><p>Mostly your home (₹1.85Cr) and untagged MF/RSU. Tag what you can to a goal.</p></div></div>'+
+      '<div class="nudge-card warn"><svg class="icon"><use href="#ic-alert"/></svg><div><b>Ananya\'s Education is at risk</b><p>Raise the SIP to ₹42,300/mo to stay on track for 2040.</p></div></div>'+
+      '<div class="nudge-card"><svg class="icon"><use href="#ic-alert"/></svg><div><b>Gold price is 2 days stale</b><p>Last fetched 6 Sep 2026 — will refresh on next sync.</p></div></div>';
+    document.getElementById('nudgeList').innerHTML = html;
+    document.getElementById('nudgeListDesk').innerHTML = html;
+  }
+
+  /* ============================= GOAL CARDS ============================= */
+  function statusBadge(g){
+    var icon = g.status==='good' ? 'ic-check' : g.status==='warning' ? 'ic-alert' : 'ic-xcircle';
+    var cls = 'badge-'+g.status;
+    return '<span class="badge '+cls+'"><svg class="icon icon-sm" style="width:12px;height:12px;"><use href="#'+icon+'"/></svg>'+g.label+'</span>';
+  }
+  function meterClass(g){ return g.status; }
+
+  function goalCardHTML(g, mini){
+    var progress = Math.min(100, g.current/g.inflated*100);
+    if(mini){
+      return '<div class="goal-mini" data-goal="'+g.id+'">'+
+        '<div class="name">'+g.icon+' '+g.name+'</div>'+
+        '<div class="meter-track"><div class="meter-fill '+meterClass(g)+'" style="width:'+progress+'%"></div></div>'+
+        '<div class="figs">'+formatCompact(g.current)+' of '+formatCompact(g.inflated)+'</div>'+
+      '</div>';
+    }
+    return '<div class="goal-card" data-goal="'+g.id+'">'+
+      '<div class="head"><div class="name">'+g.icon+' '+g.name+'</div>'+statusBadge(g)+'</div>'+
+      '<div class="meter-track"><div class="meter-fill '+meterClass(g)+'" style="width:'+progress+'%"></div></div>'+
+      '<div class="figs"><span>'+formatCompact(g.current)+' of '+formatCompact(g.inflated)+'</span><span>'+pct(progress)+'</span></div>'+
+      '<div class="sip">'+(g.reqSip ? 'Needs '+formatIndian(g.reqSip)+'/mo · has '+formatIndian(g.curSip)+'/mo' : 'Target date '+g.targetDate)+'</div>'+
+    '</div>';
+  }
+
+  function renderGoals(){
+    document.getElementById('goalCarousel').innerHTML = GOALS.map((g)=> goalCardHTML(g,true)).join('');
+    var listHtml = GOALS.map((g)=> goalCardHTML(g,false)).join('') +
+      '<div class="goal-card unalloc-card" data-goal="none"><div class="head"><div class="name muted">📥 Unallocated</div></div>'+
+      '<div class="figs" style="margin-top:8px;"><span class="muted">Not yet tagged to a goal</span><span class="muted">'+formatCompact(20994800)+'</span></div></div>';
+    document.getElementById('goalList').innerHTML = listHtml;
+    document.getElementById('goalGridDeskHome').innerHTML = GOALS.map((g)=> goalCardHTML(g,false)).join('');
+    document.getElementById('goalGridDesk').innerHTML = GOALS.map((g)=> goalCardHTML(g,false)).join('') +
+      '<div class="goal-card unalloc-card" data-goal="none"><div class="head"><div class="name muted">📥 Unallocated</div></div>'+
+      '<div class="figs" style="margin-top:8px;"><span class="muted">Not yet tagged</span><span class="muted">'+formatCompact(20994800)+'</span></div></div>';
+
+    document.querySelectorAll('[data-goal]').forEach((el)=> {
+      el.addEventListener('click', ()=> {
+        var id = el.getAttribute('data-goal');
+        if(id === 'none') return;
+        renderGoalDetail(id);
+        if(state.device==='mobile') go('goaldetail'); else dgo('goals');
+      });
+    });
+  }
+
+  function renderGoalDetail(id){
+    var g = GOALS.filter((x)=> x.id===id)[0] || GOALS[0];
+    document.getElementById('gd-title').textContent = g.icon+' '+g.name;
+    var progress = Math.min(100, g.current/g.inflated*100);
+    var fundingHtml = g.funding.map((f)=> '<div class="row between" style="padding:9px 0; border-bottom:1px solid var(--border);">'+
+        '<span style="font-size:13.5px;">'+f.n+(f.warn?' <svg class="icon icon-sm" style="color:var(--status-warning); vertical-align:-3px;"><use href="#ic-alert"/></svg>':'')+'</span>'+
+        '<span style="font-weight:700; font-size:13.5px;">'+formatCompact(f.a)+'</span></div>').join('');
+    var warnHtml = '';
+    if(id==='emergency'){
+      warnHtml = '<div class="alert alert-critical" style="margin-top:14px;"><svg class="icon"><use href="#ic-alert"/></svg>'+
+        '<div><b>Liquidity mismatch</b>₹5,00,000 of this goal funds from an FD maturing Dec 2027 — after your Nov 2026 target date. '+
+        'Effective liquid progress is ₹3,00,000 of ₹9,00,000 (33%). Consider a liquid fund instead, or set the FD aside separately.</div></div>';
+    }
+    var html =
+      '<div class="card" style="margin-top:4px;">'+
+        '<div class="meter-track" style="height:12px;"><div class="meter-fill '+meterClass(g)+'" style="width:'+progress+'%"></div></div>'+
+        '<div class="row between" style="margin-top:10px;">'+statusBadge(g)+'<span style="font-weight:700;">'+pct(progress)+'</span></div>'+
+      '</div>'+
+      '<div class="section-label">Target</div>'+
+      '<div class="row between" style="font-size:13.5px;"><span class="muted">Target ('+g.targetDate+', today\'s ₹)</span><span class="tabular" style="font-weight:700;">'+formatCompact(g.targetToday)+'</span></div>'+
+      '<div class="row between" style="font-size:13.5px; margin-top:6px;"><span class="muted">Inflated target'+(g.inflation? ' ('+g.inflation+'%/yr)':'')+'</span><span class="tabular" style="font-weight:700;">'+formatCompact(g.inflated)+'</span></div>'+
+      '<div class="row between" style="font-size:13.5px; margin-top:6px;"><span class="muted">Current (tagged)</span><span class="tabular" style="font-weight:700;">'+formatCompact(g.current)+'</span></div>'+
+      (g.reqSip ? '<div class="row between" style="font-size:13.5px; margin-top:6px;"><span class="muted">Required SIP</span><span class="tabular" style="font-weight:700;">'+formatIndian(g.reqSip)+'/mo</span></div>'+
+      '<div class="row between" style="font-size:13.5px; margin-top:6px;"><span class="muted">Currently saving</span><span class="tabular" style="font-weight:700;">'+formatIndian(g.curSip)+'/mo</span></div>' : '')+
+      warnHtml+
+      '<div class="section-label">Funding this goal</div>'+fundingHtml+
+      '<button class="btn btn-secondary btn-block" style="margin-top:14px;">+ Manage allocations</button>'+
+      '<div class="alert alert-info" style="margin-top:14px;"><svg class="icon"><use href="#ic-target"/></svg><div>'+g.note+'</div></div>';
+    document.getElementById('goalDetailContent').innerHTML = html;
+  }
+
+  /* ============================= ACCOUNTS LIST ============================= */
+  function catLabel(k){ return CATEGORY_MENU.filter((c)=> c.key===k)[0].t; }
+
+  function renderAccounts(){
+    var byGroup = {};
+    ACCOUNTS.forEach((a)=> { (byGroup[a.cat] = byGroup[a.cat]||[]).push(a); });
+    var order = ['cash','deposits','invest','retire','foreign','property','lending'];
+    var html = '';
+    order.forEach((k)=> {
+      var items = byGroup[k]; if(!items) return;
+      html += '<div class="acc-group"><div class="acc-group-head"><span class="t">'+catLabel(k)+'</span><span class="n">'+items.length+'</span></div>';
+      items.forEach((a)=> { html += accountRowHTML(a); });
+      html += '</div>';
+    });
+    html += '<div class="acc-group"><div class="acc-group-head"><span class="t">Loans &amp; Debts Owed</span><span class="n">'+LIABILITIES.length+'</span></div>';
+    LIABILITIES.forEach((a)=> { html += accountRowHTML(a, true); });
+    html += '</div>';
+    document.getElementById('accountsList').innerHTML = html;
+    wireAccountRows();
+  }
+
+  function accountRowHTML(a, isLiability){
+    var val = shareValue(a, state.lens);
+    if(isLiability){
+      var name = state.lens==='household' ? 'Rohit' : (state.lens==='me'?'Rohit':'Priya');
+      var owner = a.owners.find((o)=> o.n===name);
+      val = state.lens==='household' ? a.value : (owner?a.value*owner.p/100:0);
+    }
+    var tagPct = a.tagged ? Math.round(a.tagged/a.value*100) : 0;
+    var ownerTxt = ownerLabel(a, state.lens);
+    var staleTag = a.stale ? '<span class="badge badge-warning" style="padding:2px 6px;"><svg class="icon icon-sm" style="width:10px;height:10px;"><use href="#ic-alert"/></svg>stale</span>' : '';
+    return '<div class="acc-row-wrap"><div class="acc-row-actions"><button class="edit"><svg class="icon icon-sm"><use href="#ic-edit"/></svg>Edit</button><button class="del"><svg class="icon icon-sm"><use href="#ic-trash"/></svg>Del</button></div>'+
+      '<div class="acc-row'+(isLiability?' liability':'')+'" data-acc="'+a.id+'">'+
+      '<div class="emoji">'+a.icon+'</div>'+
+      '<div class="main">'+
+        '<div class="name-line"><span class="name">'+a.name+'</span><span class="value tabular">'+(isLiability?'-':'')+formatIndian(val)+'</span></div>'+
+        '<div class="meta">'+a.inst+(ownerTxt?' · '+ownerTxt:'')+staleTag+'</div>'+
+        (a.extra ? '<div class="meta">'+a.extra+'</div>' : '')+
+        (!isLiability ? '<div class="tagbar"><div style="width:'+tagPct+'%; background:var(--accent);"></div></div>' : '')+
+      '</div></div></div>';
+  }
+
+  function wireAccountRows(){
+    document.querySelectorAll('#accountsList .acc-row').forEach((row)=> {
+      row.addEventListener('click', (e)=> {
+        document.querySelectorAll('.acc-row.revealed').forEach((r)=> { if(r!==row) r.classList.remove('revealed'); });
+        row.classList.toggle('revealed');
+      });
+    });
+  }
+
+  /* ============================= DESKTOP ACCOUNTS TABLE ============================= */
+  var deskSortDir = -1;
+  function renderDeskAccounts(){
+    var all = ACCOUNTS.slice();
+    all.sort((a,b)=> (shareValue(a,state.lens)-shareValue(b,state.lens))*deskSortDir);
+    var rows = all.map((a)=> {
+      var val = shareValue(a, state.lens);
+      var owners = a.owners.map((o)=> o.n+' '+o.p+'%').join(', ');
+      var tagPct = a.tagged ? Math.round(a.tagged/a.value*100) : 0;
+      return '<tr><td>'+a.icon+' '+a.name+'</td><td class="muted">'+a.inst+'</td><td class="muted">'+owners+'</td>'+
+        '<td class="num tabular" style="font-weight:700;">'+formatIndian(val)+'</td>'+
+        '<td><div class="meter-track" style="width:80px; height:6px; display:inline-block; vertical-align:middle;"><div class="meter-fill" style="width:'+tagPct+'%; background:var(--accent);"></div></div> <span class="muted" style="font-size:11.5px;">'+tagPct+'%</span></td>'+
+        '<td class="muted">'+a.asOf+'</td></tr>';
+    }).join('');
+    var liabRows = LIABILITIES.map((a)=> {
+      var name = state.lens==='me'?'Rohit':(state.lens==='priya'?'Priya':null);
+      var owner = a.owners.find((o)=> o.n===name);
+      var val = state.lens==='household' ? a.value : (owner?a.value*owner.p/100:0);
+      var owners = a.owners.map((o)=> o.n+' '+o.p+'%').join(', ');
+      return '<tr><td>'+a.icon+' '+a.name+'</td><td class="muted">'+a.inst+'</td><td class="muted">'+owners+'</td>'+
+        '<td class="num tabular" style="font-weight:700; color:var(--status-critical);">-'+formatIndian(val)+'</td><td class="muted">—</td><td class="muted">'+a.asOf+'</td></tr>';
+    }).join('');
+    document.getElementById('deskAccountsBody').innerHTML = rows + liabRows;
+  }
+
+  /* ============================= CHARTS ============================= */
+  function drawSparkline(){
+    ['sparkline','sparklineDesk'].forEach((id)=> {
+      var svg = document.getElementById(id); if(!svg) return;
+      var vb = svg.getAttribute('viewBox').split(' ').map(Number);
+      var W=vb[2], H=vb[3];
+      var data = TREND_HOUSEHOLD.map((v)=> v*LENS[state.lens].ratio);
+      var min = Math.min.apply(null,data), max = Math.max.apply(null,data);
+      var pad = (max-min)*0.15 || 1;
+      var y = (v)=> H - ((v-min+pad)/(max-min+2*pad))*H;
+      var x = (i)=> i/(data.length-1)*W;
+      var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      var pathD = data.map((v,i)=> (i===0?'M':'L')+x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ');
+      var areaD = pathD + ' L'+W+','+H+' L0,'+H+' Z';
+      svg.innerHTML = '<path d="'+areaD+'" fill="'+accent+'" opacity="0.10"></path>'+
+                       '<path d="'+pathD+'" fill="none" stroke="'+accent+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>'+
+                       '<circle cx="'+x(data.length-1)+'" cy="'+y(data[data.length-1])+'" r="4" fill="'+accent+'" stroke="var(--surface)" stroke-width="2"></circle>';
+    });
+  }
+
+  function drawMainChart(){
+    var svg = document.getElementById('mainChart'); if(!svg) return;
+    var vb = svg.getAttribute('viewBox').split(' ').map(Number);
+    var W=vb[2], H=vb[3];
+    var padL=6, padR=6, padT=10, padB=20;
+    var n = state.range;
+    var labels = TREND_LABELS.slice(-n);
+    var hh = TREND_HOUSEHOLD.slice(-n).map((v)=> v*1e5);
+    var series = [{ key:'household', color:'--accent', data: hh.map((v)=> v*LENS[state.lens].ratio) }];
+    if(state.compare){
+      series.push({ key:'rohit', color:'--cat-1', data: hh.map((v)=> v*LENS.me.ratio) });
+      series.push({ key:'priya', color:'--cat-2', data: hh.map((v)=> v*LENS.priya.ratio) });
+    }
+    var allVals = series.reduce((acc,s)=> acc.concat(s.data),[]);
+    var min = Math.min.apply(null,allVals), max = Math.max.apply(null,allVals);
+    var pad = (max-min)*0.12 || 1;
+    var x = (i)=> padL + i/(labels.length-1)*(W-padL-padR);
+    var y = (v)=> padT + (1-((v-min+pad)/(max-min+2*pad)))*(H-padT-padB);
+
+    var gridHtml = '';
+    for(var g=0; g<=3; g++){
+      var gy = padT + g/3*(H-padT-padB);
+      gridHtml += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="var(--gridline)" stroke-width="1"/>';
+    }
+    var axisHtml = '';
+    labels.forEach((l,i)=> {
+      if(labels.length>6 && i%3!==0 && i!==labels.length-1) return;
+      axisHtml += '<text x="'+x(i)+'" y="'+(H-4)+'" font-size="9" fill="var(--text-muted)" text-anchor="middle">'+l+'</text>';
+    });
+    var seriesHtml = series.map((s,si)=> {
+      var col = 'var('+s.color+')';
+      var d = s.data.map((v,i)=> (i===0?'M':'L')+x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ');
+      var areaD = si===0 ? d+' L'+x(s.data.length-1)+','+(H-padB)+' L'+x(0)+','+(H-padB)+' Z' : '';
+      var last = s.data.length-1;
+      return (si===0?'<path d="'+areaD+'" fill="'+col+'" opacity="0.10"></path>':'')+
+        '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>'+
+        '<circle cx="'+x(last)+'" cy="'+y(s.data[last])+'" r="4" fill="'+col+'" stroke="var(--surface)" stroke-width="2"></circle>'+
+        '<text x="'+(x(last)-2)+'" y="'+(y(s.data[last])-8)+'" font-size="9" font-weight="700" fill="'+col+'" text-anchor="end">'+(s.key==='household'?'Household':s.key==='rohit'?'Rohit':'Priya')+'</text>';
+    }).join('');
+
+    svg.innerHTML = gridHtml + axisHtml + seriesHtml +
+      '<g id="hoverLayer" opacity="0"><line id="hoverLine" x1="0" y1="'+padT+'" x2="0" y2="'+(H-padB)+'" stroke="var(--baseline)" stroke-width="1"/></g>'+
+      '<rect id="hoverCatcher" x="0" y="0" width="'+W+'" height="'+H+'" fill="transparent"/>';
+
+    var tip = document.getElementById('chartTip');
+    var catcher = document.getElementById('hoverCatcher');
+    var hoverLayer = document.getElementById('hoverLayer');
+    var svgRect;
+    function pointerMove(evt){
+      svgRect = svg.getBoundingClientRect();
+      var clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      var relX = (clientX - svgRect.left) / svgRect.width * W;
+      var i = Math.round((relX-padL)/(W-padL-padR)*(labels.length-1));
+      i = Math.max(0, Math.min(labels.length-1, i));
+      hoverLayer.setAttribute('opacity', 1);
+      hoverLayer.querySelector('#hoverLine').setAttribute('x1', x(i));
+      hoverLayer.querySelector('#hoverLine').setAttribute('x2', x(i));
+      var v = series[0].data[i];
+      tip.innerHTML = '<div class="d">'+labels[i]+'</div><div class="v tabular">'+formatCompact(v)+'</div>';
+      tip.classList.add('show');
+      var leftPx = (x(i)/W*svgRect.width) - 40;
+      tip.style.left = Math.max(0, Math.min(svgRect.width-90, leftPx))+'px';
+      tip.style.top = '4px';
+    }
+    catcher.addEventListener('mousemove', pointerMove);
+    catcher.addEventListener('touchmove', (e)=> { pointerMove(e); }, {passive:true});
+    catcher.addEventListener('mouseleave', ()=> { hoverLayer.setAttribute('opacity',0); tip.classList.remove('show'); });
+
+    var tbody = document.querySelector('#dataTable tbody');
+    tbody.innerHTML = labels.map((l,i)=> '<tr><td>'+l+'</td><td class="tabular">'+formatIndian(series[0].data[i])+'</td></tr>').join('');
+  }
+
+  /* ============================= NAVIGATION (mobile) ============================= */
+  function go(name){
+    state.mobileScreen = name;
+    document.querySelectorAll('#mobileFrame .screen').forEach((s)=> { s.classList.remove('active'); });
+    var el = document.getElementById('screen-'+name);
+    if(el) el.classList.add('active');
+    document.querySelectorAll('#tabbar button').forEach((b)=> {
+      var target = b.getAttribute('data-nav');
+      b.classList.toggle('active', target===name || (target==='more' && (name==='household'||name==='settings')));
+    });
+    document.querySelectorAll('#mobileJump button').forEach((b)=> { b.classList.toggle('active', b.getAttribute('data-goto')===name); });
+    document.getElementById('appRoot').classList.toggle('pre-auth', name==='unlock');
+    if(name==='goals') renderGoals();
+    if(name==='networth'){ drawMainChart(); }
+    if(name==='home'){ drawSparkline(); }
+  }
+  document.querySelectorAll('[data-nav]').forEach((b)=> {
+    b.addEventListener('click', ()=> {
+      var target = b.getAttribute('data-nav');
+      if(target==='more'){ openSheet('moreSheet','moreScrim'); return; }
+      go(target);
+    });
+  });
+  document.querySelectorAll('#mobileJump button').forEach((b)=> {
+    b.addEventListener('click', ()=> { go(b.getAttribute('data-goto')); });
+  });
+
+  /* ============================= NAVIGATION (desktop) ============================= */
+  function dgo(name){
+    document.querySelectorAll('.desk-screen').forEach((s)=> { s.classList.remove('active'); });
+    document.getElementById('desk-'+name).classList.add('active');
+    document.querySelectorAll('#deskNav button').forEach((b)=> { b.classList.toggle('active', b.getAttribute('data-dnav')===name); });
+    document.querySelectorAll('#desktopJump button').forEach((b)=> { b.classList.toggle('active', b.getAttribute('data-dgoto')===name); });
+    if(name==='goals') renderGoals();
+  }
+  document.querySelectorAll('[data-dnav]').forEach((b)=> { b.addEventListener('click', ()=> { dgo(b.getAttribute('data-dnav')); }); });
+  document.querySelectorAll('#desktopJump button').forEach((b)=> { b.addEventListener('click', ()=> { dgo(b.getAttribute('data-dgoto')); }); });
+  document.getElementById('deskAddBtn').addEventListener('click', ()=> { openSheet('addSheet','addScrim'); resetAddFlow(); });
+
+  /* ============================= LENS BUTTONS ============================= */
+  document.querySelectorAll('.lens-seg button, .lens-seg-desk button').forEach((b)=> {
+    b.addEventListener('click', ()=> { applyLens(b.getAttribute('data-lens')); });
+  });
+
+  /* ============================= COMPOSITION MODE TOGGLE ============================= */
+  document.querySelectorAll('#compModeSeg button').forEach((b)=> {
+    b.addEventListener('click', ()=> {
+      document.querySelectorAll('#compModeSeg button').forEach((x)=> {x.classList.remove('active');});
+      b.classList.add('active');
+      state.compMode = b.getAttribute('data-mode');
+      if(state.compMode==='type') renderComposition('compBarDetail','compLegendDetail', state.lens);
+      else renderMemberComposition();
+    });
+  });
+  document.getElementById('compareToggle').addEventListener('change', (e)=> { state.compare = e.target.checked; drawMainChart(); });
+  document.querySelectorAll('.range-pills button').forEach((b)=> {
+    b.addEventListener('click', ()=> {
+      document.querySelectorAll('.range-pills button').forEach((x)=> {x.classList.remove('active');});
+      b.classList.add('active');
+      state.range = parseInt(b.getAttribute('data-range'),10);
+      drawMainChart();
+    });
+  });
+  document.getElementById('viewTableLink').addEventListener('click', ()=> {
+    document.getElementById('dataTable').classList.toggle('open');
+  });
+  document.getElementById('sortValueHeader').addEventListener('click', function(){
+    deskSortDir *= -1;
+    this.textContent = 'Value ' + (deskSortDir===1?'▴':'▾');
+    renderDeskAccounts();
+  });
+
+  /* ============================= SHEETS ============================= */
+  function openSheet(sheetId, scrimId){
+    document.getElementById(scrimId).classList.add('open');
+    document.getElementById(sheetId).classList.add('open');
+  }
+  function closeSheet(sheetId, scrimId){
+    document.getElementById(scrimId).classList.remove('open');
+    document.getElementById(sheetId).classList.remove('open');
+  }
+  document.getElementById('moreScrim').addEventListener('click', ()=> { closeSheet('moreSheet','moreScrim'); });
+  document.getElementById('moreClose').addEventListener('click', ()=> { closeSheet('moreSheet','moreScrim'); });
+  document.querySelectorAll('#moreSheet [data-nav]').forEach((b)=> { b.addEventListener('click', ()=> { closeSheet('moreSheet','moreScrim'); }); });
+
+  document.getElementById('allocScrim').addEventListener('click', ()=> { closeSheet('allocSheet','allocScrim'); });
+  document.getElementById('allocClose').addEventListener('click', ()=> { closeSheet('allocSheet','allocScrim'); });
+
+  /* ============================= ADD FLOW ============================= */
+  var addState = { step:1, cat:null, type:null };
+  function resetAddFlow(){
+    addState = {step:1, cat:null, type:null};
+    document.getElementById('addStep1').style.display='';
+    document.getElementById('addStep2').style.display='none';
+    document.getElementById('addStep3').style.display='none';
+    document.getElementById('addTitle').textContent = 'What would you like to add?';
+    document.getElementById('addBack').style.display='none';
+    buildCatGrid();
+  }
+  function buildCatGrid(){
+    document.getElementById('catGrid').innerHTML = CATEGORY_MENU.map((c)=> '<button class="cat-tile" data-cat="'+c.key+'"><span class="em">'+c.em+'</span><span class="t">'+c.t+'</span><span class="ex">'+c.ex+'</span></button>').join('');
+    document.querySelectorAll('.cat-tile').forEach((b)=> {
+      b.addEventListener('click', ()=> { openTypeStep(b.getAttribute('data-cat')); });
+    });
+  }
+  function openTypeStep(catKey){
+    addState.cat = catKey; addState.step = 2;
+    var catInfo = CATEGORY_MENU.filter((c)=> c.key===catKey)[0];
+    document.getElementById('addTitle').textContent = catInfo.t;
+    document.getElementById('addBack').style.display='';
+    document.getElementById('addStep1').style.display='none';
+    document.getElementById('addStep2').style.display='';
+    document.getElementById('addStep3').style.display='none';
+    document.getElementById('typeList').innerHTML = TYPE_MENU[catKey].map((t)=> '<button data-type="'+t+'">'+t+'<svg class="icon icon-sm muted"><use href="#ic-chev-r"/></svg></button>').join('');
+    document.querySelectorAll('#typeList button').forEach((b)=> {
+      b.addEventListener('click', ()=> { openFormStep(b.getAttribute('data-type')); });
+    });
+  }
+  function openFormStep(typeName){
+    addState.type = typeName; addState.step = 3;
+    document.getElementById('addTitle').textContent = typeName;
+    document.getElementById('addStep2').style.display='none';
+    document.getElementById('addStep3').style.display='';
+    var extra = '';
+    if(/Fixed deposit|Recurring deposit|Corporate FD/.test(typeName)){
+      extra = '<div class="field-row"><div class="field"><label class="input-label">Maturity date</label><input class="input" type="date" value="2027-12-12"></div>'+
+              '<div class="field"><label class="input-label">Interest rate</label><input class="input" type="text" value="7.1%"></div></div>';
+    } else if(/Real estate/.test(typeName)){
+      extra = '<div class="field"><label class="input-label">Address</label><input class="input" type="text" placeholder="Whitefield, Bengaluru"></div>'+
+              '<div class="field"><label class="input-label">Linked liability</label><select class="select"><option>None</option><option>+ Add a home loan</option></select></div>';
+    } else if(/RSU/.test(typeName)){
+      extra = '<div class="field-row"><div class="field"><label class="input-label">Vesting start</label><input class="input" type="date" value="2024-06-01"></div>'+
+              '<div class="field"><label class="input-label">Schedule</label><select class="select"><option>Quarterly</option><option>Annual</option></select></div></div>';
+    } else if(/Money lent/.test(typeName)){
+      extra = '<div class="field-row"><div class="field"><label class="input-label">Borrower name</label><input class="input" type="text" placeholder="e.g. Sandeep"></div>'+
+              '<div class="field"><label class="input-label">Expected back</label><input class="input" type="date"></div></div>';
+    } else if(/Home loan|Car loan|Personal loan|Credit card|Borrowed/.test(typeName)){
+      extra = '<div class="field-row"><div class="field"><label class="input-label">Outstanding</label><input class="input" type="text" placeholder="₹"></div>'+
+              '<div class="field"><label class="input-label">EMI / month</label><input class="input" type="text" placeholder="₹"></div></div>';
+    }
+    document.getElementById('addStep3').innerHTML =
+      '<div class="field"><label class="input-label">Name / nickname</label><input class="input" type="text" placeholder="e.g. '+typeName+'"></div>'+
+      '<div class="field"><label class="input-label">Institution</label><input class="input" type="text" placeholder="e.g. HDFC Bank" list="instList"><datalist id="instList"><option>HDFC Bank</option><option>State Bank of India</option><option>ICICI Bank</option><option>Axis Bank</option><option>Kotak Mahindra Bank</option></datalist></div>'+
+      '<div class="field"><label class="input-label">Current value</label><input class="input" type="text" id="valInput" placeholder="₹"><div class="hint-text" id="valPreview">Type an amount to preview</div></div>'+
+      extra +
+      '<div class="field"><label class="input-label">As of</label><input class="input" type="date" value="2026-09-08"></div>'+
+      '<div class="field"><label class="input-label">Owned by</label>'+
+        '<div class="own-toggle"><button class="active" data-own="me">Just me</button><button data-own="joint">Joint / custom</button></div>'+
+        '<div class="own-split" id="ownSplit"><div class="field" style="flex:1;"><input class="input" type="number" value="50" id="ownA"></div><div class="field" style="flex:1;"><input class="input" type="number" value="50" id="ownB"></div></div>'+
+        '<div class="remainder-chip" id="ownRemainder">Sums to 100%</div>'+
+      '</div>'+
+      '<div class="field"><label class="input-label">Tag to goal (optional)</label>'+
+        '<div class="chip-row"><button class="chip" data-goalchip="retirement">🏛️ Retirement</button><button class="chip" data-goalchip="education">🎓 Education</button><button class="chip" data-goalchip="emergency">🛟 Emergency</button></div>'+
+      '</div>'+
+      '<div class="accordion-trigger" id="notesTrigger">Notes (optional) <svg class="icon icon-sm"><use href="#ic-chev-r"/></svg></div>'+
+      '<div class="accordion-body" id="notesBody"><textarea class="input" rows="3" placeholder="Anything worth remembering about this…"></textarea></div>'+
+      '<div class="row gap-8" style="margin-top:16px;"><button class="btn btn-secondary" style="flex:1;" id="saveAndAnother">Save &amp; add another</button><button class="btn btn-primary" style="flex:1;" id="saveAdd">Save</button></div>';
+
+    document.getElementById('valInput').addEventListener('input', (e)=> {
+      var n = parseFloat(e.target.value.replace(/[^0-9.]/g,''));
+      document.getElementById('valPreview').textContent = isNaN(n) ? 'Type an amount to preview' : '≈ '+formatCompact(n);
+    });
+    document.querySelectorAll('.own-toggle button').forEach((b)=> {
+      b.addEventListener('click', ()=> {
+        document.querySelectorAll('.own-toggle button').forEach((x)=> {x.classList.remove('active');});
+        b.classList.add('active');
+        document.getElementById('ownSplit').classList.toggle('open', b.getAttribute('data-own')==='joint');
+      });
+    });
+    function checkOwnSum(){
+      var a = parseFloat(document.getElementById('ownA').value)||0, b = parseFloat(document.getElementById('ownB').value)||0;
+      var chip = document.getElementById('ownRemainder');
+      if(a+b===100){ chip.textContent='Sums to 100%'; chip.classList.remove('bad'); }
+      else { chip.textContent = 'Sums to '+(a+b)+'% — must equal 100%'; chip.classList.add('bad'); }
+    }
+    document.getElementById('ownA').addEventListener('input', function(){ document.getElementById('ownB').value = 100-(parseFloat(this.value)||0); checkOwnSum(); });
+    document.getElementById('ownB').addEventListener('input', function(){ document.getElementById('ownA').value = 100-(parseFloat(this.value)||0); checkOwnSum(); });
+    document.querySelectorAll('[data-goalchip]').forEach((b)=> { b.addEventListener('click', ()=> { b.classList.toggle('selected'); }); });
+    document.getElementById('notesTrigger').addEventListener('click', ()=> { document.getElementById('notesBody').classList.toggle('open'); });
+    document.getElementById('saveAdd').addEventListener('click', ()=> { closeSheet('addSheet','addScrim'); showToast('✓ Added "'+typeName+'" to Accounts'); if(state.device==='mobile') go('accounts'); else dgo('accounts'); });
+    document.getElementById('saveAndAnother').addEventListener('click', ()=> { showToast('✓ Saved — add another'); openTypeStep(addState.cat); });
+  }
+  document.getElementById('addBack').addEventListener('click', ()=> {
+    if(addState.step===3){ openTypeStep(addState.cat); }
+    else if(addState.step===2){ resetAddFlow(); }
+  });
+  document.getElementById('addClose').addEventListener('click', ()=> { closeSheet('addSheet','addScrim'); });
+  document.getElementById('addScrim').addEventListener('click', ()=> { closeSheet('addSheet','addScrim'); });
+  document.getElementById('fabAdd').addEventListener('click', ()=> { resetAddFlow(); openSheet('addSheet','addScrim'); });
+  document.querySelectorAll('[data-quick]').forEach((b)=> {
+    b.addEventListener('click', ()=> {
+      var map = {mf:['invest','Mutual fund'], fd:['deposits','Fixed deposit'], sip:['invest','Mutual fund']};
+      var m = map[b.getAttribute('data-quick')];
+      addState.cat = m[0];
+      openFormStep(m[1]);
+    });
+  });
+
+  /* ============================= TOAST ============================= */
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=> { t.classList.remove('show'); }, 2200);
+  }
+
+  /* ============================= UNLOCK ============================= */
+  document.getElementById('btnBiometric').addEventListener('click', function(){
+    this.innerHTML = '<svg class="icon"><use href="#ic-refresh"/></svg> Unlocking…';
+    setTimeout(()=> { go('home'); this.innerHTML = '<svg class="icon"><use href="#ic-finger"/></svg> Unlock with Face ID'; }, 500);
+  });
+  document.getElementById('btnPassAlt').addEventListener('click', ()=> { document.getElementById('passphraseBox').classList.add('open'); });
+  document.getElementById('btnPassSubmit').addEventListener('click', ()=> {
+    var v = document.getElementById('passInput').value;
+    var err = document.getElementById('unlockErr');
+    if(v.length>0){ err.classList.remove('show'); go('home'); }
+    else { err.classList.add('show'); }
+  });
+
+  /* ============================= SWITCHES ============================= */
+  document.querySelectorAll('.switch').forEach((s)=> {
+    s.addEventListener('click', ()=> { s.classList.toggle('on'); });
+  });
+
+  /* ============================= DEVICE / THEME TOGGLES ============================= */
+  document.querySelectorAll('#deviceSeg button').forEach((b)=> {
+    b.addEventListener('click', ()=> {
+      document.querySelectorAll('#deviceSeg button').forEach((x)=> {x.classList.remove('active');});
+      b.classList.add('active');
+      var dev = b.getAttribute('data-device');
+      state.device = dev;
+      document.getElementById('mobileFrame').classList.toggle('active', dev==='mobile');
+      document.getElementById('desktopFrame').classList.toggle('active', dev==='desktop');
+      document.getElementById('mobileJump').style.display = dev==='mobile' ? 'flex' : 'none';
+      document.getElementById('desktopJump').style.display = dev==='desktop' ? 'flex' : 'none';
+      if(dev==='desktop'){ drawSparkline(); renderDeskAccounts(); renderGoals(); }
+    });
+  });
+  document.querySelectorAll('#themeSeg button').forEach((b)=> {
+    b.addEventListener('click', ()=> {
+      document.querySelectorAll('#themeSeg button').forEach((x)=> {x.classList.remove('active');});
+      b.classList.add('active');
+      var choice = b.getAttribute('data-theme-choice');
+      if(choice==='system') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', choice);
+      setTimeout(()=> { drawSparkline(); drawMainChart(); }, 30);
+    });
+  });
+
+  /* ============================= INIT ============================= */
+  renderNudges();
+  renderGoals();
+  applyLens('household');
+  go('unlock');
+  drawSparkline();
+})();
+</script>
+</body>
+</html>
