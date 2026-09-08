@@ -370,15 +370,15 @@ step content, wide enough for the form's fields to sit two-per-row.
 
 ### 3.6 Goals (list)
 
-**Layout (mobile):** header stat row ("₹53.0L earmarked of ₹1.93Cr net worth"), then one `Card`
+**Layout (mobile):** header stat row ("₹61.4L earmarked of ₹1.93Cr net worth"), then one `Card`
 per goal:
 ```
 ┌───────────────────────────┐
 │ 🎓 Ananya's Education       │
 │ ⚠ At risk                   │
-│ ▓▓▓▓▓░░░░░░░░░░░ 25%        │
+│ ▓░░░░░░░░░░░░░░░░ 3%        │
 │ ₹4.78L of ₹1.90Cr (2040)     │
-│ Needs ₹68,400/mo · has ₹9,000│
+│ Needs ₹42,300/mo · has ₹9,000│
 └───────────────────────────┘
 ```
 plus the **Unallocated** row at the bottom, visually a goal-shaped card in muted/dashed style
@@ -399,7 +399,8 @@ monthly SIP, target date, priority), then **funding holdings** — the literal l
 tagged to this goal with their tagged amount/%, each tappable back to Account Detail — then any
 **suitability warnings** as `Alert`s (e.g., *"SBI FD (matures Dec 2027) funds part of this goal,
 but your target date is Nov 2026 — consider a more liquid instrument"*), then a projection note
-in plain language ("At ₹9,000/mo you'll reach ₹1.2Cr by 2040 — ₹70L short of target").
+in plain language ("At ₹9,000/mo you'll reach about ₹56.6L by 2040 — ₹1.33Cr short of the
+₹1.90Cr target. Raising the SIP to ₹42,300/mo closes the gap.").
 
 - Edit affordances: change target/date/inflation/return assumptions (a form, same shape as
   add-asset's form skeleton); "Manage allocations" jumps into the allocation editor pre-scoped
