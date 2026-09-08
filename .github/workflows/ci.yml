@@ -32,7 +32,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
+      # gitleaks-action posts its PR summary through the API
+      pull-requests: write
     steps:
       - uses: actions/checkout@v5
         with:
