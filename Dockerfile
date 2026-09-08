@@ -12,6 +12,9 @@ FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# .git is not in the build context, so the commit identity is passed in (see compose).
+ARG GIT_SHA=unknown
+ENV GIT_SHA=$GIT_SHA
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { UpdateBanner } from "@/features/version/update-banner";
 import "./globals.css";
 
 export const metadata: Metadata = {
