@@ -19,8 +19,8 @@ never need to read the whole repo.
 | `docs/SESSION_LOG.md` | 1 line/session | Cheap history | Rarely |
 | `docs/PLAN.md` | — | The full map | On demand |
 
-`docs/ARCHITECTURE.md`, `docs/SECURITY.md`, `docs/api/CONTRACT.md`, `docs/DEPLOYMENT.md`
-are reference docs — linked from phase briefs, read only when the issue touches them.
+`docs/ARCHITECTURE.md`, `docs/SECURITY.md`, `docs/UX.md`, `docs/api/CONTRACT.md`,
+`docs/DEPLOYMENT.md` are reference docs — linked from phase briefs, read only when the issue touches them.
 
 ## Code layout is a context strategy
 
