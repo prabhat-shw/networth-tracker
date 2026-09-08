@@ -44,9 +44,12 @@ back when the session ended.
 
 ## Gotchas / open threads
 
-- **Owner actions:** `gh auth refresh -s project,read:project` (Projects board);
-  `git config core.hooksPath .githooks` on every clone.
-- Branch protection is **local only** — GitHub Pro is required for rulesets on a private repo.
+- **No owner actions outstanding.** (`core.hooksPath` is set on this machine; repeat it only
+  on a new clone.)
+- Repo is **public** (ADR-0010); `main` is protected server-side: PR + green `verify`/`security`,
+  no force-push, no deletion. Licence deliberately not chosen yet.
+- Kanban board: https://github.com/users/prabhat-shw/projects/2 — columns Backlog / Ready /
+  In progress / In review / Done. #1 and #2 sit in **Ready**; move your card when you start.
 - Merge policy (owner): merge PRs yourself when CI is green; only core features wait for approval.
 - A scratch worktree exists at `…/scratchpad/kb` (branch `docs/session-1-handoff`). Remove with
   `git worktree remove` once merged.
