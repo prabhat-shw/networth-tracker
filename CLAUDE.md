@@ -15,6 +15,8 @@ config for anything project-specific.
 3. `docs/phases/M<N>.md` — the brief for the current milestone only
 4. `gh issue view <N>` — the one issue you are working
 
+New to the project? [`docs/kb/`](docs/kb/README.md) explains the app from zero.
+
 Nothing else unless the issue needs it. [`docs/PLAN.md`](docs/PLAN.md) is the full map;
 [`docs/CONTEXT.md`](docs/CONTEXT.md) is the token/context framework — **follow it strictly.**
 
@@ -72,7 +74,8 @@ Nothing else unless the issue needs it. [`docs/PLAN.md`](docs/PLAN.md) is the fu
 - [ ] Tests written and passing (`pnpm test` targeted, CI runs full)
 - [ ] `pnpm typecheck` and `pnpm check` clean
 - [ ] ADR added/updated if a decision was made
-- [ ] `docs/STATE.md` rewritten for the next session
+- [ ] `docs/STATE.md` rewritten for the next session (CI enforces this when `src/` changes)
+- [ ] Docs invalidated by the change updated (`docs/kb/07-keeping-docs-current.md` says which)
 - [ ] One line appended to `docs/SESSION_LOG.md`
 - [ ] PR opened with `Closes #N`, card moved to *In review*
 
