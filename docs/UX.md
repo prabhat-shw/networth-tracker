@@ -319,9 +319,13 @@ palette, member-keyed instead of type-keyed — never both encodings in one char
 
 **Purpose:** the working inventory — every asset and liability, fast to scan, fast to edit.
 
-**Layout (mobile):** grouped list, one section per category (Cash & Bank, Deposits,
-Investments, Retirement & Small Savings, Foreign, Property & Valuables, Insurance, Lending &
-Debts, Loans & Debts owed), each section collapsible, each row:
+**Layout (mobile):** grouped list, one section per schema-level category (Cash & Bank,
+Deposits, Investments, Retirement & Small Savings, Foreign, Property & Valuables, Insurance,
+Lending, Loans & Debts owed), each section collapsible, each row. Note this is a *finer* split
+than the 7-bucket picker in §4.1: the add-flow groups by mental model for entry speed
+(receivables and liabilities share one bucket, "who owes whom"), while the list groups by
+schema type for precise scanning once things exist — same data, two taxonomies, each earning
+its keep at a different moment:
 ```
 🏦  HDFC Joint Savings         ◐ 50/50 · Priya
     ₹8,42,300                 ▓▓▓░░░░░░░ 40% tagged
