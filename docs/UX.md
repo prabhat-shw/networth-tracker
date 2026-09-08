@@ -52,23 +52,36 @@ resolve it against these first.
 
 ### 1.1 The nav model
 
-**Mobile — 4-item bottom tab bar:** `Home` · `Accounts` · `Goals` · `More`.
+**Mobile — 5-item bottom tab bar:** `Home` · `Accounts` · `Insights` · `Goals` · `More`.
 
 ```
-┌─────────────────────────────┐
-│                              │
-│         (screen)             │
-│                              │
-├──────┬──────┬──────┬────────┤
-│ Home │Accts │ Goals│  More  │
-└──────┴──────┴──────┴────────┘
-        (FAB "+" floats above, bottom-right, on Home/Accounts/Goals)
+┌─────────────────────────────────────┐
+│                                      │
+│              (screen)                │
+│                                      │
+├──────┬──────┬────────┬──────┬───────┤
+│ Home │Accts │Insights│ Goals│  More │
+└──────┴──────┴────────┴──────┴───────┘
+        (FAB "+" floats above, bottom-right, on Home/Accounts/Insights/Goals)
 ```
 
-**Why 4, and why not a 5th "Add" tab.** A tab that just opens a sheet and returns you to
-where you were isn't a destination — it's an action, and actions belong on a FAB that floats
-over every relevant screen, not a tab that's only useful when you happen to be on it. Keeping
-the bar to 4 keeps every target comfortably thumb-sized on a small phone.
+**Why 5, not the 4 this document originally argued for.** The v1 spec deliberately capped the
+bar at 4, reasoning that a tab is a *destination*, not an *action*, and that anything edited
+rarely (Household, Security) belongs under "More." That reasoning still holds — what changed
+is that owner feedback after the first review made insight and forecasting a **primary**
+reason to open the app, not an occasional side-trip: "much better insight into net worth, also
+future predictability." A feature the owner wants to reach as often as Goals earns a tab; a
+feature reached rarely does not. This is the nav model's own rule applied honestly against new
+evidence, not an exception to it — **frequency earns the tab slot, and frequency changed.**
+
+**Why 5 and not fewer/more.** Merging Insights into Home was considered and rejected: Home's
+whole job (Principle 1) is answering "what's my number and is anything wrong" in one
+unscrolled screen — bolting a waterfall chart, a fan chart, and eight more cards onto it would
+break that promise for the 80% of visits that don't want any of this. Insights earns its own
+destination precisely *because* it's substantial enough to need one.
+
+**Why not a 5th "Add" tab instead.** Unchanged from v1 — a tab that just opens a sheet and
+returns you to where you were isn't a destination, and belongs on the floating "+" instead.
 
 **Why Household & Security live under "More", not as their own tab.** They're edited rarely
 (you invite your spouse once, you set biometric unlock once) but must stay reachable within
@@ -84,11 +97,13 @@ Conflating them (e.g., a "My View" tab) would make switching context require lea
 screen you were reading — exactly the friction that makes multi-owner money hard everywhere
 else.
 
-**Desktop — left rail, 5 items:** `Home` · `Accounts` · `Goals` · `Household` · `Settings`,
-plus a persistent top bar (lens switcher, global search / quick-add via `⌘K`/`Ctrl K`, sync
-status, theme toggle, account menu). Household is promoted to the rail on desktop because
-laptop sessions are disproportionately "sit down once a month and reconcile everything"
-sessions, where ownership edits happen; phone sessions are disproportionately quick checks.
+**Desktop — left rail, 6 items:** `Home` · `Accounts` · `Insights` · `Goals` · `Household` ·
+`Settings`, plus a persistent top bar (lens switcher, global search / quick-add via
+`⌘K`/`Ctrl K`, sync status, theme toggle, account menu). Household is promoted to the rail on
+desktop because laptop sessions are disproportionately "sit down once a month and reconcile
+everything" sessions, where ownership edits happen; phone sessions are disproportionately
+quick checks. A 6-item rail costs nothing on desktop the way a 5th thumb-reach costs on
+mobile — there is no equivalent width constraint, so the rail simply grows with the product.
 
 ```
 ┌───┬─────────────────────────────────────────────────────────┐
@@ -101,11 +116,12 @@ sessions, where ownership edits happen; phone sessions are disproportionately qu
 │ t │                                                           │
 │ h │                                                           │
 ├───┤                                                           │
-│⌂  │                                                           │
-│▤  │                                                           │
-│◎  │                                                           │
-│⚭  │                                                           │
-│⚙  │                                                           │
+│⌂  │  Home                                                     │
+│▤  │  Accounts                                                 │
+│📈 │  Insights                                                 │
+│◎  │  Goals                                                    │
+│⚭  │  Household                                                │
+│⚙  │  Settings                                                 │
 └───┴───────────────────────────────────────────────────────────┘
 ```
 
@@ -118,6 +134,10 @@ Unlock (gate, not in nav)
                         └─ [Nudge cards] → Goals / Accounts / Unallocated filter
  Accounts ─────────────┬─ Account Detail → Edit / Delete / Duplicate
                         └─ Add flow (sheet/dialog, overlays any tab)
+ Insights ─────────────┬─ This year (waterfall, XIRR, drift, liquidity, concentration,
+                        │  loan burn-down, movers, data hygiene, milestone)
+                        └─ Forecast (fan chart, scenario lab, FI, goal odds, sensitivity,
+                           assumptions) — a sub-tab inside the same screen, not a new tab
  Goals ────────────────┬─ Goal Detail → Edit goal / Allocation editor
                         └─ Add goal
  More (mobile) ────────┬─ Household & Sharing → Invite member / Edit shares
@@ -755,7 +775,7 @@ in-tab content swaps. Nothing loops, nothing auto-plays. All of the above collap
 
 ---
 
-## 11. Explicitly NOT in v1
+## 13. Explicitly NOT in v1
 
 Called out so nobody mistakes an absence for an oversight:
 
