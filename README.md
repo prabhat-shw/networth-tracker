@@ -41,7 +41,7 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M0 — Foundation (mostly done) |
+| Milestone | M0 — Foundation (complete except issues #1 and #2) |
 | Next up | Issue #1 — Drizzle + Postgres wiring and health check |
 | Decisions recorded | 9 ADRs |
 
