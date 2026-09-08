@@ -41,10 +41,7 @@ export function UpdateBanner() {
   if (!served || !isStaleBuild(BUILD, served)) return null;
 
   return (
-    <div
-      role="status"
-      className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-between gap-4 border-t border-black/10 bg-neutral-900 px-4 py-3 text-sm text-white dark:border-white/10"
-    >
+    <output className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-between gap-4 border-t border-black/10 bg-neutral-900 px-4 py-3 text-sm text-white dark:border-white/10">
       <span>
         A newer version is available —{" "}
         <span className="font-mono">v{served.version}</span>
@@ -56,6 +53,6 @@ export function UpdateBanner() {
       >
         Reload
       </button>
-    </div>
+    </output>
   );
 }
