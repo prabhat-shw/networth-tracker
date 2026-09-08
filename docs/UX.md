@@ -52,23 +52,36 @@ resolve it against these first.
 
 ### 1.1 The nav model
 
-**Mobile — 4-item bottom tab bar:** `Home` · `Accounts` · `Goals` · `More`.
+**Mobile — 5-item bottom tab bar:** `Home` · `Accounts` · `Insights` · `Goals` · `More`.
 
 ```
-┌─────────────────────────────┐
-│                              │
-│         (screen)             │
-│                              │
-├──────┬──────┬──────┬────────┤
-│ Home │Accts │ Goals│  More  │
-└──────┴──────┴──────┴────────┘
-        (FAB "+" floats above, bottom-right, on Home/Accounts/Goals)
+┌─────────────────────────────────────┐
+│                                      │
+│              (screen)                │
+│                                      │
+├──────┬──────┬────────┬──────┬───────┤
+│ Home │Accts │Insights│ Goals│  More │
+└──────┴──────┴────────┴──────┴───────┘
+        (FAB "+" floats above, bottom-right, on Home/Accounts/Insights/Goals)
 ```
 
-**Why 4, and why not a 5th "Add" tab.** A tab that just opens a sheet and returns you to
-where you were isn't a destination — it's an action, and actions belong on a FAB that floats
-over every relevant screen, not a tab that's only useful when you happen to be on it. Keeping
-the bar to 4 keeps every target comfortably thumb-sized on a small phone.
+**Why 5, not the 4 this document originally argued for.** The v1 spec deliberately capped the
+bar at 4, reasoning that a tab is a *destination*, not an *action*, and that anything edited
+rarely (Household, Security) belongs under "More." That reasoning still holds — what changed
+is that owner feedback after the first review made insight and forecasting a **primary**
+reason to open the app, not an occasional side-trip: "much better insight into net worth, also
+future predictability." A feature the owner wants to reach as often as Goals earns a tab; a
+feature reached rarely does not. This is the nav model's own rule applied honestly against new
+evidence, not an exception to it — **frequency earns the tab slot, and frequency changed.**
+
+**Why 5 and not fewer/more.** Merging Insights into Home was considered and rejected: Home's
+whole job (Principle 1) is answering "what's my number and is anything wrong" in one
+unscrolled screen — bolting a waterfall chart, a fan chart, and eight more cards onto it would
+break that promise for the 80% of visits that don't want any of this. Insights earns its own
+destination precisely *because* it's substantial enough to need one.
+
+**Why not a 5th "Add" tab instead.** Unchanged from v1 — a tab that just opens a sheet and
+returns you to where you were isn't a destination, and belongs on the floating "+" instead.
 
 **Why Household & Security live under "More", not as their own tab.** They're edited rarely
 (you invite your spouse once, you set biometric unlock once) but must stay reachable within
@@ -84,11 +97,13 @@ Conflating them (e.g., a "My View" tab) would make switching context require lea
 screen you were reading — exactly the friction that makes multi-owner money hard everywhere
 else.
 
-**Desktop — left rail, 5 items:** `Home` · `Accounts` · `Goals` · `Household` · `Settings`,
-plus a persistent top bar (lens switcher, global search / quick-add via `⌘K`/`Ctrl K`, sync
-status, theme toggle, account menu). Household is promoted to the rail on desktop because
-laptop sessions are disproportionately "sit down once a month and reconcile everything"
-sessions, where ownership edits happen; phone sessions are disproportionately quick checks.
+**Desktop — left rail, 6 items:** `Home` · `Accounts` · `Insights` · `Goals` · `Household` ·
+`Settings`, plus a persistent top bar (lens switcher, global search / quick-add via
+`⌘K`/`Ctrl K`, sync status, theme toggle, account menu). Household is promoted to the rail on
+desktop because laptop sessions are disproportionately "sit down once a month and reconcile
+everything" sessions, where ownership edits happen; phone sessions are disproportionately
+quick checks. A 6-item rail costs nothing on desktop the way a 5th thumb-reach costs on
+mobile — there is no equivalent width constraint, so the rail simply grows with the product.
 
 ```
 ┌───┬─────────────────────────────────────────────────────────┐
@@ -101,11 +116,12 @@ sessions, where ownership edits happen; phone sessions are disproportionately qu
 │ t │                                                           │
 │ h │                                                           │
 ├───┤                                                           │
-│⌂  │                                                           │
-│▤  │                                                           │
-│◎  │                                                           │
-│⚭  │                                                           │
-│⚙  │                                                           │
+│⌂  │  Home                                                     │
+│▤  │  Accounts                                                 │
+│📈 │  Insights                                                 │
+│◎  │  Goals                                                    │
+│⚭  │  Household                                                │
+│⚙  │  Settings                                                 │
 └───┴───────────────────────────────────────────────────────────┘
 ```
 
@@ -118,6 +134,10 @@ Unlock (gate, not in nav)
                         └─ [Nudge cards] → Goals / Accounts / Unallocated filter
  Accounts ─────────────┬─ Account Detail → Edit / Delete / Duplicate
                         └─ Add flow (sheet/dialog, overlays any tab)
+ Insights ─────────────┬─ This year (waterfall, XIRR, drift, liquidity, concentration,
+                        │  loan burn-down, movers, data hygiene, milestone)
+                        └─ Forecast (fan chart, scenario lab, FI, goal odds, sensitivity,
+                           assumptions) — a sub-tab inside the same screen, not a new tab
  Goals ────────────────┬─ Goal Detail → Edit goal / Allocation editor
                         └─ Add goal
  More (mobile) ────────┬─ Household & Sharing → Invite member / Edit shares
@@ -453,6 +473,106 @@ deep.
 - No loading/empty states of note (all static/local); **error** only applies to Data actions
   (export failure) shown as an inline `Alert` on that row.
 
+### 3.10 Insights — "This year"
+
+**Purpose:** answer the question v1 left on the table — *why* did my number move, not just
+*that* it moved. Added after owner review asked for "much better insight into net worth."
+Full methodology (every formula, every reconciliation) is in §11 — this entry covers layout.
+
+**Layout:** a screen-level segmented control — **This year | Forecast** (§3.11) — sits under
+the header; both panels live on one screen (state, not navigation, per the same principle that
+governs the ownership lens). "This year" is the default panel and a scrollable stack of
+`insight-card`s, richest-first:
+
+1. **Contribution vs. growth** (the hero, per owner instruction) — a single horizontal
+   `stacked bar` (12 months ago → what you added → what the market did = today), with the two
+   moving segments' exact rupee breakdown underneath as two short lists. This is deliberately
+   the first card and the only one with the reassurance-earning "hero" treatment (Principle 1's
+   logic applied to *this* screen: the one number that matters leads).
+2. **Money-weighted returns (XIRR)** — a short list, portfolio → equity MF → US RSU, plus the
+   EPF/PPF/NPS/SSY *declared rate* shown in the same list but visually distinct (no `xirr-val`
+   colour) — a solved return and a declared rate are different kinds of number and must not
+   look identical.
+3. **Nominal vs. real growth** — a compact stat block (not yet the chart itself) with a
+   `foot-note`-style CTA into the timeline (§3.3), which is where the actual second line lives,
+   per the brief's own placement instruction.
+4. **Asset allocation vs. target** — one `diverging bar` per category (§6.3's diverging
+   treatment, reused for a new job: policy drift, not assets-vs-liabilities), plus one
+   plain-language nudge sentence naming the single worst-drifted category.
+5. **Liquidity ladder** — one ordinal `stacked bar` (§6.3.1) plus a legend list; closes the
+   loop on the Emergency Fund's liquidity-mismatch story from §3.7 by showing the *shape* of
+   liquidity across the whole household, not just one goal.
+6. **Concentration risk** — two headline stats (employer exposure, single-stock exposure) plus
+   a ranked single-hue bar list by institution.
+7. **Home loan burn-down** — a 2-segment `stacked bar` (principal repaid vs. interest paid to
+   date) plus payoff-date and rate context. No prepayment control here — that lives in Forecast,
+   because "what if I prepay" is a forward question, not a status report.
+8. **What changed this month** — a signed, sorted list (both directions), reusing the delta
+   convention from §10 (icon + sign + colour, never colour alone).
+9. **Data hygiene** — a list of manually-tracked values old enough to drag on trust, worst
+   first (in the reference data, the flat's 5-month-old valuation — 70% of net worth priced off
+   a stale manual estimate — outranks the 2-day-old gold price feed lag).
+10. **Milestone** — next round-number stat tile with a meter and a doubling-time caveat that is
+    explicit about *what* is doubling (last year's overall pace, including new savings — not a
+    pure investment return, and the copy says so, per Principle 6).
+
+- **Loading:** skeleton cards in the same order; nothing here is latency-sensitive in the real
+  app (all inputs are already-decrypted local data), so this mostly matters for slow devices.
+- **Empty (new household, <2 months of history):** cards that need a trailing-12-month window
+  (waterfall, XIRR, movers, real-vs-nominal) collapse to "Come back once you've had a few
+  check-ins" states; cards that only need a snapshot (drift, liquidity, concentration, loan
+  burn-down, data hygiene) still render normally — a new household has no *history* but does
+  have a *shape*, and the screen should show what it honestly can.
+- **Error:** identical pattern to Home (§3.2) — an inline `Alert` on the one card that failed,
+  never a blank screen for a partial computation failure.
+
+### 3.11 Insights — "Forecast"
+
+**Purpose:** the predictability half of the brief — not a single-number prophecy, but a
+legible range, driven by assumptions the owner can see and change. Full methodology in §12.
+
+**Layout:** the second panel behind the same segmented control as §3.10.
+
+1. **Net worth projection** — a **fan chart** (§6.3.2): the actual trailing line flows straight
+   into a P50 midpoint line, with a soft P10–P90 band around it, one horizon selector (`1Y 3Y
+   5Y 10Y 20Y`) above it. This is the screen's hero, mirroring the waterfall's position on the
+   other panel — per the brief, **never a single line**.
+2. **Scenario lab** — sliders and toggles (extra SIP, salary hike, market crash, income gap, a
+   second-property purchase, a college withdrawal) that redraw the fan chart *in place* on every
+   change, plus a standalone "prepay vs. invest" comparison driven by one shared lump-sum
+   slider. The comparison deliberately renders two numbers side by side and declares no winner
+   in copy — Principle 6 (calm, not gamified) applies as much to a neutral financial trade-off
+   as it does to avoiding streaks.
+3. **Financial independence** — a two-stat grid (corpus needed, projected FI year) plus a
+   coast-FI verdict sentence, both driven by two sliders (annual expenses, safe withdrawal
+   rate) that recompute live.
+4. **Odds of funding each goal** — reuses the Goals data model (§3.7) and expresses each goal's
+   likelihood of reaching its inflated target as a rough probability with the underlying P10 /
+   P50 / P90 corpus shown beneath it — explicitly labelled a heuristic (§12.5), not a real
+   distribution. The Education goal additionally shows the odds *at the required SIP*, so the
+   fix is visible next to the problem.
+5. **Sensitivity** — a ranked single-hue bar list: which single assumption, bumped by one
+   point, moves the 10-year number the most. In the reference household this is the property
+   return assumption by a wide margin, itself a direct, honest consequence of the allocation
+   drift surfaced in §3.10 — the two cards are meant to be read together.
+6. **Assumptions** — every return assumption used above, shown as **editable inline number
+   inputs**, plus the inflation rate. Per the brief: *assumptions are visible and editable
+   inline, never buried, and every projection is labelled an estimate.* Editing a return
+   assumption here changes the fan chart and FI numbers immediately; it does not retroactively
+   recompute goal odds or sensitivity in this prototype (documented as a known simplification —
+   §12.7).
+
+- **Loading:** the fan chart holds its previous render at reduced opacity while recomputing
+  (per `interaction.md`'s refetch rule) rather than flashing a skeleton on every slider move.
+- **Empty:** none — a projection only needs today's snapshot plus assumptions, both of which
+  always exist.
+- **Error:** the editable assumption inputs are clamped to a plausible band (prototype: a
+  shared ±20/30% for every category — real implementation should clamp per asset class, not
+  share one band) specifically so a mistyped extreme value can never reach the monthly-rate
+  math and produce `NaN` downstream. Preventing the bad state beats detecting it after the
+  fact, and matches the same non-negotiable as Goal Detail's projection math in §3.7: a
+  numeric projection must never render garbage.
+
 ---
 
 ## 4. The "Add anything" flow — collapsing 20 types into one shape
@@ -572,7 +692,16 @@ to Step 1 with the same bucket pre-opened (most batches are same-type).
 | Bottom sheet / table horizontal scroll | `ScrollArea` |
 | Dense desktop accounts list | `Table` (+ sortable headers, no external table lib needed at v1 scale) |
 | Category/type picker grid & list | `Tabs` is *not* used here (see §1 rationale on lens vs nav) — plain `Button` grid + `Command` for search-first filtering |
-| Charts | `Recharts` — `AreaChart` (net worth trend), horizontal stacked `BarChart` (composition), no pie/donut (see §7.3) |
+| Charts | `Recharts` — `AreaChart` (net worth trend), horizontal stacked `BarChart` (composition), no pie/donut (see §6.3) |
+| This year / Forecast sub-screen switch | `ToggleGroup` — same primitive as the lens switcher, same rule: state within a screen, not a route |
+| Contribution/growth bridge, principal/interest split | Horizontal stacked `BarChart` (Recharts) — same component as composition, different data, per `marks-and-anatomy.md`'s "part-to-whole rides on the stacked bar" |
+| Liquidity ladder | Horizontal stacked `BarChart` with an **ordinal** single-hue scale, not the categorical one (§6.3.1) |
+| Allocation drift, sensitivity ranking | Recharts `BarChart` — diverging (drift, §6.3.3) or single-hue ranked (sensitivity) |
+| Net worth fan chart (P10–P90) | Recharts `AreaChart` (band) + `Line` (P50), one shared axis (§6.3.2) — **not** two overlaid chart components with independent scales |
+| Scenario sliders (SIP, salary hike, lump sum, expenses, withdrawal rate) | `Slider` |
+| Scenario toggles (crash, income gap, buy a house, college withdrawal) | `Switch` |
+| Editable assumption inputs | native numeric `Input`, each with `min`/`max` clamps per asset class (see §3.11's error-state note) |
+| Per-goal probability, sensitivity, XIRR rows | plain list rows (no chart) — a handful of headline numbers is a KPI row, not a chart, per `choosing-a-form.md` |
 
 ---
 
@@ -642,14 +771,59 @@ greyscale-display user reads the identical information.
   2px line), matches the accent colour so "the number that matters" and "the brand" are the
   same hue — reserve orange (slot 2) as the second line's colour if "Compare members" is active
   for a second series, violet (slot 7) for a third; direct-labelled at line end, capped at 3
-  total per §"choosing a form" series ladder.
-- **Assets vs. Liabilities (net worth = A − L framing, e.g. a future net-worth waterfall):**
-  the diverging pair, blue (assets) ↔ red `#e34948`/`#e66767` (liabilities), neutral grey
-  midpoint — this is polarity (which side of zero), not identity, so it deliberately does *not*
-  borrow from the categorical set.
+  total per §"choosing a form" series ladder. The **real (inflation-adjusted)** overlay (§11.3)
+  reuses slot 3 (aqua) and is the one legitimate use of a **dashed** stroke on a data series in
+  this app — not a gridline, so the anti-pattern doesn't apply, and dashing is the conventional,
+  correctly-read signal for "adjusted," distinct from "actual." Never combine the real overlay
+  and the compare-members lines in the same render (§"choosing a form"'s 3-series cap, and two
+  reasons to add a line is one too many).
+- **Assets vs. Liabilities**, if a future screen needs the literal A − L framing (not yet
+  built): the diverging pair, blue (assets) ↔ red `#e34948`/`#e66767` (liabilities), neutral
+  grey midpoint — reserved for that specific polarity, not spent on anything else.
 - **Goal meters:** fill in the accent hue (or the goal's own assigned categorical colour once a
   household has enough goals to need distinguishing at a glance), unfilled track a lighter step
   of the same ramp — never grey-vs-colour, which reads as "broken" rather than "unfilled."
+
+#### 6.3.1 Liquidity ladder — an ordinal ramp, not categorical
+
+Liquidity tiers are **ordinal** (swapping "reachable today" and "illiquid" changes the
+meaning), so they take the one-hue, monotone-lightness ramp per `color-formula.md`, not the
+8-slot categorical set — reusing categorical colour here would wrongly imply the tiers are
+independent identities rather than a single ordered spectrum. Validated with
+`--ordinal` against both surfaces (lightest step still clears the light-end contrast floor):
+
+| Tier | Light | Dark |
+|---|---|---|
+| Reachable today | `#86b6ef` | `#cde2fb` |
+| Reachable within a month | `#5598e7` | `#9ec5f4` |
+| Reachable within a year | `#2a78d6` | `#5598e7` |
+| Locked until retirement | `#1c5cab` | `#256abf` |
+| Illiquid | `#104281` | `#184f95` |
+
+Rendered the same way as the composition bar (horizontal stacked, legend below carrying
+amounts as plain text) — same chart form, different colour job, per the method's own
+separation of "pick the form" from "assign colour."
+
+#### 6.3.2 The forecast fan — uncertainty as a wash, never a second identity
+
+The P10–P90 band is **not** a second categorical series — it is the *same* net-worth figure's
+uncertainty, so it takes the accent hue at the standard area-fill opacity (~10–13%), with the
+P50 line at full 2px stroke in the same hue directly through the middle. Two hues here would
+wrongly imply "two things," when the story is "one estimate, with a range." The historical
+actual segment (before "today") is the same hue at full stroke weight with no band — it isn't
+an estimate, so it carries no uncertainty geometry. A vertical hairline plus a "Today" label
+marks the seam. Direct-label only the P50 endpoint (per `marks-and-anatomy.md`'s "label
+selectively" rule) and let the hover tooltip and the "view as table" toggle carry P10/P90 at
+every point — never three number labels stacked at every gridline.
+
+#### 6.3.3 Allocation drift — the diverging pair, repurposed for policy, not liabilities
+
+Target-vs-actual drift is the same **polarity** job the diverging pair exists for (above/below
+a baseline), just answering a different question than assets-vs-liabilities: here zero means
+"on policy," blue means "room to add," red means "over target and due for trimming." Each
+category gets its own horizontal diverging bar growing from a centred zero-line — never a
+single bar with the category's *own* categorical colour, which would conflate "which category"
+with "which direction," two different jobs that must not share one channel on the same mark.
 
 ---
 
@@ -755,7 +929,293 @@ in-tab content swaps. Nothing loops, nothing auto-plays. All of the above collap
 
 ---
 
-## 11. Explicitly NOT in v1
+## 11. Insights — methodology ("this year")
+
+Added after the owner's second-pass review: *"much better insights of net worth also future
+predictability."* This section is the maths behind §3.10 — read it before implementing any
+card there. Every figure quoted below as an example is the reference household's real,
+reconciled number from `docs/ux/prototype.html`, not a placeholder.
+
+**Where this lives in the codebase (real implementation, not the prototype):** every
+calculation in this section is a pure function of already-decrypted local data — `src/domain/
+insights/`, same rules as `src/domain/goals/` (framework-free, unit-tested, no network). The
+zero-knowledge architecture (`docs/SECURITY.md`) means the server could never compute any of
+this even if it wanted to; it doesn't have the numbers. The one external input any of it needs
+is price history, and that has to come from the price service's daily universe downloads
+(`docs/PLAN.md` M4) accumulating locally over time — a brand-new install has today's prices but
+not last year's, so the trailing-12-month cards (§11.2–11.4) degrade gracefully until enough
+history has accumulated (see the Empty state in §3.10).
+
+### 11.1 Contribution vs. growth decomposition — the hero
+
+The single most requested feature, and rightly the first card. The identity is exact, not
+approximate: **start (12 months ago) + contributions + growth = end (today)**. In the
+reference household: `₹1,72,40,000 + ₹15,30,000 + ₹5,25,300 = ₹1,92,95,300`.
+
+- **Contributions** = every rupee the household *added*: bank savings set aside, EPF/NPS/PPF
+  contributions, mutual fund SIPs, RSU **vested this year** (valued at vest-date price — it's
+  compensation, not a market return), and home loan **principal** repaid (the interest portion
+  of an EMI is not a net-worth event at all: it leaves the household's cash and was never
+  counted as an asset, so it neither appears here nor as a loss elsewhere — it simply isn't in
+  the bridge).
+- **Growth** = the market/interest return on capital *already* invested: MF/stock/RSU price
+  appreciation, EPF/PPF/NPS/SSY interest credited, property/gold revaluation.
+- A category can only be in one bucket for a given rupee — the split is why the loan's EMI is
+  decomposed into principal (contribution) and interest (invisible to net worth), not counted
+  once as a "payment."
+- **Honesty check, always shown:** if this year's realised growth is unusually low or high
+  relative to the Forecast tab's long-run assumptions (§12), say so explicitly in a foot-note.
+  In the reference data this year's growth (~2%, a market-correction year) sits well below the
+  ~6% long-run blended assumption — the copy names this rather than let the two numbers
+  silently disagree.
+
+### 11.2 Money-weighted return (XIRR) vs. declared rate
+
+Contributions are irregular (a lump-sum RSU vest is not the same as a level SIP), so a simple
+`(end − start) / start` return overstates or understates depending on *when* money moved.
+**XIRR solves for the discount rate `r` that makes the NPV of the full cash-flow series (start
+as an outflow, every contribution as an outflow, today's value as the terminal inflow) equal
+zero** — bisection is sufficient (no need for Newton's method's derivative), converges in well
+under 100 iterations, and is the same algorithm a spreadsheet's `XIRR()` uses. Compute one
+series per: whole financial portfolio (cash + deposits + investments + retirement + foreign —
+**explicitly excluding property, gold, and money lent**, which aren't priced by a market feed
+frequently enough for a money-weighted return to mean anything), and per major asset class
+(equity mutual funds, US RSU) where the household would actually want to compare performance.
+
+**EPF/PPF/NPS/SSY get a declared rate, not an XIRR**, shown in the same list but visually
+distinct (no green "solved" styling) — these are government-declared-rate instruments where a
+money-weighted return would imply a precision the instrument doesn't have. Compute the
+declared rate as a value-weighted average of each instrument's stated annual rate.
+
+**Simplification flagged for implementation:** the reference cash-flow series models
+contributions as level and monthly. A real implementation has actual transaction dates (every
+SIP debit, every RSU vest) and should build the cash-flow array from those directly — this
+only becomes *more* accurate, never less, so it's a safe upgrade path, not a redesign.
+
+### 11.3 Nominal vs. real (inflation-adjusted) net worth
+
+Deflate every point in the net-worth trend to the series' own starting period:
+`real(t) = nominal(t) / (1 + inflation)^(months(t) / 12)`. Plotted as a second line on the
+existing timeline (§3.3, §6.3), never a separate chart — the point is the *gap* between the two
+lines, which only reads clearly when they share one axis. Restate the headline as rupees, not
+just a percentage: *"Of the ₹X nominal gain this year, ₹Y was real — the rest reflects
+inflation, not new wealth."* In the reference year, roughly half of the nominal gain was
+inflation, not growth — exactly the kind of thing a net-worth app should never let the user
+misread as progress.
+
+### 11.4 Asset allocation vs. target, with drift
+
+The household sets (or the app suggests, e.g. by age/goal mix — out of scope for this pass) a
+**target allocation** across the same seven categories used everywhere else in this document.
+Drift is simply `actual% − target%` per category, rendered as the diverging bars in §6.3.3.
+**Always compute the single worst-drifted category and say its name in the nudge sentence** —
+a list of seven numbers with no synthesis is data, not an insight. In the reference household,
+real estate is ~35 points over target, which is the same structural fact that shows up
+independently in §11.6 (liquidity), §11.5 (concentration), and §12.8 (sensitivity) — a well-
+built Insights screen should let a reader notice the *same* underlying story from four angles,
+not read as four unrelated cards.
+
+### 11.5 Liquidity ladder
+
+Bucket every asset by how fast it converts to spendable cash, not by asset-class identity —
+this is a different cut of the same data than the composition chart, and deliberately an
+**ordinal** scale (§6.3.1):
+
+| Tier | What belongs here |
+|---|---|
+| Reachable today | Cash & bank balances |
+| Reachable within a month | Open-ended mutual funds, vested listed equity/RSU, physical gold (at a resale discount — note the haircut), and any FD if broken early (note the penalty) |
+| Reachable within a year | Money lent to family/friends with an expected-return date — never "guaranteed," say so |
+| Locked until retirement | EPF, PPF, NPS, Sukanya Samriddhi — legally restricted, not a liquidity choice |
+| Illiquid | Real estate — sellable, but timeline and price are both unpredictable, unlike every tier above it |
+
+The tiers must sum to exactly total assets — there is no "unclassified" bucket; every holding
+type maps to exactly one tier. Cross-reference against goal allocations (§2.2): the household
+may have a large "reachable within a month" figure that is almost entirely earmarked elsewhere,
+which is worth a foot-note precisely because it's the honest, slightly deflating truth behind a
+big reassuring liquidity number.
+
+### 11.6 Concentration risk
+
+Three questions, in priority order: **(1) employer** — sum salary-adjacent exposure (EPF +
+RSU/ESPP from the same employer; salary itself isn't a balance-sheet figure but belongs in the
+sentence, not the number); **(2) single stock** — the largest single-issuer equity position as
+a % of total assets; **(3) single institution** — a ranked list (bank, AMC, employer) by total
+exposure, rendered as single-hue ranked bars (magnitude comparison, not identity — §"choosing a
+form"). Flag explicitly when the same employer shows up in more than one line (salary + EPF +
+RSU is three bets on one company, not one) — this is the whole point of the card, not a
+footnote to it.
+
+### 11.7 Liability burn-down
+
+Solve, don't author, the loan's **effective monthly rate** from the three facts the household
+already gave the app (outstanding balance, EMI, remaining tenure) via bisection on the standard
+amortisation formula `EMI = P·r·(1+r)ⁿ / ((1+r)ⁿ−1)` — this is the same technique as the XIRR
+solver, applied to a fully deterministic (non-market) cash flow. From the solved rate, derive
+whatever the household **also** originally borrowed (given an assumed original tenure) and
+therefore how much of every EMI paid to date was interest vs. principal — rendered as the
+2-segment stacked bar in §6.3. A **live prepayment calculator** (`monthsToPayoff` from the same
+solved rate) belongs in Forecast (§12), not here — "what if I prepay" is a forward scenario,
+this card is a status report on what already happened.
+
+### 11.8 What changed, data hygiene, and milestones
+
+Three small, high-frequency-value cards that round out the screen:
+
+- **What changed this month** — every holding's month-over-month delta, sorted by magnitude,
+  signed and icon-paired per §10's delta convention, both directions shown (the biggest *drop*
+  is as newsworthy as the biggest gain).
+- **Data hygiene** — rank manually-tracked values by `(days since asOf) × (share of net
+  worth)`, not age alone: a 5-month-stale valuation on 70% of net worth matters more than a
+  2-day-stale price feed lag on a small gold holding, even though the gold number is
+  chronologically "more stale." Distinguish the two *kinds* of staleness in copy — feed lag
+  (system will fix itself) vs. manual neglect (only the user can fix it) are different asks.
+- **Milestone** — the next clean round number above current net worth, months-away at the
+  trailing pace, and a doubling-time figure computed from `ln(2) / ln(1 + rate)`. **Always
+  caveat which rate**: the milestone uses *last year's overall growth including new savings*,
+  which is a real, useful pace to know but is not an investment return, and must never be
+  presented next to XIRR (§11.2) without that distinction — conflating the two is the single
+  easiest way to make this feature dishonest.
+
+---
+
+## 12. Forecast — methodology ("what happens next")
+
+The predictive half of the same owner request. The organizing rule, stated once because it
+governs every decision below: **show a range, never a point estimate, and make every
+assumption visible and editable.** A single "you'll have ₹X in 2046" number is a lie by
+omission; this section exists to stop that lie from ever shipping.
+
+### 12.1 Assumptions — the owner must sanity-check these
+
+Every number below is a **starting point**, not a researched capital-markets assumption, and
+the UI says so (§3.11's Assumptions card, live-editable). Flagging explicitly for the owner's
+own judgement, per the brief's own request:
+
+| Asset class | P10 | P50 (median) | P90 | Note |
+|---|---|---|---|---|
+| Cash & Bank | 2.0% | 3.5% | 5.0% | Savings-account-like, low variance |
+| Deposits (FD/RD) | 6.0% | 7.0% | 7.5% | Near-fixed once booked; the band is mostly rate-cycle risk at renewal |
+| Investments (equity MF/stocks) | 6.0% | 12.0% | 18.0% | The widest realistic band for Indian equity over a multi-year horizon |
+| Retirement & Small Savings | 7.5% | 8.2% | 9.0% | Blended EPF/PPF/NPS/SSY declared-rate band, deliberately narrow |
+| Foreign (US stocks/RSU) | −2.0% | 10.0% | 22.0% | Widest band in the table — single-stock **and** FX risk stacked |
+| Property & Valuables | 2.0% | 5.0% | 8.0% | Real estate appreciates slower and more smoothly than equity, historically |
+| Insurance & Lending | 0.0% | 2.0% | 4.0% | Mostly money lent at no/low interest — not a growth asset |
+| Inflation | — | 6.0% | — | Matches the goals engine's existing default (`docs/PLAN.md`) |
+
+These are nominal annual returns in INR. **The owner should replace every one of these with
+either researched long-run figures or their own house view before this ships** — they are
+deliberately visible and editable in the UI specifically so nobody mistakes them for
+researched truth. The one that matters most for *this* household is Property, per §12.8.
+
+### 12.2 The projection engine
+
+A pure function `project(percentile, scenario, years) → [{year, assets, liability, net}]`,
+stepped **monthly, not annually** — this is not a stylistic choice: an annual-step
+approximation of the same inputs measurably understates a monthly-SIP household's terminal
+value (confirmed while building this spec — the annual approximation put a goal ~₹5L short of
+a target that monthly-compounding correctly showed as met). Each category compounds at its own
+assumption, converted to a monthly rate via `(1+annual)^(1/12) − 1`, with its own annual
+contribution added in monthly instalments; the home loan amortises on its own solved schedule
+(§11.7) in parallel, independent of the market percentile, because a loan doesn't have a P10.
+**Every projection starts from today's actual net worth** (`CATS`/`LENS` — the same figures
+every other screen in the app uses) — a projection that doesn't reconcile with the number on
+Home is worse than useless, it's actively misleading.
+
+### 12.3 The fan: P10 / P50 / P90, and what it is *not*
+
+Run the engine three times — once per percentile — and plot the P50 as the solid line, P10–P90
+as the wash between them (§6.3.2). **This is a calibrated illustration, not a Monte Carlo
+simulation.** A real Monte Carlo would sample each asset class's return from a distribution
+every simulated month/year, honour the correlation between classes (equity and RSU are not
+independent; property and everything else mostly are), and report percentiles across thousands
+of simulated paths. What's built here instead runs the **deterministic** engine three times at
+three fixed rates — cheap, fully client-side, and directionally honest (the band widens over
+time, as it should), but it understates true tail risk because it never lets one bad month
+compound with another. **Flagging this explicitly as a v1 simplification** (§13) — a
+real Monte Carlo engine (even a client-side one; nothing here needs the server) is the natural
+v2 upgrade once the return-distribution assumptions above are researched enough to bear the
+extra precision.
+
+### 12.4 Scenario mechanics — what each control actually does
+
+Every slider and toggle mutates a single `scenario` object that the engine reads fresh on
+every recompute — nothing is a canned alternate dataset:
+
+| Control | Mechanism |
+|---|---|
+| Extra monthly SIP | Adds to the Investments category's monthly contribution |
+| Salary hike | Multiplies **every** category's contribution by `(1 + hike%)` |
+| Market crash today | A one-time ×0.7 haircut to Investments and Foreign at month 0, then normal compounding resumes — models a crash today, not a crash at an arbitrary future date |
+| 6 months without income | Zeroes all contributions for months 1–6 only, then resumes at the normal rate |
+| Buy a second property (year 3) | At month 36: draws a down payment proportionally from Cash/Deposits/Investments (clamped so it can never overdraw the pool), adds the new home's value to Property, adds a new loan to the liability side |
+| Child's college withdrawal (2038) | At the corresponding month: draws a lump sum proportionally from Investments/Retirement/Foreign (same overdraw clamp), continues compounding the reduced base |
+| Prepay vs. invest (a shared lump-sum slider) | Feeds **two independent, real calculations** — `monthsToPayoff` on the reduced loan balance (interest saved, months saved) and a plain compound-growth projection of the same amount at the Investments assumption over the loan's remaining tenure — rendered side by side with **no stated winner**, because which is "better" depends on risk tolerance the app can't see |
+
+**Every clamp exists to prevent a scenario from silently going negative** (drawing more from a
+pool than it holds) — the two life-event toggles cap their draw at 90% of the relevant pool
+rather than let it run through zero into negative territory, which would otherwise be possible
+for an aggressive combination of toggles (e.g. a crash *and* a house purchase in the same run).
+
+### 12.5 Per-goal probability of funding — an explicit heuristic, not a real distribution
+
+Reuses the Goals data model (§3.7/§2.2) rather than inventing a parallel one. For each goal:
+derive a return band's **half-width** from the category mix of that specific goal's *funding
+sources* (each funding item is tagged with its asset-class key directly — never inferred from
+its free-text display label, which can't be trusted to pattern-match reliably), then **centre
+that band on the goal's own stated `expectedReturn`** rather than re-deriving the median from
+category assumptions — the goal's own assumption was an explicit, editable choice (§2.2's goal
+model) and this heuristic respects it rather than silently overriding it. Locate the goal's
+inflated target within the resulting P10/P50/P90 corpus range and interpolate a probability
+(90% at or below P10, 50% at P50, 10% at or above P90, linear between). **This is a
+calibrated-band heuristic, explicitly not a real probability distribution**, and the UI copy
+says so (§3.11) — it's useful for *relative* comparison between goals (this goal's odds are
+better than that one's) and for showing *what a fix looks like* (Education's odds at the
+required SIP vs. at the current one), not as a literal statistical probability a household
+should plan around.
+
+### 12.6 Financial independence & coast-FI
+
+`corpus needed = annual expenses ÷ safe withdrawal rate` (both owner-editable sliders,
+withdrawal rate 3–5%). Find the **first year in the P50 path where projected net worth clears
+that corpus** — a simple linear search over the already-computed path, no separate maths.
+**Coast-FI** answers a different question: if the household stopped contributing to their
+*investable* assets today (deliberately excluding property — coast-FI is about assets that
+could plausibly be spent down in retirement, and a primary residence usually isn't), would
+those assets alone, left to compound at their own blended rate, still clear the FI corpus by a
+stated retirement age? Both numbers should be read together: a household can be short of FI
+today but already "coasting" — meaning the *rate of new saving* is now optional, not the
+saving itself.
+
+**Known simplification, flagged for implementation:** the FI corpus is computed once against
+**today's** expense assumption and compared against a **nominal** projection — a fully rigorous
+version would inflate the expense figure forward to whatever year FI is reached (or compare
+against the *real* net-worth path instead of nominal) before declaring the corpus "met." As
+built, this slightly understates the true corpus needed in a future year. Left as a v1
+simplification given scope (§13) rather than silently presented as exact.
+
+### 12.7 Sensitivity — which assumption actually matters, for *this* household
+
+Bump each category's P50 return by exactly +1 percentage point, one at a time, re-run the
+10-year P50 projection, and rank the resulting deltas — plus one more run with every
+contribution scaled up 10%, to compare "a better assumption" against "saving more" on the same
+axis. **This is a real, computed, one-at-a-time sensitivity (a tornado ranking), not an
+assertion.** In the reference household, the property return assumption dominates every other
+lever, including a 10% jump in contributions — a direct, honest, non-generic consequence of
+70% of net worth sitting in one low-yield asset class. This is the single most important
+number the Forecast tab produces: it tells the household *what to actually go verify* (is 5%
+the right property assumption?) rather than which lever to pull.
+
+**Known simplification:** editing an assumption in §3.11's live inputs updates the fan chart
+and FI numbers immediately (§12.2's engine reads `ASSUMPTIONS` fresh on every call) but does
+**not** re-trigger the goal-probability (§12.5) or sensitivity (§12.7) cards, which are computed
+once per session against the baseline assumptions in the prototype. A shipped implementation
+should make these fully reactive too — the prototype's scope cut here is about avoiding a
+recompute cascade on every keystroke, not a modelling limitation.
+
+---
+
+## 13. Explicitly NOT in v1
 
 Called out so nobody mistakes an absence for an oversight:
 
@@ -769,8 +1229,6 @@ Called out so nobody mistakes an absence for an oversight:
 - A transactions/expense ledger or budgeting features — this is a balance-sheet app, not a
   cash-flow app; it tracks *what you have*, not *what you spent*.
 - Gamification of any kind — streaks, comparisons to "people like you," achievement badges.
-- Scenario/what-if simulators beyond the goal engine's built-in required-SIP projection
-  (no drag-a-slider "what if the market crashes" tool at v1).
 - Data export as formatted PDF/Excel reports (encrypted raw backup export exists per §3.9;
   human-readable reports are a later nice-to-have).
 - Children or dependents as household members with their own lens/login — a child is a goal
@@ -781,3 +1239,30 @@ Called out so nobody mistakes an absence for an oversight:
 - Any AI/chat assistant surface.
 - Advisor marketplace, community, or social features of any kind — this is a private
   household tool, deliberately not a platform.
+
+**Added in the Insights/Forecast pass (§11–§12) — also deliberately out of scope:**
+
+- **A real Monte Carlo simulation.** The forecast fan (§12.3) is three deterministic runs at
+  fixed percentile rates, not thousands of correlated random draws. It's the right level of
+  investment for v1 and is honestly labelled as an estimate; a proper simulation (with
+  researched volatility and cross-asset correlation) is the natural v2 upgrade, entirely
+  client-side, once the return assumptions in §12.1 are researched enough to bear it.
+- **Tax modelling of any kind** — capital gains, LTCG/STCG distinctions, indexation, Section 80C
+  contribution limits, surcharge. Every projection in §12 is pre-tax. A household near the LTCG
+  exemption threshold or planning a tax-triggering redemption should not treat any Forecast
+  number as post-tax.
+- **A fully reactive assumption graph.** Editing a return assumption updates the fan chart and
+  FI numbers live; it does not re-run goal-probability or sensitivity in this prototype
+  (§12.7's flagged simplification). A shipped version should make the whole graph reactive.
+- **Real transaction-level XIRR cash flows.** §11.2's XIRR uses a modelled level-monthly
+  contribution series; the real implementation should build the cash-flow array from actual
+  SIP/vesting transaction dates once M6 (statement import) or manual transaction entry exists.
+- **Per-instrument historical volatility calibration.** The P10/P90 return bands in §12.1 are
+  authored starting points, not derived from this household's (or any real) historical return
+  series. Calibrating them from actual AMFI/NSE/Yahoo price history the app already downloads
+  (`docs/PLAN.md` M4) is a natural, purely-client-side upgrade.
+- **Multi-generational or multi-scenario comparison views** (e.g. saving two named scenarios
+  side by side, or a scenario history). The Scenario Lab (§3.11) is single-state and
+  live-editable, not a scenario manager.
+- **A household-level allocation *policy editor*.** §11.4 assumes a target allocation exists;
+  v1 does not yet include the UI to set or change it (only to see drift against it).
