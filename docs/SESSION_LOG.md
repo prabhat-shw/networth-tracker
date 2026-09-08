@@ -2,4 +2,4 @@
 
 One line per session: date · issue · outcome.
 
-- 2026-09-08 · M0 foundation · repo, docs, ADRs 0001-0007, CI, Compose, kanban
+- 2026-09-08 · M0 foundation · scaffold, docs, ADRs 0001-0007, CI, Compose, repo + issues #1-#7 · green
