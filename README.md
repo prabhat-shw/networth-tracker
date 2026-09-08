@@ -46,8 +46,9 @@ M0 — foundation. Not yet usable. See [`docs/PLAN.md`](docs/PLAN.md) for the fu
 
 ```bash
 pnpm install
-cp .env.example .env      # set POSTGRES_PASSWORD and BETTER_AUTH_SECRET
-pnpm dev                  # http://localhost:3000
+git config core.hooksPath .githooks   # once: blocks direct pushes to main (ADR-0008)
+cp .env.example .env                  # set POSTGRES_PASSWORD and BETTER_AUTH_SECRET
+pnpm dev                              # http://localhost:3000
 ```
 
 Verification: `pnpm test` · `pnpm typecheck` · `pnpm check` · `pnpm check:docs`

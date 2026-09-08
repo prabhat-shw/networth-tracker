@@ -22,8 +22,9 @@ Nothing else unless the issue needs it. [`docs/PLAN.md`](docs/PLAN.md) is the fu
 
 1. **Repo-local config only.** Skills, commands, settings live in `./.claude/`. Durable
    knowledge is committed Markdown (`CLAUDE.md` + `docs/`), never `~/.claude`.
-2. **One issue = one session = one branch = one PR.** Never commit to `main`. Close the
-   session after the PR — do not start the next issue on fumes.
+2. **One issue = one session = one branch = one PR.** Never commit or push to `main`
+   (ADR-0008; a pre-push hook enforces it). Close the session after the PR — do not start
+   the next issue on fumes.
 3. **Document every decision** as an ADR in `docs/decisions/` (≤60 lines each), in the same
    PR as the change. Scope changes also update `docs/PLAN.md`.
 4. **Conventional Commits. No AI attribution of any kind** — no `Co-Authored-By: Claude`,
@@ -56,7 +57,11 @@ Nothing else unless the issue needs it. [`docs/PLAN.md`](docs/PLAN.md) is the fu
   Zod, Drizzle + Postgres, Better Auth + passkeys, Vitest + Playwright, pnpm, Node ≥24.
 - **Layout:** feature folders under `src/`; files ≤300 lines; colocated `*.test.ts`; no
   barrel files. Path alias `@/` → `src/`.
-- **Branches:** `phase-0-foundation`, `feat/goal-allocations`, `fix/...`.
+- **Branches (ADR-0008):** `main` is protected — **never commit or push to it**. One issue →
+  one branch (`phase-1-crypto-core`, `feat/goal-allocations`, `fix/...`) → PR → squash merge
+  with `Closes #N`. CI must be green; `area:crypto` / `area:security` PRs also need the
+  owner's explicit approval — never self-merge those. Feature branches are kept, not deleted.
+  Run once per clone: `git config core.hooksPath .githooks`.
 - **Tests:** unit (Vitest, PR gate) → component (browser mode) → E2E (Playwright, includes
   cross-household isolation + DB-plaintext-scan security specs) → API contract tests.
 - **Envs:** production = home server over Tailscale. Staging = Vercel, `DEMO_MODE=true`,

@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v5
         with:
           node-version: 24
@@ -32,16 +32,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
+      # gitleaks-action posts its PR summary through the API
+      pull-requests: write
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Secret scan
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v5
         with:
           node-version: 24
