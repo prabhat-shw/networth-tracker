@@ -18,7 +18,12 @@ services:
     # Not published to the host: only the app container reaches Postgres.
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        # Stamps the build with the commit it came from:
+        #   GIT_SHA=$(git rev-parse --short HEAD) docker compose up -d --build
+        GIT_SHA: ${GIT_SHA:-unknown}
     restart: unless-stopped
     depends_on:
       db:
