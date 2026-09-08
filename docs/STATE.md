@@ -27,28 +27,23 @@ Green at session end: `pnpm test` (12) · `typecheck` · `check` · `check:docs`
 **Issue #1 — Drizzle + Postgres wiring and health check** (`size:M`). Unblocks all of M1.
 Then #2 (Vercel staging), then M1 from #3 (crypto primitives) — brief in `docs/phases/M1.md`.
 
-## In flight — deal with this first
+## In flight — check this first
 
-A background design agent was extending the prototype with **net-worth insights and
-projections** (contribution vs growth, XIRR, real net worth, liquidity ladder, concentration,
-loan burn-down; P10/P50/P90 projection fan, scenario sliders, FI date). It had not reported
-back when the session ended.
+A **cloud** design agent is completing the net-worth **insights and projections** pass
+(contribution vs growth, XIRR, real net worth, liquidity ladder, concentration, loan
+burn-down; P10/P50/P90 projection fan, scenario sliders, FI date, per-goal funding
+probability). It runs on Anthropic infrastructure, not the owner's laptop, so it continued
+after shutdown.
 
-- Its work lands in the **main working tree on branch `docs/ux-insights`**, which already
-  carries a committed `docs: refresh state after M0 merges and widen M5 scope`.
-- **Check `git -C D:/Work/claude-apps/networth-tracker status` first.** If `docs/UX.md` and
-  `docs/ux/prototype.html` have changes, review them, commit on that branch, open a PR.
-  If the tree is unchanged, the pass did not complete — re-run it.
-- That branch's STATE edit will conflict with this file; keep **this** version and re-apply
-  anything still true.
-
-## Waiting on the owner (first thing tomorrow)
-
-- **Issue #14 — features worth borrowing from existing apps.** The owner liked the
-  competitive research and wants to discuss before anything is scheduled. Six candidates,
-  ranked, with the milestone each would fit. Two of them (post-tax net worth, double-entry
-  transfers) affect the **M3 schema**, so settle those before M3 design begins.
-- **Licence choice** — repo is public with no `LICENSE` (ADR-0010). MIT, AGPL, or leave as is.
+- It works on branch **`docs/ux-insights`** and opens a PR against `main` titled
+  *"docs: net-worth insights and projections in the UX spec and prototype"*.
+- That branch's head is a **mid-write snapshot** (`wip: snapshot of the in-progress...`)
+  pushed before shutdown as insurance. The cloud agent was told to inspect, verify and fix it.
+- **First action tomorrow:** `gh pr list`. If the PR exists, review it — check the maths
+  reconciles with the household data and the embedded JS actually runs — then send the
+  prototype to the owner before merging. If no PR exists, the run failed; re-run the pass.
+- The branch also carries a superseded `docs: refresh state after M0 merges` commit whose
+  STATE edit will conflict with this file. **Keep this version.**
 
 ## Gotchas / open threads
 
