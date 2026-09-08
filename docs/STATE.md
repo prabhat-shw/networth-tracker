@@ -42,6 +42,14 @@ back when the session ended.
 - That branch's STATE edit will conflict with this file; keep **this** version and re-apply
   anything still true.
 
+## Waiting on the owner (first thing tomorrow)
+
+- **Issue #14 — features worth borrowing from existing apps.** The owner liked the
+  competitive research and wants to discuss before anything is scheduled. Six candidates,
+  ranked, with the milestone each would fit. Two of them (post-tax net worth, double-entry
+  transfers) affect the **M3 schema**, so settle those before M3 design begins.
+- **Licence choice** — repo is public with no `LICENSE` (ADR-0010). MIT, AGPL, or leave as is.
+
 ## Gotchas / open threads
 
 - **No owner actions outstanding.** (`core.hooksPath` is set on this machine; repeat it only
