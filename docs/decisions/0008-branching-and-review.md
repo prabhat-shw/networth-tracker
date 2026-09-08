@@ -27,6 +27,10 @@ and had no branch to protect. That is the only exception, and it is closed by th
   (`git config core.hooksPath .githooks`, run once per clone), plus a server-side ruleset
   where the GitHub plan allows it.
 
+**Amended 2026-09-08:** the repository is now public (ADR-0010), so the server-side ruleset
+is active — PR required, `verify` + `security` must pass, no force-push, no deletion. The
+local hook is now a backstop rather than the only enforcement.
+
 ## Consequences
 
 - Every change is reviewable as a diff, and a bad session is one `gh pr close` away from

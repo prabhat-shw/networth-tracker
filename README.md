@@ -43,7 +43,7 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | Version | `0.1.0` |
 | Milestone | M0 — Foundation (complete except issues #1 and #2) |
 | Next up | Issue #1 — Drizzle + Postgres wiring and health check |
-| Decisions recorded | 9 ADRs |
+| Decisions recorded | 10 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.
@@ -78,6 +78,7 @@ docker compose up -d --build   # app + Postgres + Caddy, published only on your 
 | [`docs/CONTEXT.md`](docs/CONTEXT.md) | How work is split across short sessions |
 | [`docs/decisions/`](docs/decisions/) | ADRs — the *why* behind every decision |
 | [`docs/kb/`](docs/kb/README.md) | **Knowledge base** — the app explained from zero, for users and new developers |
+| [Project board](https://github.com/users/prabhat-shw/projects/2) | What is being worked on right now |
 
 New here? Start with the knowledge base: [what this app is](docs/kb/01-what-is-this.md),
 [money concepts](docs/kb/02-money-concepts.md), [how privacy works](docs/kb/03-how-privacy-works.md),
@@ -85,4 +86,5 @@ or [developer onboarding](docs/kb/05-developer-onboarding.md).
 
 ## Licence
 
-Private project. All rights reserved.
+No licence has been chosen yet, so default copyright applies: the code is public to read,
+but not yet licensed for reuse. See [ADR-0010](docs/decisions/0010-public-repository.md).
