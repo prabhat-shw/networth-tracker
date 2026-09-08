@@ -13,7 +13,8 @@ Shipped this session:
 - CI: doc-size caps, typecheck, Biome, Vitest, gitleaks, osv-scanner
 - Docs: PLAN, ARCHITECTURE, SECURITY threat model, CONTEXT (session framework), M1 brief,
   API contract draft, ADRs 0001–0007; issue/PR templates; `/start-session` + `/handoff`
-- GitHub: private repo, labels, milestones M0–M9, issues #1–#7
+- GitHub: private repo, labels, milestones M0–M9, issues #1–#7; CI green on `main`
+- ADR-0008 branching policy + pre-push hook (PR #8) after M0 bootstrap landed on `main`
 
 Verified green: `pnpm test` (7 passing) · `pnpm typecheck` · `pnpm check` · `pnpm check:docs`
 
@@ -28,6 +29,11 @@ M1 is the crypto backbone: one issue per session, test vectors before UI.
 
 - **Owner action:** `gh auth refresh -s project,read:project` — the Projects board could not be
   created without it. Milestones + labels are the board until then.
+- **Owner action:** `git config core.hooksPath .githooks` on every clone — that hook is the only
+  thing blocking a push to `main`. Server-side branch protection needs **GitHub Pro** on a
+  private repo (403 from the rulesets API); revisit if the repo goes public or the plan changes.
+- CI's dependency scan is `pnpm audit`; OSV-Scanner's SARIF upload needs Advanced Security,
+  which a private repo lacks. Revisit in M8.
 - `LayoutProps` (Next 16 generated types) is avoided in `src/app/layout.tsx` so `tsc --noEmit`
   passes on a clean checkout without running `next build` first.
 - Issue #7 (lock/unlock UX) is blocked on `docs/UX.md` — the UX spec is being designed and
