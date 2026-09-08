@@ -6,6 +6,8 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 ## [Unreleased]
 
 ### Added
+- UX design spec and clickable prototype covering the nine core screens, the add-anything
+  flow, and the ownership-lens/goal-allocation mechanics.
 - Build identity: `/api/version`, in-app build badge, and an update banner that offers a
   reload when the server is serving a newer build (ADR-0009).
 - Branch-based workflow: ADR-0008, pre-push hook blocking direct pushes to `main`.

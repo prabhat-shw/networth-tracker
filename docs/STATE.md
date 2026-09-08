@@ -4,41 +4,39 @@ _Last updated: 2026-09-08 · session 1_
 
 ## Where we are
 
-**Milestone:** M0 — Foundation (mostly done)
+**Milestone:** M0 — Foundation (complete except #1 and #2)
 
-Shipped this session:
-- Next.js 16 + React 19 + TS strict + Tailwind v4 + Biome scaffold (`pnpm dev` works)
-- `src/domain/money.ts` — integer-paise money with Indian formatting (₹12,34,567 / ₹12.35 L), 7 unit tests
-- Docker Compose (app + Postgres 17 + Caddy), Dockerfile (standalone), Caddyfile, `.env.example`
-- CI: doc-size caps, typecheck, Biome, Vitest, gitleaks, osv-scanner
-- Docs: PLAN, ARCHITECTURE, SECURITY threat model, CONTEXT (session framework), M1 brief,
-  API contract draft, ADRs 0001–0007; issue/PR templates; `/start-session` + `/handoff`
-- GitHub: private repo, labels, milestones M0–M9, issues #1–#7; CI green on `main`
-- ADR-0008 branching policy + pre-push hook (PR #8) after M0 bootstrap landed on `main`
+Merged to `main`:
+- **#8** ADR-0008 branching policy + pre-push hook blocking direct pushes to `main`
+- **#9** Build identity (ADR-0009): `/api/version`, build badge, stale-build reload banner
+- **#10** UX design spec (`docs/UX.md`) + clickable prototype (`docs/ux/prototype.html`)
 
-Verified green: `pnpm test` (7 passing) · `pnpm typecheck` · `pnpm check` · `pnpm check:docs`
+Also in place: Next.js 16 + TS strict + Tailwind v4 + Biome scaffold, `src/domain/money.ts`
+(integer paise, Indian formatting), Docker Compose (app + Postgres + Caddy), CI (doc caps,
+typecheck, Biome, Vitest, gitleaks, `pnpm audit`), ADRs 0001–0009, issues #1–#7.
+
+Verified green: `pnpm test` (12) · `pnpm typecheck` · `pnpm check` · `pnpm check:docs`
+`/api/version` returns the running commit's short SHA.
 
 ## Next session picks up
 
-**Issue #1 — Drizzle + Postgres wiring and health check** (`size:M`, milestone M0).
-It unblocks all of M1. Then #2 (Vercel staging), then M1 starting at #3 (crypto primitives).
-
-M1 is the crypto backbone: one issue per session, test vectors before UI.
+**Issue #1 — Drizzle + Postgres wiring and health check** (`size:M`). Unblocks all of M1.
+Then #2 (Vercel staging), then M1 from #3 (crypto primitives) — brief in `docs/phases/M1.md`.
 
 ## Gotchas / open threads
 
-- **Owner action:** `gh auth refresh -s project,read:project` — the Projects board could not be
-  created without it. Milestones + labels are the board until then.
-- **Owner action:** `git config core.hooksPath .githooks` on every clone — that hook is the only
-  thing blocking a push to `main`. Server-side branch protection needs **GitHub Pro** on a
-  private repo (403 from the rulesets API); revisit if the repo goes public or the plan changes.
-- CI's dependency scan is `pnpm audit`; OSV-Scanner's SARIF upload needs Advanced Security,
-  which a private repo lacks. Revisit in M8.
-- `LayoutProps` (Next 16 generated types) is avoided in `src/app/layout.tsx` so `tsc --noEmit`
-  passes on a clean checkout without running `next build` first.
-- Issue #7 (lock/unlock UX) is blocked on `docs/UX.md` — the UX spec is being designed and
-  needs the owner's review before that screen is built.
-- Money is integer **paise** everywhere. Use `src/domain/money.ts`; never introduce a float.
+- **Owner action:** `gh auth refresh -s project,read:project` for the Projects board.
+  Milestones + labels are the board until then.
+- **Enforcement is local only.** `git config core.hooksPath .githooks` on every clone —
+  server-side branch protection needs GitHub Pro on a private repo (403 from the rulesets API).
+- **Merge policy (owner, 2026-09-08):** merge PRs yourself once CI is green; only core
+  features wait for the owner's approval.
+- `docs/` is excluded from Biome — the UX prototype is a design artefact, not app code.
+- `next dev` appends a Next.js agent-rules block to `CLAUDE.md`; it is committed on purpose.
+- CI's dependency scan is `pnpm audit`; OSV-Scanner needs Advanced Security. Revisit in M8.
+- Money is integer **paise** everywhere — use `src/domain/money.ts`, never a float.
+- **Verification discipline:** always check a command's exit code. Biome's ANSI-coloured
+  output split a "Found 1 error" line and a grep-based check missed a real failure once.
 
 ## Resume command
 

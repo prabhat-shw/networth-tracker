@@ -288,7 +288,7 @@ Each milestone is a handful of issues; each issue is one session.
 | **M2** | Encrypted sync engine | Record envelope, versioning, `pull`/`push`, tombstones, offline queue, Dexie store, contract + plaintext-scan tests |
 | **M3** | Data model & manual entry | Households/members/ownership shares, accounts, holdings, transactions, liabilities, **goals + allocations**; entry forms; net-worth engine with tests |
 | **M4** | Prices & valuation | Daily AMFI ingest, Yahoo equity/US/crypto, Frankfurter FX, gold; universe download; client valuation; historical timeline |
-| **M5** | Dashboard, goals & insights | Net worth over time, allocation, per-owner views, XIRR/CAGR, **goal tagging UI, auto-tag rules, inflated targets, required SIP, on-track projections, Unallocated bucket**, drill-down; mobile + dense desktop |
+| **M5** | Dashboard, goals & insights | Net worth over time, allocation, per-owner views, **goal tagging UI, auto-tag rules, inflated targets, required SIP, Unallocated bucket**; **Insights** — contribution vs growth decomposition, XIRR/CAGR, real (inflation-adjusted) net worth, allocation drift, liquidity ladder, concentration risk, loan burn-down; **Projections** — P10/P50/P90 fan, scenario what-ifs, FI date, per-goal funding probability, sensitivity. Mobile + dense desktop |
 | **M6** | Statement import | NSDL/CDSL CAS PDF (on-device), CAMS/KFin, broker + bank CSV, mapping UI, dedupe |
 | **M7** | Long-tail coverage | Insurance surrender values, property, vehicles, money lent, chit funds, EPF/PPF/NPS/SSY accrual calculators, RSU/ESPP vesting |
 | **M8** | Hardening & home deploy | CSP, rate limits, security review, backups + **restore drill**, Tailscale production, user guide, **v1.0** |
