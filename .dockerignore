@@ -1,0 +1,11 @@
+# Keep host artefacts out of the build context: a host (e.g. Windows) node_modules would
+# overwrite the Linux one installed in the image, and .env must never be baked into a layer.
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+coverage
+playwright-report
+test-results
