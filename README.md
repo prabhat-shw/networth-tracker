@@ -41,8 +41,8 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M0 — Foundation. Only #2 (Vercel staging) left after this PR. |
-| Next up | Issue #2: Vercel staging deploy with DEMO_MODE guard |
+| Milestone | M0 — Foundation: code complete. #1 merged (PR #18). #2 PR open (`chore/vercel-staging`). |
+| Next up | see docs/STATE.md |
 | Decisions recorded | 11 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every

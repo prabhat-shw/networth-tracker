@@ -1,29 +1,23 @@
 # State — read me first
 
-_Last updated: 2026-09-25 (end of session 2) · next session: start here_
+_Last updated: 2026-09-25 (end of session 2, part 2) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M0 — Foundation. Only #2 (Vercel staging) left after this PR.
+**Milestone:** M0 — Foundation: code complete. #1 merged (PR #18). #2 PR open (`chore/vercel-staging`).
 
-This session: **issue #1, Drizzle + Postgres wiring** (branch `chore/drizzle-postgres`, PR open).
+Issue #2 (this PR) added:
+- `src/lib/deploy-guard.ts` (+ test): `VERCEL=1` without `DEMO_MODE=true` → `next build`
+  throws. Verified with real builds: fails without it, passes with it.
+- `src/features/version/demo-banner.tsx` in the root layout; `NEXT_PUBLIC_DEMO_MODE` is inlined at build.
+- `docs/DEPLOYMENT.md`: both targets, including the Vercel/Neon dashboard steps.
 
-- `src/server/db/schema.ts`: the ciphertext-only `records` table (ADR-0003). Its exact
-  column set is pinned by `schema.test.ts`, which also fails on any text/json/numeric/enum column.
-- `src/server/db/client.ts`: lazy postgres.js + Drizzle client, so builds need no DB.
-- `drizzle/0000_init.sql`: the first migration. `pnpm db:generate` / `pnpm db:migrate`.
-- `GET /api/health`: 200 `{status,app,db}`, or 503 with `db:"down"`. Status words only.
-- Compose: a one-shot `migrate` service; `app` waits for it to exit 0.
-- Decisions recorded in [ADR-0011](decisions/0011-database-access-and-migrations.md).
-
-Verified end to end on this machine: `docker compose up` → migrate exit 0 → `\d records`
-matches → `/api/health` via Caddy 200. DB stopped → 503 with no secrets → DB back → 200.
-Green: `pnpm test` · `typecheck` · `check`.
+**Owner action to finish #2:** create the Vercel project + Neon store and set env vars,
+exactly as `docs/DEPLOYMENT.md` → *Staging* says. Needs your accounts; no CLI here.
 
 ## Next session picks up
 
-**Issue #2: Vercel staging deploy with DEMO_MODE guard** (`size:S`). Closes M0.
-Then M1 from #3 (crypto primitives); brief in `docs/phases/M1.md`.
+M1 from **#3 (crypto primitives)**. Brief: `docs/phases/M1.md`. `area:crypto` needs owner approval to merge.
 
 ## Also open
 
@@ -50,5 +44,5 @@ Then M1 from #3 (crypto primitives); brief in `docs/phases/M1.md`.
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 2
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 3
 ```

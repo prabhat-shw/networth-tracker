@@ -1,6 +1,10 @@
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
+import { assertDeploySafe, isDemoMode } from "./src/lib/deploy-guard";
+
+// Fails the Vercel build unless DEMO_MODE=true (ADR-0006).
+assertDeploySafe(process.env);
 
 const pkg = JSON.parse(readFileSync("./package.json", "utf8")) as {
   version: string;
@@ -32,6 +36,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_VERSION: pkg.version,
     NEXT_PUBLIC_GIT_SHA: resolveGitSha(),
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
+    NEXT_PUBLIC_DEMO_MODE: String(isDemoMode(process.env)),
   },
 };
 
