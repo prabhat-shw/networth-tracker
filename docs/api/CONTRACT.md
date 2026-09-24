@@ -14,6 +14,8 @@ same contract. Every endpoint here is exercised by the shared contract test suit
 
 | Method | Path | Purpose |
 | --- | --- | --- |
+| GET | `/api/health` | `{ status, app, db }`: 200 when Postgres answers, 503 otherwise. No auth, no secrets (ADR-0011) |
+| GET | `/api/version` | Build identity for the stale-build banner (ADR-0009) |
 | POST | `/api/auth/*` | Better Auth (passkey register/authenticate, email OTP, session) |
 | GET | `/api/household/keys` | Wrapped-key blobs for the current member |
 | POST | `/api/household/invite` | Store a wrapped HDK blob for an invitee |

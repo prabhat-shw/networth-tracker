@@ -1,67 +1,54 @@
 # State — read me first
 
-_Last updated: 2026-09-08 (end of session 1) · next session: start here_
+_Last updated: 2026-09-25 (end of session 2) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M0 — Foundation (complete except issues #1 and #2)
+**Milestone:** M0 — Foundation. Only #2 (Vercel staging) left after this PR.
 
-Merged to `main` this session:
+This session: **issue #1, Drizzle + Postgres wiring** (branch `chore/drizzle-postgres`, PR open).
 
-| PR | What landed |
-| --- | --- |
-| #8 | ADR-0008 branching policy + `.githooks/pre-push` blocking direct pushes to `main` |
-| #9 | Build identity (ADR-0009): `/api/version`, build badge, stale-build reload banner |
-| #10 | UX design spec (`docs/UX.md`) + clickable prototype (`docs/ux/prototype.html`) |
-| #11 | Knowledge base (`docs/kb/`) + enforced doc freshness (links, ADR hygiene, generated README block, `src/` ⇒ `STATE.md` rule) |
+- `src/server/db/schema.ts`: the ciphertext-only `records` table (ADR-0003). Its exact
+  column set is pinned by `schema.test.ts`, which also fails on any text/json/numeric/enum column.
+- `src/server/db/client.ts`: lazy postgres.js + Drizzle client, so builds need no DB.
+- `drizzle/0000_init.sql`: the first migration. `pnpm db:generate` / `pnpm db:migrate`.
+- `GET /api/health`: 200 `{status,app,db}`, or 503 with `db:"down"`. Status words only.
+- Compose: a one-shot `migrate` service; `app` waits for it to exit 0.
+- Decisions recorded in [ADR-0011](decisions/0011-database-access-and-migrations.md).
 
-Foundation in place: Next.js 16 + TS strict + Tailwind v4 + Biome, `src/domain/money.ts`
-(integer paise, Indian formatting), Docker Compose (app + Postgres + Caddy), CI, ADRs 0001–0009,
-issues #1–#7.
-
-Green at session end: `pnpm test` (12) · `typecheck` · `check` · `check:docs` · `docs:check`.
-`/api/version` verified against `git rev-parse --short HEAD`.
+Verified end to end on this machine: `docker compose up` → migrate exit 0 → `\d records`
+matches → `/api/health` via Caddy 200. DB stopped → 503 with no secrets → DB back → 200.
+Green: `pnpm test` · `typecheck` · `check`.
 
 ## Next session picks up
 
-**Issue #1 — Drizzle + Postgres wiring and health check** (`size:M`). Unblocks all of M1.
-Then #2 (Vercel staging), then M1 from #3 (crypto primitives) — brief in `docs/phases/M1.md`.
+**Issue #2: Vercel staging deploy with DEMO_MODE guard** (`size:S`). Closes M0.
+Then M1 from #3 (crypto primitives); brief in `docs/phases/M1.md`.
 
-## In flight — check this first
+## Also open
 
-A **cloud** design agent is completing the net-worth **insights and projections** pass
-(contribution vs growth, XIRR, real net worth, liquidity ladder, concentration, loan
-burn-down; P10/P50/P90 projection fan, scenario sliders, FI date, per-goal funding
-probability). It runs on Anthropic infrastructure, not the owner's laptop, so it continued
-after shutdown.
-
-- It works on branch **`docs/ux-insights`** and opens a PR against `main` titled
-  *"docs: net-worth insights and projections in the UX spec and prototype"*.
-- That branch's head is a **mid-write snapshot** (`wip: snapshot of the in-progress...`)
-  pushed before shutdown as insurance. The cloud agent was told to inspect, verify and fix it.
-- **First action tomorrow:** `gh pr list`. If the PR exists, review it — check the maths
-  reconciles with the household data and the embedded JS actually runs — then send the
-  prototype to the owner before merging. If no PR exists, the run failed; re-run the pass.
-- The branch also carries a superseded `docs: refresh state after M0 merges` commit whose
-  STATE edit will conflict with this file. **Keep this version.**
+- PR #17 (`docs/ux-insights-final`): insights + projections UX pass. Needs the owner's
+  call on return assumptions, 6% inflation, 4% withdrawal rate, and deterministic vs Monte Carlo fan
+  (`docs/UX.md` §12.1).
+- Issue #14: discuss features worth borrowing from other apps. Licence still unchosen.
 
 ## Gotchas / open threads
 
-- **No owner actions outstanding.** (`core.hooksPath` is set on this machine; repeat it only
-  on a new clone.)
-- Repo is **public** (ADR-0010); `main` is protected server-side: PR + green `verify`/`security`,
-  no force-push, no deletion. Licence deliberately not chosen yet.
-- Kanban board: https://github.com/users/prabhat-shw/projects/2 — columns Backlog / Ready /
-  In progress / In review / Done. #1 and #2 sit in **Ready**; move your card when you start.
-- Merge policy (owner): merge PRs yourself when CI is green; only core features wait for approval.
-- A scratch worktree exists at `…/scratchpad/kb` (branch `docs/session-1-handoff`). Remove with
-  `git worktree remove` once merged.
+- **Docker on Windows:** the image only builds because of the new `.dockerignore`; never
+  remove `node_modules` from it. Docker Desktop must be running (`docker info`).
+- For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`
+  and use `docker compose -p nwt-e2e …` then `down -v`, so the real volume is never touched.
+- `records` has no FK to households yet; add it with #5.
+- Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`).
+- Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
+- Merge policy (owner): merge PRs yourself when CI is green; only core features
+  (`area:crypto` / `area:security`) wait for approval.
 - `docs/` is excluded from Biome; `next dev` appends an agent-rules block to `CLAUDE.md` (committed on purpose).
-- Money is integer **paise** — use `src/domain/money.ts`, never a float.
-- **Check exit codes, not output text.** Biome's ANSI colouring hid a real failure from a grep once.
+- Money is integer **paise**; use `src/domain/money.ts`.
+- **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).
 
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git status && gh issue view 1
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 2
 ```
