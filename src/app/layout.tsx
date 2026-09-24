@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { DemoBanner } from "@/features/version/demo-banner";
 import { UpdateBanner } from "@/features/version/update-banner";
 import "./globals.css";
 
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <DemoBanner />
         {children}
         <UpdateBanner />
       </body>
