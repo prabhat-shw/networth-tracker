@@ -1,7 +1,11 @@
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
-import { assertDeploySafe, isDemoMode } from "./src/lib/deploy-guard";
+import {
+  assertDeploySafe,
+  isDemoMode,
+  isStaging,
+} from "./src/lib/deploy-guard";
 
 // Fails the Vercel build unless DEMO_MODE=true (ADR-0006).
 assertDeploySafe(process.env);
@@ -28,8 +32,9 @@ function resolveGitSha(): string {
 }
 
 const nextConfig: NextConfig = {
-  // Required by the Docker runner stage (ADR-0006).
-  output: "standalone",
+  // Required by the Docker runner stage (ADR-0006). Not on Vercel: Next 16.3 standalone
+  // skips next-server.js.nft.json, which Vercel's builder needs (vercel/next.js#96646).
+  output: isStaging(process.env) ? undefined : "standalone",
   reactStrictMode: true,
   poweredByHeader: false,
   env: {
