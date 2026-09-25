@@ -8,3 +8,4 @@ One line per session: date · issue · outcome.
 - 2026-09-25 · issue #1 · Drizzle + Postgres, ciphertext-only records table, migrate service, /api/health, .dockerignore fix, ADR-0011 · green, compose verified
 - 2026-09-25 · issue #2 · DEMO_MODE build guard, demo banner, DEPLOYMENT.md; Vercel/Neon linking left to owner · green
 - 2026-09-25 · fix · Vercel ENOENT (standalone off on Vercel), detailed staging steps in DEPLOYMENT.md
+- 2026-09-26 · issue #2 · staging live on Vercel + Neon, DEPLOYMENT.md corrected from the real setup · M0 complete

@@ -41,7 +41,7 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M0 — Foundation: code complete. #1 merged (PR #18). #2 PR open (`chore/vercel-staging`). |
+| Milestone | M0 — Foundation: **complete** once this PR merges (closes #2). |
 | Next up | see docs/STATE.md |
 | Decisions recorded | 11 ADRs |
 
