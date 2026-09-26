@@ -121,7 +121,7 @@
   .app-content{ flex:1; overflow-y:auto; padding:0 18px 100px; -webkit-overflow-scrolling:touch; }
   .app-content::-webkit-scrollbar{ width:0; }
   .screen{ display:none; animation:fadeIn .18s ease-out; }
-  .screen.active{ display:block; }
+  .screen.active{ display:flex; flex-direction:column; flex:1; min-height:0; } /* bounded height so .app-content actually scrolls */
   #screen-unlock.active{ display:flex; flex:1; flex-direction:column; min-height:0; }
   @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
 
@@ -211,6 +211,14 @@
   .nudge-card.warn{ background:var(--status-warning-bg); }
   .nudge-card.crit{ background:var(--status-critical-bg); }
   .nudge-card.info{ background:var(--accent-wash); }
+  /* principle 8: every nudge carries its fix inline — tapping the card runs its primary action */
+  .nudge-card[data-primary-act]{ cursor:pointer; }
+  .nudge-card .nudge-main{ flex:1; min-width:0; }
+  .nudge-actions{ display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+  .nudge-btn{ font-size:12.5px; font-weight:700; padding:6px 11px; border-radius:999px; border:1px solid var(--border-strong); color:var(--text-primary); background:var(--surface); }
+  .nudge-btn.primary{ background:var(--accent); border-color:transparent; color:var(--accent-contrast); }
+  .nudge-btn.quiet{ border-color:transparent; background:none; color:var(--text-secondary); }
+  .hero-outlook{ margin-top:6px; font-size:12.5px; font-weight:700; color:var(--accent); display:inline-flex; align-items:center; gap:4px; padding:2px 0; text-align:left; }
 
   .goal-carousel{ display:flex; gap:10px; overflow-x:auto; margin:0 -18px; padding:0 18px 4px; scroll-snap-type:x mandatory; }
   .goal-mini{ scroll-snap-align:start; flex:0 0 210px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:13px; }
@@ -244,6 +252,17 @@
   .acc-row .meta{ font-size:12px; color:var(--text-muted); margin-top:2px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
   .acc-row .tagbar{ margin-top:7px; height:5px; border-radius:999px; background:var(--surface-sunken); overflow:hidden; display:flex; }
   .acc-row.liability .value{ color:var(--status-critical); }
+  .acc-row-wrap.three .acc-row.revealed{ transform:translateX(-168px); }
+  .acc-row-actions .tag{ background:var(--cat-3); }
+  .acc-row .tagline{ display:flex; align-items:center; gap:8px; margin-top:7px; }
+  .acc-row .tagline .tagbar{ flex:1; margin-top:0; }
+  .tag-link{ font-size:11.5px; font-weight:700; color:var(--accent); white-space:nowrap; padding:2px 0; }
+  button.badge{ cursor:pointer; }
+  .search-input input, .desk-search input{ flex:1; min-width:0; background:none; border:none; outline:none; padding:0; color:var(--text-primary); font-size:inherit; }
+  .search-results{ margin:-6px 0 12px; }
+  .search-results button .s{ display:block; font-size:12px; font-weight:500; color:var(--text-muted); margin-top:2px; }
+  .search-empty{ font-size:12.5px; color:var(--text-muted); padding:4px 2px 12px; }
+  .tbl-act{ font-size:12px; font-weight:700; color:var(--accent); padding:2px 4px; }
 
   /* ============================= GOALS ============================= */
   .goal-card{ padding:15px; border-radius:16px; border:1px solid var(--border); background:var(--surface); margin-bottom:10px; cursor:pointer; }
@@ -285,6 +304,18 @@
   .own-split.open{ display:flex; }
   .remainder-chip{ font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background:var(--surface-sunken); color:var(--text-secondary); display:inline-block; margin-top:6px; }
   .remainder-chip.bad{ background:var(--status-warning-bg); color:var(--status-warning-text); }
+  .alloc-goal{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px; font-weight:700; font-size:14px; text-align:left; }
+  .alloc-goal:hover{ background:var(--surface-hover); }
+  .bulk-row{ padding:11px 0; border-bottom:1px solid var(--border); }
+  .bulk-row .top{ display:flex; justify-content:space-between; gap:8px; font-size:13.5px; font-weight:700; margin-bottom:8px; }
+
+  /* desktop: the same sheets render as a centred modal inside the desktop shell (they are re-parented on device switch) */
+  .desk-shell{ position:relative; }
+  .desk-shell .scrim{ border-radius:16px; }
+  .desk-shell .sheet{ left:50%; right:auto; top:50%; bottom:auto; width:460px; border-radius:16px; transform:translate(-50%,-46%); opacity:0; pointer-events:none; transition:transform .2s ease, opacity .2s ease; }
+  .desk-shell .sheet.open{ transform:translate(-50%,-50%); opacity:1; pointer-events:auto; }
+  .desk-shell .sheet-handle{ display:none; }
+  .desk-shell .toast{ left:auto; right:24px; width:340px; bottom:24px; }
 
   /* ============================= TOAST ============================= */
   .toast{ position:absolute; left:16px; right:16px; bottom:100px; background:var(--text-primary); color:var(--page-bg); padding:12px 14px; border-radius:12px; font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:8px; transform:translateY(20px); opacity:0; transition:all .25s ease; z-index:40; pointer-events:none; }
@@ -537,7 +568,7 @@
     <button data-dgoto="household">Household</button>
     <button data-dgoto="settings">Settings</button>
   </div>
-  <div class="hint">Click through like the real app — lens switch, FAB "+", account rows, goal cards and the Insights sliders are all live. Sample household: Rohit &amp; Priya Sharma, Bengaluru.</div>
+  <div class="hint">Click through like the real app — lens switch, FAB "+" (with search), nudges and their inline fixes, account rows (stale badge, "Tag"), goal cards and the Insights sliders are all live. Sample household: Rohit &amp; Priya Sharma, Bengaluru.</div>
 </div>
 
 <div class="stage">
@@ -590,6 +621,7 @@
               <div class="hero-delta good" data-bind="hero-delta">
                 <svg class="icon icon-sm"><use href="#ic-up"/></svg> +₹1,79,000 this month
               </div>
+              <button class="hero-outlook" data-act="forecast" data-bind="hero-outlook"></button>
               <div class="sparkline-wrap">
                 <svg id="sparkline" width="100%" height="56" viewBox="0 0 326 56" preserveAspectRatio="none"></svg>
               </div>
@@ -718,6 +750,7 @@
                   <div class="sub">Your household's own policy vs. where the money actually sits today</div>
                   <div id="driftRows"></div>
                   <div class="foot-note" id="driftNudge"></div>
+                  <button class="btn btn-secondary btn-block" style="margin-top:12px;" id="driftAction" data-act="addCat"></button>
                 </div>
 
                 <div class="insight-card">
@@ -726,6 +759,7 @@
                   <div class="ladder-bar" id="ladderBar"></div>
                   <div class="ladder-legend" id="ladderLegend"></div>
                   <div class="foot-note">Reachable within a month: ₹42.27L — but most of it is already earmarked to Retirement or Education. Only ₹8L is tagged for emergencies (see the Emergency Fund goal).</div>
+                  <button class="btn btn-secondary btn-block" style="margin-top:12px;" data-act="goal" data-arg="emergency">Open the Emergency Fund goal →</button>
                 </div>
 
                 <div class="insight-card">
@@ -741,6 +775,7 @@
                   <div class="burn-split" id="burnSplit"></div>
                   <div class="burn-legend" id="burnLegend"></div>
                   <div class="foot-note" id="loanNote"></div>
+                  <button class="btn btn-secondary btn-block" style="margin-top:12px;" data-act="forecast" data-arg="prepay">Prepay or invest? Compare in Forecast →</button>
                 </div>
 
                 <div class="insight-card">
@@ -876,9 +911,9 @@
               <div class="card" style="margin-bottom:16px; background:var(--surface-sunken); border:none;">
                 <div class="row between">
                   <span class="secondary-text" style="font-size:13px; font-weight:600;">Earmarked of net worth</span>
-                  <span style="font-weight:700; font-size:13px;">₹61.4L of ₹1.93Cr</span>
+                  <span style="font-weight:700; font-size:13px;" data-bind="earmarked-text">₹61.4L of ₹1.93Cr</span>
                 </div>
-                <div class="meter-track" style="margin-top:8px;"><div class="meter-fill good" style="width:32%; background:var(--accent);"></div></div>
+                <div class="meter-track" style="margin-top:8px;"><div class="meter-fill good" data-bind="earmarked-fill" style="width:32%; background:var(--accent);"></div></div>
               </div>
               <div id="goalList"></div>
             </div>
@@ -1001,15 +1036,15 @@
             </div>
             <div class="sheet-body">
               <div id="addStep1">
-                <div class="search-input"><svg class="icon icon-sm"><use href="#ic-search"/></svg> Search — e.g. "SBI FD"</div>
-                <div class="section-label" style="margin-top:4px;">Frequently added</div>
-                <div class="chip-row" style="margin-bottom:6px;">
-                  <button class="chip" data-quick="mf">Mutual fund</button>
-                  <button class="chip" data-quick="fd">Fixed deposit</button>
-                  <button class="chip" data-quick="sip">Update a SIP</button>
+                <div class="alert alert-info" id="addGoalBanner" style="display:none; margin-bottom:12px;"></div>
+                <label class="search-input"><svg class="icon icon-sm"><use href="#ic-search"/></svg><span class="sr-only">Search asset types, instruments or your accounts</span><input type="search" id="addSearch" autocomplete="off" placeholder='Search — e.g. "SBI FD"'></label>
+                <div class="type-list search-results" id="addSearchResults"></div>
+                <div id="addBrowse">
+                  <div class="section-label" style="margin-top:4px;">Frequently added</div>
+                  <div class="chip-row" style="margin-bottom:6px;" id="frequentChips"></div>
+                  <div class="section-label">Categories</div>
+                  <div class="cat-grid" id="catGrid"></div>
                 </div>
-                <div class="section-label">Categories</div>
-                <div class="cat-grid" id="catGrid"></div>
               </div>
               <div id="addStep2" style="display:none;">
                 <div class="type-list" id="typeList"></div>
@@ -1024,6 +1059,14 @@
             <div class="sheet-handle"></div>
             <div class="sheet-head"><h2>Tag to goals</h2><button id="allocClose" aria-label="Close"><svg class="icon"><use href="#ic-x"/></svg></button></div>
             <div class="sheet-body" id="allocBody"></div>
+          </div>
+
+          <!-- ===================== UPDATE-VALUE SHEET (stale nudges, row Edit, SIP) ===================== -->
+          <div class="scrim" id="editScrim"></div>
+          <div class="sheet" id="editSheet" style="max-height:70%;">
+            <div class="sheet-handle"></div>
+            <div class="sheet-head"><h2 id="editTitle">Update value</h2><button id="editClose" aria-label="Close"><svg class="icon"><use href="#ic-x"/></svg></button></div>
+            <div class="sheet-body" id="editBody"></div>
           </div>
 
           <div class="toast" id="toast"></div>
@@ -1054,7 +1097,7 @@
             <button data-lens="household" class="active">Household</button>
             <button data-lens="priya">Priya</button>
           </div>
-          <div class="desk-search"><svg class="icon icon-sm"><use href="#ic-search"/></svg> Search or add anything… <span class="kbd" style="margin-left:auto;">⌘K</span></div>
+          <label class="desk-search"><svg class="icon icon-sm"><use href="#ic-search"/></svg><span class="sr-only">Search or add anything</span><input type="search" id="deskSearch" autocomplete="off" placeholder="Search or add anything…"><span class="kbd">⌘K</span></label>
           <div class="desk-sync"><svg class="icon icon-sm"><use href="#ic-refresh"/></svg> Synced 2 min ago</div>
         </div>
         <div class="desk-content">
@@ -1066,10 +1109,12 @@
                 <div class="section-label" style="margin-top:0;">Household net worth</div>
                 <div class="hv tabular" data-bind="hero-net">₹1,92,95,300</div>
                 <div class="hero-delta good" data-bind="hero-delta" style="margin-top:4px;"><svg class="icon icon-sm"><use href="#ic-up"/></svg>+₹1,79,000 this month</div>
+                <button class="hero-outlook" data-act="forecast" data-bind="hero-outlook"></button>
               </div>
               <div style="flex:1;">
                 <svg id="sparklineDesk" width="100%" height="70" viewBox="0 0 500 70" preserveAspectRatio="none"></svg>
               </div>
+              <button class="btn btn-primary" data-act="add" style="align-self:flex-start;"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add</button>
             </div>
             <div class="desk-two-col" style="margin-top:18px;">
               <div class="card">
@@ -1099,7 +1144,7 @@
               <thead><tr>
                 <th>Name</th><th>Institution</th><th>Owner(s)</th>
                 <th class="num" id="sortValueHeader" style="cursor:pointer;">Value ▾</th>
-                <th>Allocation</th><th>As of</th>
+                <th>Allocation</th><th>As of</th><th><span class="sr-only">Actions</span></th>
               </tr></thead>
               <tbody id="deskAccountsBody"></tbody>
             </table>
@@ -1134,6 +1179,7 @@
                   <h3>⚖️ Allocation vs. target</h3>
                   <div id="driftRowsDesk"></div>
                   <div class="foot-note" id="driftNudgeDesk"></div>
+                  <button class="btn btn-secondary" style="margin-top:12px;" id="driftActionDesk" data-act="addCat"></button>
                 </div>
                 <div class="insight-card">
                   <h3>🎯 Concentration risk</h3>
@@ -1146,6 +1192,7 @@
                   <h3>💧 Liquidity ladder</h3>
                   <div class="ladder-bar" id="ladderBarDesk"></div>
                   <div class="ladder-legend" id="ladderLegendDesk"></div>
+                  <button class="btn btn-secondary" style="margin-top:12px;" data-act="goal" data-arg="emergency">Open the Emergency Fund goal →</button>
                 </div>
                 <div class="insight-card">
                   <h3>🏦 Home loan burn-down</h3>
@@ -1224,8 +1271,8 @@
           <!-- DESKTOP GOALS -->
           <div class="desk-screen" id="desk-goals">
             <div class="card" style="margin-bottom:16px; background:var(--surface-sunken); border:none; max-width:420px;">
-              <div class="row between"><span class="secondary-text" style="font-size:13px; font-weight:600;">Earmarked of net worth</span><span style="font-weight:700; font-size:13px;">₹61.4L of ₹1.93Cr</span></div>
-              <div class="meter-track" style="margin-top:8px;"><div class="meter-fill" style="width:32%; background:var(--accent);"></div></div>
+              <div class="row between"><span class="secondary-text" style="font-size:13px; font-weight:600;">Earmarked of net worth</span><span style="font-weight:700; font-size:13px;" data-bind="earmarked-text">₹61.4L of ₹1.93Cr</span></div>
+              <div class="meter-track" style="margin-top:8px;"><div class="meter-fill" data-bind="earmarked-fill" style="width:32%; background:var(--accent);"></div></div>
             </div>
             <div class="desk-grid-goals" id="goalGridDesk"></div>
           </div>
@@ -1300,7 +1347,8 @@
     {id:'ssy', cat:'retire', icon:'🏛️', name:'Sukanya Samriddhi — Ananya', inst:'Post Office', value:420000, owners:[{n:'Priya',p:100}], asOf:'8 Sep 2026', manual:true, tagged:420000, extra:'Guardian: Priya'},
     {id:'rsu', cat:'foreign', icon:'🌎', name:'US RSU — Rohit', inst:'Salesforce Inc.', value:1530000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:false, tagged:765000, extra:'620 units vested · 1 USD = ₹83.40'},
     {id:'flat', cat:'property', icon:'🏠', name:'Whitefield 3BHK Flat', inst:'Bengaluru', value:18500000, owners:[{n:'Rohit',p:60},{n:'Priya',p:40}], asOf:'1 Apr 2026', manual:true, tagged:0, extra:'Linked liability: Home loan'},
-    {id:'gold', cat:'property', icon:'✨', name:'Gold — jewellery & coins', inst:'Home locker', value:410000, owners:[{n:'Rohit',p:50},{n:'Priya',p:50}], asOf:'6 Sep 2026', manual:false, tagged:0, extra:null, stale:true},
+    {id:'gold', cat:'property', icon:'✨', name:'Gold — jewellery & coins', inst:'Home locker', value:410000, owners:[{n:'Rohit',p:50},{n:'Priya',p:50}], asOf:'6 Sep 2026', manual:false, tagged:0, extra:null, stale:true,
+     staleNudge:{title:'Gold price is 2 days stale', text:'Last fetched 6 Sep 2026 — will refresh on next sync. Know a better figure? Update it now.'}},
     {id:'lent', cat:'lending', icon:'🤝', name:'Lent to Sandeep (cousin)', inst:'Personal', value:200000, owners:[{n:'Rohit',p:100}], asOf:'8 Sep 2026', manual:true, tagged:0, extra:'Interest-free · expected Mar 2027'}
   ];
   var LIABILITIES = [
@@ -1420,8 +1468,8 @@
 
   // ---- Data hygiene — which manually-tracked values are stale enough to drag on credibility ----
   var STALE_ITEMS = [
-    {name:'Whitefield 3BHK Flat', asOf:'1 Apr 2026', ageDays:160, share:0.697, note:'70% of your net worth is priced off a 5-month-old manual estimate. A property this large deserves a refresh — even a rough one.'},
-    {name:'Gold — jewellery & coins', asOf:'6 Sep 2026', ageDays:2, share:0.015, note:'Market feed lag, not neglect — will clear on next price sync.'}
+    {accId:'flat', name:'Whitefield 3BHK Flat', asOf:'1 Apr 2026', ageDays:160, share:0.697, note:'70% of your net worth is priced off a 5-month-old manual estimate. A property this large deserves a refresh — even a rough one.'},
+    {accId:'gold', name:'Gold — jewellery & coins', asOf:'6 Sep 2026', ageDays:2, share:0.015, note:'Market feed lag, not neglect — will clear on next price sync.'}
   ];
 
   // ---- Projection assumptions — OWNER SHOULD REVIEW THESE (see UX.md §12.1) ----
@@ -1768,13 +1816,54 @@
   }
 
   /* ============================= NUDGES ============================= */
+  // Principle 8 ("fix it where you see it"): every nudge carries its fix inline. Tapping the card runs
+  // its primary action (so "tap nudge → save" is 2 taps); Dismiss is always one tap away.
+  var dismissedNudges = {};
+  function unallocatedTotal(){ return ACCOUNTS.reduce((s,a)=> s + (a.value - (a.tagged||0)), 0); }
+  function taggedTotal(){ return ACCOUNTS.reduce((s,a)=> s + (a.tagged||0), 0); }
+  function nudgeDefs(){
+    var list = [];
+    var un = unallocatedTotal();
+    if(un > 0) list.push({id:'unalloc', cls:'info', icon:'ic-tag', title:formatCompact(un)+' is unallocated',
+      text:'Mostly your home (₹1.85Cr) and untagged MF/RSU. Tag what you can to a goal.',
+      primary:{label:'Tag to goals', act:'bulkTag'}});
+    GOALS.forEach((g)=> {
+      if(g.status==='warning' && g.reqSip && g.curSip < g.reqSip) list.push({id:'risk-'+g.id, cls:'warn', icon:'ic-alert', title:g.name+' is at risk',
+        text:'Raise the SIP to '+formatIndian(g.reqSip)+'/mo to stay on track for '+g.targetDate+'.',
+        primary:{label:'Raise SIP', act:'sip', arg:g.id}, secondary:{label:'See goal', act:'goal', arg:g.id}});
+    });
+    ACCOUNTS.forEach((a)=> {
+      if(a.stale && a.staleNudge) list.push({id:'stale-'+a.id, cls:'', icon:'ic-alert', title:a.staleNudge.title, text:a.staleNudge.text,
+        primary:{label:'Update value', act:'edit', arg:a.id}});
+    });
+    return list.filter((n)=> !dismissedNudges[n.id]);
+  }
+  function actAttrs(a){ return 'data-act="'+a.act+'"'+(a.arg ? ' data-arg="'+a.arg+'"' : ''); }
   function renderNudges(){
-    var html =
-      '<div class="nudge-card info"><svg class="icon"><use href="#ic-tag"/></svg><div><b>₹2.10Cr is unallocated</b><p>Mostly your home (₹1.85Cr) and untagged MF/RSU. Tag what you can to a goal.</p></div></div>'+
-      '<div class="nudge-card warn"><svg class="icon"><use href="#ic-alert"/></svg><div><b>Ananya\'s Education is at risk</b><p>Raise the SIP to ₹42,300/mo to stay on track for 2040.</p></div></div>'+
-      '<div class="nudge-card"><svg class="icon"><use href="#ic-alert"/></svg><div><b>Gold price is 2 days stale</b><p>Last fetched 6 Sep 2026 — will refresh on next sync.</p></div></div>';
+    var defs = nudgeDefs();
+    var html = defs.length ? defs.map((n)=>
+      '<div class="nudge-card '+n.cls+'" data-primary-act="'+n.primary.act+'"'+(n.primary.arg ? ' data-primary-arg="'+n.primary.arg+'"' : '')+'>'+
+        '<svg class="icon"><use href="#'+n.icon+'"/></svg>'+
+        '<div class="nudge-main"><b>'+n.title+'</b><p>'+n.text+'</p>'+
+          '<div class="nudge-actions">'+
+            '<button class="nudge-btn primary" '+actAttrs(n.primary)+'>'+n.primary.label+'</button>'+
+            (n.secondary ? '<button class="nudge-btn" '+actAttrs(n.secondary)+'>'+n.secondary.label+'</button>' : '')+
+            '<button class="nudge-btn quiet" data-act="dismissNudge" data-arg="'+n.id+'">Dismiss</button>'+
+          '</div></div></div>').join('')
+      : '<div class="nudge-card"><svg class="icon"><use href="#ic-check"/></svg><div class="nudge-main"><b>Nothing needs you right now</b><p>All values are current and nothing is off track.</p></div></div>';
     document.getElementById('nudgeList').innerHTML = html;
     document.getElementById('nudgeListDesk').innerHTML = html;
+  }
+  function updateEarmarked(){
+    var t = taggedTotal(), nw = LENS.household.net;
+    document.querySelectorAll('[data-bind="earmarked-text"]').forEach((n)=> { n.textContent = formatCompact(t)+' of '+formatCompact(nw); });
+    document.querySelectorAll('[data-bind="earmarked-fill"]').forEach((n)=> { n.style.width = Math.min(100, t/nw*100)+'%'; });
+  }
+  // One honest line on Home that makes Forecast one tap away. A range (P10–P90), never a single number.
+  function renderOutlook(){
+    var p10 = runProjection('p10', {}, 5), p90 = runProjection('p90', {}, 5);
+    var txt = 'Household in 5 yrs: '+formatCompact(p10[p10.length-1].net)+' – '+formatCompact(p90[p90.length-1].net)+' · See forecast →';
+    document.querySelectorAll('[data-bind="hero-outlook"]').forEach((n)=> { n.textContent = txt; });
   }
 
   /* ============================= GOAL CARDS ============================= */
@@ -1804,28 +1893,34 @@
 
   function renderGoals(){
     document.getElementById('goalCarousel').innerHTML = GOALS.map((g)=> goalCardHTML(g,true)).join('');
+    var un = unallocatedTotal();
     var listHtml = GOALS.map((g)=> goalCardHTML(g,false)).join('') +
-      '<div class="goal-card unalloc-card" data-goal="none"><div class="head"><div class="name muted">📥 Unallocated</div></div>'+
-      '<div class="figs" style="margin-top:8px;"><span class="muted">Not yet tagged to a goal</span><span class="muted">'+formatCompact(20994800)+'</span></div></div>';
+      '<div class="goal-card unalloc-card" data-goal="none"><div class="head"><div class="name muted">📥 Unallocated</div><span class="badge badge-neutral">Tap to tag</span></div>'+
+      '<div class="figs" style="margin-top:8px;"><span class="muted">Not yet tagged to a goal</span><span class="muted">'+formatCompact(un)+'</span></div></div>';
     document.getElementById('goalList').innerHTML = listHtml;
     document.getElementById('goalGridDeskHome').innerHTML = GOALS.map((g)=> goalCardHTML(g,false)).join('');
     document.getElementById('goalGridDesk').innerHTML = GOALS.map((g)=> goalCardHTML(g,false)).join('') +
-      '<div class="goal-card unalloc-card" data-goal="none"><div class="head"><div class="name muted">📥 Unallocated</div></div>'+
-      '<div class="figs" style="margin-top:8px;"><span class="muted">Not yet tagged</span><span class="muted">'+formatCompact(20994800)+'</span></div></div>';
+      '<div class="goal-card unalloc-card" data-goal="none"><div class="head"><div class="name muted">📥 Unallocated</div><span class="badge badge-neutral">Click to tag</span></div>'+
+      '<div class="figs" style="margin-top:8px;"><span class="muted">Not yet tagged</span><span class="muted">'+formatCompact(un)+'</span></div></div>';
 
     document.querySelectorAll('[data-goal]').forEach((el)=> {
       el.addEventListener('click', ()=> {
         var id = el.getAttribute('data-goal');
-        if(id === 'none') return;
-        renderGoalDetail(id);
-        if(state.device==='mobile') go('goaldetail'); else dgo('goals');
+        if(id === 'none'){ openAllocSheet(null, null); return; } // bulk-tag straight from Unallocated
+        openGoal(id);
       });
     });
+    updateEarmarked();
+  }
+  function openGoal(id){
+    renderGoalDetail(id);
+    if(state.device==='mobile') go('goaldetail'); else dgo('goals');
   }
 
   function renderGoalDetail(id){
     var g = GOALS.filter((x)=> x.id===id)[0] || GOALS[0];
     document.getElementById('gd-title').textContent = g.icon+' '+g.name;
+    document.getElementById('gd-title').setAttribute('data-gid', g.id);
     var progress = Math.min(100, g.current/g.inflated*100);
     var fundingHtml = g.funding.map((f)=> '<div class="row between" style="padding:9px 0; border-bottom:1px solid var(--border);">'+
         '<span style="font-size:13.5px;">'+f.n+(f.warn?' <svg class="icon icon-sm" style="color:var(--status-warning); vertical-align:-3px;"><use href="#ic-alert"/></svg>':'')+'</span>'+
@@ -1848,9 +1943,14 @@
       (g.reqSip ? '<div class="row between" style="font-size:13.5px; margin-top:6px;"><span class="muted">Required SIP</span><span class="tabular" style="font-weight:700;">'+formatIndian(g.reqSip)+'/mo</span></div>'+
       '<div class="row between" style="font-size:13.5px; margin-top:6px;"><span class="muted">Currently saving</span><span class="tabular" style="font-weight:700;">'+formatIndian(g.curSip)+'/mo</span></div>' : '')+
       warnHtml+
+      (g.reqSip && g.curSip < g.reqSip ? '<button class="btn btn-primary btn-block" style="margin-top:14px;" data-act="sip" data-arg="'+g.id+'">Update SIP to '+formatIndian(g.reqSip)+'/mo</button>' : '')+
       '<div class="section-label">Funding this goal</div>'+fundingHtml+
-      '<button class="btn btn-secondary btn-block" style="margin-top:14px;">+ Manage allocations</button>'+
-      '<div class="alert alert-info" style="margin-top:14px;"><svg class="icon"><use href="#ic-target"/></svg><div>'+g.note+'</div></div>';
+      '<div class="row gap-8" style="margin-top:14px;">'+
+        '<button class="btn btn-primary" style="flex:1;" data-act="addMoney" data-arg="'+g.id+'">+ Add money</button>'+
+        '<button class="btn btn-secondary" style="flex:1;" data-act="bulkTagGoal" data-arg="'+g.id+'">Manage allocations</button>'+
+      '</div>'+
+      '<div class="alert alert-info" style="margin-top:14px;"><svg class="icon"><use href="#ic-target"/></svg><div>'+g.note+'</div></div>'+
+      (g.reqSip ? '<button class="btn-ghost" style="font-size:13px; font-weight:700; margin-top:10px;" data-act="forecast" data-arg="odds">See the odds in Forecast →</button>' : '');
     document.getElementById('goalDetailContent').innerHTML = html;
   }
 
@@ -1883,22 +1983,29 @@
       val = state.lens==='household' ? a.value : (owner?a.value*owner.p/100:0);
     }
     var tagPct = a.tagged ? Math.round(a.tagged/a.value*100) : 0;
+    var untagged = isLiability ? 0 : a.value - (a.tagged||0);
     var ownerTxt = ownerLabel(a, state.lens);
-    var staleTag = a.stale ? '<span class="badge badge-warning" style="padding:2px 6px;"><svg class="icon icon-sm" style="width:10px;height:10px;"><use href="#ic-alert"/></svg>stale</span>' : '';
-    return '<div class="acc-row-wrap"><div class="acc-row-actions"><button class="edit"><svg class="icon icon-sm"><use href="#ic-edit"/></svg>Edit</button><button class="del"><svg class="icon icon-sm"><use href="#ic-trash"/></svg>Del</button></div>'+
+    // The stale badge is itself the fix: tap it → pre-filled update sheet → Save (2 taps).
+    var staleTag = a.stale ? '<button class="badge badge-warning" style="padding:2px 6px;" data-act="edit" data-arg="'+a.id+'" aria-label="Stale — update '+a.name+'"><svg class="icon icon-sm" style="width:10px;height:10px;"><use href="#ic-alert"/></svg>stale · update</button>' : '';
+    return '<div class="acc-row-wrap'+(isLiability?'':' three')+'"><div class="acc-row-actions">'+
+        '<button class="edit" data-act="edit" data-arg="'+a.id+'"><svg class="icon icon-sm"><use href="#ic-edit"/></svg>Edit</button>'+
+        (!isLiability ? '<button class="tag" data-act="tag" data-arg="'+a.id+'"><svg class="icon icon-sm"><use href="#ic-tag"/></svg>Tag</button>' : '')+
+        '<button class="del"><svg class="icon icon-sm"><use href="#ic-trash"/></svg>Del</button></div>'+
       '<div class="acc-row'+(isLiability?' liability':'')+'" data-acc="'+a.id+'">'+
       '<div class="emoji">'+a.icon+'</div>'+
       '<div class="main">'+
         '<div class="name-line"><span class="name">'+a.name+'</span><span class="value tabular">'+(isLiability?'-':'')+formatIndian(val)+'</span></div>'+
         '<div class="meta">'+a.inst+(ownerTxt?' · '+ownerTxt:'')+staleTag+'</div>'+
         (a.extra ? '<div class="meta">'+a.extra+'</div>' : '')+
-        (!isLiability ? '<div class="tagbar"><div style="width:'+tagPct+'%; background:var(--accent);"></div></div>' : '')+
+        (!isLiability ? '<div class="tagline"><div class="tagbar"><div style="width:'+tagPct+'%; background:var(--accent);"></div></div>'+
+          (untagged > 0 ? '<button class="tag-link" data-act="tag" data-arg="'+a.id+'">Tag '+formatCompact(untagged)+' →</button>' : '')+'</div>' : '')+
       '</div></div></div>';
   }
 
   function wireAccountRows(){
     document.querySelectorAll('#accountsList .acc-row').forEach((row)=> {
       row.addEventListener('click', (e)=> {
+        if(e.target.closest('[data-act]')) return; // inline fixes (stale badge, Tag link) don't reveal the swipe actions
         document.querySelectorAll('.acc-row.revealed').forEach((r)=> { if(r!==row) r.classList.remove('revealed'); });
         row.classList.toggle('revealed');
       });
@@ -1917,7 +2024,8 @@
       return '<tr><td>'+a.icon+' '+a.name+'</td><td class="muted">'+a.inst+'</td><td class="muted">'+owners+'</td>'+
         '<td class="num tabular" style="font-weight:700;">'+formatIndian(val)+'</td>'+
         '<td><div class="meter-track" style="width:80px; height:6px; display:inline-block; vertical-align:middle;"><div class="meter-fill" style="width:'+tagPct+'%; background:var(--accent);"></div></div> <span class="muted" style="font-size:11.5px;">'+tagPct+'%</span></td>'+
-        '<td class="muted">'+a.asOf+'</td></tr>';
+        '<td class="muted">'+a.asOf+(a.stale ? ' <button class="badge badge-warning" data-act="edit" data-arg="'+a.id+'">stale · update</button>' : '')+'</td>'+
+        '<td style="white-space:nowrap;"><button class="tbl-act" data-act="edit" data-arg="'+a.id+'">Update</button>'+(a.value-(a.tagged||0) > 0 ? '<button class="tbl-act" data-act="tag" data-arg="'+a.id+'">Tag</button>' : '')+'</td></tr>';
     }).join('');
     var liabRows = LIABILITIES.map((a)=> {
       var name = state.lens==='me'?'Rohit':(state.lens==='priya'?'Priya':null);
@@ -1925,7 +2033,8 @@
       var val = state.lens==='household' ? a.value : (owner?a.value*owner.p/100:0);
       var owners = a.owners.map((o)=> o.n+' '+o.p+'%').join(', ');
       return '<tr><td>'+a.icon+' '+a.name+'</td><td class="muted">'+a.inst+'</td><td class="muted">'+owners+'</td>'+
-        '<td class="num tabular" style="font-weight:700; color:var(--status-critical);">-'+formatIndian(val)+'</td><td class="muted">—</td><td class="muted">'+a.asOf+'</td></tr>';
+        '<td class="num tabular" style="font-weight:700; color:var(--status-critical);">-'+formatIndian(val)+'</td><td class="muted">—</td><td class="muted">'+a.asOf+'</td>'+
+        '<td><button class="tbl-act" data-act="edit" data-arg="'+a.id+'">Update</button></td></tr>';
     }).join('');
     document.getElementById('deskAccountsBody').innerHTML = rows + liabRows;
   }
@@ -2075,7 +2184,7 @@
   }
   document.querySelectorAll('[data-dnav]').forEach((b)=> { b.addEventListener('click', ()=> { dgo(b.getAttribute('data-dnav')); }); });
   document.querySelectorAll('#desktopJump button').forEach((b)=> { b.addEventListener('click', ()=> { dgo(b.getAttribute('data-dgoto')); }); });
-  document.getElementById('deskAddBtn').addEventListener('click', ()=> { openSheet('addSheet','addScrim'); resetAddFlow(); });
+  document.getElementById('deskAddBtn').addEventListener('click', ()=> { openAddFlow(); });
 
   /* ============================= LENS BUTTONS ============================= */
   document.querySelectorAll('.lens-seg button, .lens-seg-desk button').forEach((b)=> {
@@ -2126,18 +2235,313 @@
 
   document.getElementById('allocScrim').addEventListener('click', ()=> { closeSheet('allocSheet','allocScrim'); });
   document.getElementById('allocClose').addEventListener('click', ()=> { closeSheet('allocSheet','allocScrim'); });
+  document.getElementById('editScrim').addEventListener('click', ()=> { closeSheet('editSheet','editScrim'); });
+  document.getElementById('editClose').addEventListener('click', ()=> { closeSheet('editSheet','editScrim'); });
+
+  // The sheets live in the phone frame. On desktop they are re-parented into the desktop shell, where CSS
+  // renders them as a centred modal — so Add / Tag / Update work on both devices from the same markup.
+  var MOBILE_OVERLAY_HOST = document.getElementById('appRoot');
+  var DESK_OVERLAY_HOST = document.querySelector('.desk-shell');
+  function placeOverlays(){
+    var host = state.device==='desktop' ? DESK_OVERLAY_HOST : MOBILE_OVERLAY_HOST;
+    [['addScrim','addSheet'],['allocScrim','allocSheet'],['editScrim','editSheet']].forEach((p)=> {
+      closeSheet(p[1], p[0]);
+      host.appendChild(document.getElementById(p[0]));
+      host.appendChild(document.getElementById(p[1]));
+    });
+    host.appendChild(document.getElementById('toast'));
+  }
+
+  /* ============================= INLINE FIXES — update value / SIP / tag (principle 8) ============================= */
+  var TODAY_ISO = '2026-09-08', TODAY_LABEL = '8 Sep 2026'; // the prototype's "today" (matches the sample data's as-of dates)
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function isoToLabel(iso){
+    var p = String(iso||'').split('-');
+    if(p.length!==3) return TODAY_LABEL;
+    return (+p[2])+' '+MONTHS[(+p[1])-1]+' '+p[0];
+  }
+  function parseRupees(s){ var n = parseFloat(String(s).replace(/[^0-9.]/g,'')); return isNaN(n) ? null : Math.round(n); }
+  function findRecord(id){
+    var a = ACCOUNTS.filter((x)=> x.id===id)[0];
+    if(a) return {rec:a, liab:false};
+    var l = LIABILITIES.filter((x)=> x.id===id)[0];
+    return l ? {rec:l, liab:true} : null;
+  }
+  function goalById(id){ return GOALS.filter((x)=> x.id===id)[0]; }
+
+  // Stale value → pre-filled sheet (value + as-of = today) → Save. Two taps from any nudge, badge or hygiene item.
+  function openEditSheet(id){
+    var f = findRecord(id); if(!f) return;
+    var a = f.rec;
+    el('editTitle').textContent = 'Update '+a.name;
+    el('editBody').innerHTML =
+      '<p style="margin:0 0 12px; font-size:12.5px; color:var(--text-muted); line-height:1.45;">'+a.inst+' · last as of '+a.asOf+
+        (a.manual===false ? '. Normally valued from the daily price feed — saving here overrides it until the next sync.' : '. Confirming the same figure is fine — it just resets the as-of date.')+'</p>'+
+      '<div class="field"><label class="input-label" for="editVal">'+(f.liab ? 'Outstanding' : 'Current value')+'</label>'+
+        '<input class="input tabular" id="editVal" inputmode="numeric" value="'+formatIndian(a.value)+'"><div class="hint-text" id="editPreview">≈ '+formatCompact(a.value)+'</div></div>'+
+      '<div class="field"><label class="input-label" for="editAsOf">As of</label><input class="input" type="date" id="editAsOf" value="'+TODAY_ISO+'"></div>'+
+      '<button class="btn btn-primary btn-block" id="editSave">Save</button>';
+    el('editVal').addEventListener('input', (e)=> {
+      var n = parseRupees(e.target.value);
+      el('editPreview').textContent = n===null ? 'Type an amount' : '≈ '+formatCompact(n);
+    });
+    el('editSave').addEventListener('click', ()=> {
+      var n = parseRupees(el('editVal').value);
+      if(n===null){ el('editVal').focus(); return; }
+      applyValueUpdate(f, n, isoToLabel(el('editAsOf').value));
+      closeSheet('editSheet','editScrim');
+      showToast('✓ '+a.name+' updated · as of '+a.asOf);
+    });
+    openSheet('editSheet','editScrim');
+  }
+  function applyValueUpdate(f, newVal, asOfLabel){
+    var a = f.rec, delta = newVal - a.value;
+    a.value = newVal; a.asOf = asOfLabel; a.stale = false;
+    if(!f.liab && (a.tagged||0) > newVal) a.tagged = newVal;
+    if(delta !== 0){
+      ['household','me','priya'].forEach((k)=> {
+        var owner = a.owners.filter((o)=> o.n===(k==='me' ? 'Rohit' : 'Priya'))[0];
+        var d = delta * (k==='household' ? 1 : (owner ? owner.p/100 : 0));
+        if(!d) return;
+        if(f.liab){ LENS[k].liab += d; LENS[k].net -= d; }
+        else { LENS[k].assets += d; LENS[k].net += d; LENS[k].cats[a.cat] += d; }
+      });
+    }
+    STALE_ITEMS = STALE_ITEMS.filter((s)=> s.accId !== a.id);
+    applyLens(state.lens); renderNudges(); renderStale(''); renderStale('Desk'); renderOutlook(); updateEarmarked();
+  }
+
+  // At-risk goal → SIP sheet pre-filled with the SIP that closes the gap → Save.
+  function openSipSheet(goalId){
+    var g = goalById(goalId); if(!g || !g.reqSip) return;
+    el('editTitle').textContent = 'Monthly SIP — '+g.name;
+    el('editBody').innerHTML =
+      '<p style="margin:0 0 12px; font-size:12.5px; color:var(--text-muted); line-height:1.45;">Currently '+formatIndian(g.curSip)+'/mo. '+formatIndian(g.reqSip)+'/mo keeps this goal on track for '+g.targetDate+'.</p>'+
+      '<div class="field"><label class="input-label" for="sipAmt">New monthly SIP</label><input class="input tabular" id="sipAmt" inputmode="numeric" value="'+formatIndian(g.reqSip)+'"></div>'+
+      '<button class="btn btn-primary btn-block" id="sipSave">Save</button>';
+    el('sipSave').addEventListener('click', ()=> {
+      var n = parseRupees(el('sipAmt').value);
+      if(n===null){ el('sipAmt').focus(); return; }
+      g.curSip = n;
+      if(n >= g.reqSip){ g.status = 'good'; g.label = 'On track'; }
+      closeSheet('editSheet','editScrim');
+      renderGoals(); renderNudges(); renderGoalOdds(''); renderGoalOdds('Desk');
+      if(state.mobileScreen==='goaldetail') renderGoalDetail(g.id);
+      showToast('✓ '+g.name+' SIP set to '+formatIndian(n)+'/mo');
+    });
+    openSheet('editSheet','editScrim');
+  }
+
+  // Tagging. From an item: "Tag" → pick goal = 2 taps (whole untagged remainder; a partial amount is one expander away).
+  // From Unallocated: one sheet listing every untagged item, pick goals, save once (bulk).
+  var bulkSel = {};
+  function applyTag(a, goalId, amt){
+    var g = goalById(goalId); if(!g || amt <= 0) return;
+    a.tagged = (a.tagged||0) + amt;
+    g.current += amt;
+    g.funding.push({n:a.name+(amt < a.value ? ' (part)' : ''), a:amt, cat:a.cat});
+  }
+  function afterTagging(){
+    renderAccounts(); renderDeskAccounts(); renderGoals(); renderNudges(); updateEarmarked();
+    var gid = el('gd-title').getAttribute('data-gid');
+    if(state.mobileScreen==='goaldetail' && gid) renderGoalDetail(gid);
+  }
+  function tagOne(arg){
+    var parts = String(arg).split('|'), f = findRecord(parts[0]), g = goalById(parts[1]);
+    if(!f || !g) return;
+    var a = f.rec, rem = a.value - (a.tagged||0), amt = rem;
+    var custom = el('allocCustomBody');
+    if(custom && custom.classList.contains('open')){ var v = parseRupees(el('allocAmt').value); if(v!==null) amt = Math.min(rem, v); }
+    applyTag(a, g.id, amt);
+    closeSheet('allocSheet','allocScrim');
+    afterTagging();
+    showToast('✓ Tagged '+formatCompact(amt)+' of '+a.name+' to '+g.name);
+  }
+  function openAllocSheet(accId, goalId){
+    var body = el('allocBody'), head = el('allocSheet').querySelector('h2');
+    if(accId){
+      var f = findRecord(accId); if(!f) return;
+      var a = f.rec, rem = a.value - (a.tagged||0);
+      head.textContent = 'Tag to a goal';
+      body.innerHTML =
+        '<div class="row between" style="font-size:13.5px; margin-bottom:12px; gap:8px;"><b>'+a.icon+' '+a.name+'</b><span class="muted tabular">'+formatCompact(rem)+' untagged</span></div>'+
+        (rem <= 0 ? '<p class="muted" style="font-size:13px;">Already fully tagged.</p>' :
+          GOALS.map((g)=> '<button class="alloc-goal" data-act="tagOne" data-arg="'+a.id+'|'+g.id+'"><span>'+g.icon+' '+g.name+'</span>'+statusBadge(g)+'</button>').join('')+
+          '<div class="accordion-trigger" id="allocCustomTrigger">Tag only part of it (optional) <svg class="icon icon-sm"><use href="#ic-chev-r"/></svg></div>'+
+          '<div class="accordion-body" id="allocCustomBody"><input class="input tabular" id="allocAmt" inputmode="numeric" value="'+formatIndian(rem)+'">'+
+          '<div style="font-size:12px; color:var(--text-muted); margin-top:5px;">Set the amount, then pick the goal above.</div></div>');
+      var trig = el('allocCustomTrigger');
+      if(trig) trig.addEventListener('click', ()=> { el('allocCustomBody').classList.toggle('open'); });
+    } else {
+      bulkSel = {};
+      var goals = goalId ? [goalById(goalId)] : GOALS;
+      var items = ACCOUNTS.filter((a)=> a.value - (a.tagged||0) > 0);
+      head.textContent = goalId ? 'Add to '+goals[0].name : 'Tag unallocated money';
+      body.innerHTML =
+        '<p style="margin:0 0 6px; font-size:12.5px; color:var(--text-muted); line-height:1.45;">Pick a goal for whatever you want earmarked, then save once. Leaving something untagged is fine — most people leave their home untagged.</p>'+
+        (items.length ? items.map((a)=> '<div class="bulk-row"><div class="top"><span>'+a.icon+' '+a.name+'</span><span class="muted tabular">'+formatCompact(a.value-(a.tagged||0))+'</span></div>'+
+          '<div class="chip-row">'+goals.map((g)=> '<button class="chip" data-bulk-acc="'+a.id+'" data-bulk-goal="'+g.id+'">'+g.icon+' '+(goalId ? 'Add all of it' : g.name)+'</button>').join('')+'</div></div>').join('')
+          : '<p class="muted" style="font-size:13px;">Everything is tagged.</p>')+
+        '<button class="btn btn-primary btn-block" style="margin-top:14px;" id="bulkSave">Save tags</button>';
+      body.querySelectorAll('[data-bulk-acc]').forEach((b)=> {
+        b.addEventListener('click', ()=> {
+          var acc = b.getAttribute('data-bulk-acc'), gid = b.getAttribute('data-bulk-goal');
+          var on = bulkSel[acc] !== gid;
+          body.querySelectorAll('[data-bulk-acc="'+acc+'"]').forEach((x)=> { x.classList.remove('selected'); });
+          if(on){ bulkSel[acc] = gid; b.classList.add('selected'); } else { delete bulkSel[acc]; }
+        });
+      });
+      el('bulkSave').addEventListener('click', ()=> {
+        var n = 0;
+        Object.keys(bulkSel).forEach((acc)=> { var a = findRecord(acc).rec; applyTag(a, bulkSel[acc], a.value-(a.tagged||0)); n++; });
+        closeSheet('allocSheet','allocScrim');
+        afterTagging();
+        showToast(n ? '✓ Tagged '+n+' item'+(n>1 ? 's' : '') : 'Nothing selected — nothing changed');
+      });
+    }
+    openSheet('allocSheet','allocScrim');
+  }
+
+  // Jump straight to an Insights sub-tab (and optionally a card) — used by Home's outlook line and per-card links.
+  function openInsights(sub, target){
+    var desk = state.device==='desktop';
+    if(desk) dgo('insights'); else go('insights');
+    var seg = el(desk ? 'insightsSubtabDesk' : 'insightsSubtab');
+    var btn = seg && seg.querySelector('[data-sub="'+(sub||'year')+'"]');
+    if(btn) btn.click();
+    var anchorId = target==='prepay' ? (desk ? null : 'lumpSlider') : target==='odds' ? (desk ? 'goalOddsListDesk' : 'goalOddsList') : null;
+    var anchor = anchorId ? el(anchorId) : null;
+    var scroller = document.querySelector(desk ? '#desktopFrame .desk-content' : '#screen-insights .app-content');
+    if(scroller) scroller.scrollTop = 0;
+    if(anchor && scroller){
+      var card = anchor.closest('.insight-card') || anchor;
+      scroller.scrollTop += card.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 8;
+    }
+  }
+
+  /* ---- one delegated handler for every inline action (data-act on a button, or data-primary-act on a whole card) ---- */
+  var dismissedStale = {};
+  function runAction(act, arg){
+    switch(act){
+      case 'edit': closeSheet('addSheet','addScrim'); openEditSheet(arg); break;
+      case 'tag': openAllocSheet(arg, null); break;
+      case 'tagOne': tagOne(arg); break;
+      case 'bulkTag': openAllocSheet(null, null); break;
+      case 'bulkTagGoal': openAllocSheet(null, arg); break;
+      case 'sip': openSipSheet(arg); break;
+      case 'goal': openGoal(arg); break;
+      case 'addMoney': openAddFlow({goal:arg}); break;
+      case 'add': openAddFlow(); break;
+      case 'addCat': openAddFlow(); openTypeStep(arg); break;
+      case 'forecast': openInsights('forecast', arg); break;
+      case 'dismissNudge': dismissedNudges[arg] = true; renderNudges(); showToast('Dismissed'); break;
+      case 'dismissStale': dismissedStale[arg] = true; renderStale(''); renderStale('Desk'); showToast('Dismissed'); break;
+    }
+  }
+  document.addEventListener('click', (e)=> {
+    var act, arg, b = e.target.closest('[data-act]');
+    if(b){ act = b.getAttribute('data-act'); arg = b.getAttribute('data-arg'); }
+    else {
+      var card = e.target.closest('[data-primary-act]');
+      if(!card) return;
+      act = card.getAttribute('data-primary-act'); arg = card.getAttribute('data-primary-arg');
+    }
+    runAction(act, arg);
+  });
 
   /* ============================= ADD FLOW ============================= */
-  var addState = { step:1, cat:null, type:null };
-  function resetAddFlow(){
-    addState = {step:1, cat:null, type:null};
+  var addState = { step:1, cat:null, type:null, goal:null };
+  // Remembered choices (principle 8, "don't ask"): last-used owner split, and Frequently added learns from what you save.
+  var lastOwner = { mode:'me', a:50, b:50 };
+  var FREQUENT = [{cat:'invest', type:'Mutual fund'}, {cat:'deposits', type:'Fixed deposit'}, {cat:'cash', type:'Savings account'}];
+  function rememberFrequent(cat, type){
+    if(!cat) return;
+    FREQUENT = [{cat:cat, type:type}].concat(FREQUENT.filter((f)=> f.type!==type)).slice(0,4);
+  }
+  function renderFrequent(){
+    document.getElementById('frequentChips').innerHTML = FREQUENT.map((f,i)=> '<button class="chip" data-freq="'+i+'">'+f.type+'</button>').join('');
+  }
+  function resetAddFlow(goalId){
+    addState = {step:1, cat:null, type:null, goal:goalId||null};
     document.getElementById('addStep1').style.display='';
     document.getElementById('addStep2').style.display='none';
     document.getElementById('addStep3').style.display='none';
-    document.getElementById('addTitle').textContent = 'What would you like to add?';
+    document.getElementById('addTitle').textContent = addState.goal ? 'Add money to a goal' : 'What would you like to add?';
     document.getElementById('addBack').style.display='none';
+    var banner = document.getElementById('addGoalBanner'), g = addState.goal ? goalById(addState.goal) : null;
+    if(g){ banner.innerHTML = '<svg class="icon"><use href="#ic-target"/></svg><div>Whatever you add here is pre-tagged to '+g.icon+' '+g.name+'.</div>'; banner.style.display=''; }
+    else { banner.style.display='none'; }
+    document.getElementById('addSearch').value = '';
+    renderAddSearch();
+    renderFrequent();
     buildCatGrid();
   }
+  function openAddFlow(opts){
+    resetAddFlow(opts && opts.goal);
+    openSheet('addSheet','addScrim');
+    if(state.device==='desktop') setTimeout(()=> { document.getElementById('addSearch').focus(); }, 60);
+  }
+
+  /* ---- Add search: type-ahead over asset types, a sample of public instruments, and your own accounts.
+          The real app searches the downloaded public universes (AMFI NAVAll, NSE list) on-device — never a per-query request. ---- */
+  var CAT_OF_TYPE = {};
+  Object.keys(TYPE_MENU).forEach((k)=> { TYPE_MENU[k].forEach((t)=> { CAT_OF_TYPE[t] = k; }); });
+  var TYPE_ALIASES = {'Fixed deposit':'fd', 'Recurring deposit':'rd', 'Mutual fund':'mf sip', 'Indian stocks':'shares equity nse bse',
+    'US stocks':'nasdaq nyse', 'NPS (Tier 1/2)':'pension', 'Physical gold / jewellery':'gold jewelry', 'Real estate':'house flat property home land',
+    'Savings account':'bank', 'Credit card outstanding':'cc', 'Sukanya Samriddhi':'ssy', 'Bonds / SGB':'sovereign gold bond'};
+  var INSTRUMENTS = [
+    {label:'SBI Fixed Deposit', type:'Fixed deposit', inst:'State Bank of India', keys:'sbi fd'},
+    {label:'HDFC Bank Fixed Deposit', type:'Fixed deposit', inst:'HDFC Bank', keys:'hdfc fd'},
+    {label:'ICICI Bank Fixed Deposit', type:'Fixed deposit', inst:'ICICI Bank', keys:'icici fd'},
+    {label:'Parag Parikh Flexi Cap Fund', type:'Mutual fund', inst:'PPFAS Mutual Fund', keys:'ppfas mf'},
+    {label:'UTI Nifty 50 Index Fund', type:'Mutual fund', inst:'UTI Mutual Fund', keys:'index mf'},
+    {label:'Mirae Asset Large Cap Fund', type:'Mutual fund', inst:'Mirae Asset Mutual Fund', keys:'mf'},
+    {label:'SBI PPF account', type:'PPF', inst:'State Bank of India', keys:'public provident fund'},
+    {label:'Post Office Sukanya Samriddhi', type:'Sukanya Samriddhi', inst:'Post Office', keys:'ssy'}
+  ];
+  var searchResults = [];
+  function searchAdd(q){
+    q = q.trim().toLowerCase(); if(!q) return [];
+    var words = q.split(/\s+/);
+    var hit = (hay)=> words.every((w)=> hay.indexOf(w) !== -1);
+    var res = [];
+    ACCOUNTS.concat(LIABILITIES).forEach((a)=> { if(hit((a.name+' '+a.inst).toLowerCase())) res.push({kind:'existing', id:a.id, label:a.name, sub:'Already tracked — update its value'}); });
+    INSTRUMENTS.forEach((i)=> { if(hit((i.label+' '+i.type+' '+i.keys).toLowerCase())) res.push({kind:'new', type:i.type, name:i.label, inst:i.inst, label:i.label, sub:'Add new · '+i.type+' · '+i.inst}); });
+    Object.keys(CAT_OF_TYPE).forEach((t)=> {
+      if(hit((t+' '+(TYPE_ALIASES[t]||'')).toLowerCase())){
+        var c = CATEGORY_MENU.filter((m)=> m.key===CAT_OF_TYPE[t])[0];
+        res.push({kind:'new', type:t, label:t, sub:(c ? c.t : '')});
+      }
+    });
+    return res.slice(0, 8);
+  }
+  function renderAddSearch(){
+    var q = document.getElementById('addSearch').value, box = document.getElementById('addSearchResults');
+    searchResults = searchAdd(q);
+    var has = q.trim() !== '';
+    document.getElementById('addBrowse').style.display = (has && searchResults.length) ? 'none' : '';
+    if(!has){ box.innerHTML = ''; return; }
+    box.innerHTML = searchResults.length
+      ? searchResults.map((r,i)=> '<button data-sr="'+i+'"><span>'+r.label+'<span class="s">'+r.sub+'</span></span><svg class="icon icon-sm muted"><use href="#ic-chev-r"/></svg></button>').join('')
+      : '<div class="search-empty">No match — pick a category below instead.</div>';
+  }
+  function pickSearchResult(r){
+    if(!r) return;
+    if(r.kind==='existing'){ closeSheet('addSheet','addScrim'); openEditSheet(r.id); return; }
+    addState.cat = CAT_OF_TYPE[r.type];
+    openFormStep(r.type, {name:r.name, inst:r.inst});
+  }
+  document.getElementById('addSearch').addEventListener('input', renderAddSearch);
+  document.getElementById('addSearch').addEventListener('keydown', (e)=> { if(e.key==='Enter'){ e.preventDefault(); pickSearchResult(searchResults[0]); } });
+  document.getElementById('addSearchResults').addEventListener('click', (e)=> {
+    var b = e.target.closest('[data-sr]'); if(b) pickSearchResult(searchResults[+b.getAttribute('data-sr')]);
+  });
+  document.getElementById('frequentChips').addEventListener('click', (e)=> {
+    var b = e.target.closest('[data-freq]'); if(!b) return;
+    var f = FREQUENT[+b.getAttribute('data-freq')];
+    addState.cat = f.cat;
+    openFormStep(f.type);
+  });
   function buildCatGrid(){
     document.getElementById('catGrid').innerHTML = CATEGORY_MENU.map((c)=> '<button class="cat-tile" data-cat="'+c.key+'"><span class="em">'+c.em+'</span><span class="t">'+c.t+'</span><span class="ex">'+c.ex+'</span></button>').join('');
     document.querySelectorAll('.cat-tile').forEach((b)=> {
@@ -2157,11 +2561,15 @@
       b.addEventListener('click', ()=> { openFormStep(b.getAttribute('data-type')); });
     });
   }
-  function openFormStep(typeName){
+  function openFormStep(typeName, pre){
+    pre = pre || {};
     addState.type = typeName; addState.step = 3;
     document.getElementById('addTitle').textContent = typeName;
+    document.getElementById('addBack').style.display='';
+    document.getElementById('addStep1').style.display='none'; // chips & search jump here straight from step 1
     document.getElementById('addStep2').style.display='none';
     document.getElementById('addStep3').style.display='';
+    var esc = (s)=> String(s).replace(/"/g,'&quot;');
     var extra = '';
     if(/Fixed deposit|Recurring deposit|Corporate FD/.test(typeName)){
       extra = '<div class="field-row"><div class="field"><label class="input-label">Maturity date</label><input class="input" type="date" value="2027-12-12"></div>'+
@@ -2180,18 +2588,18 @@
               '<div class="field"><label class="input-label">EMI / month</label><input class="input" type="text" placeholder="₹"></div></div>';
     }
     document.getElementById('addStep3').innerHTML =
-      '<div class="field"><label class="input-label">Name / nickname</label><input class="input" type="text" placeholder="e.g. '+typeName+'"></div>'+
-      '<div class="field"><label class="input-label">Institution</label><input class="input" type="text" placeholder="e.g. HDFC Bank" list="instList"><datalist id="instList"><option>HDFC Bank</option><option>State Bank of India</option><option>ICICI Bank</option><option>Axis Bank</option><option>Kotak Mahindra Bank</option></datalist></div>'+
+      '<div class="field"><label class="input-label">Name / nickname</label><input class="input" type="text" placeholder="e.g. '+typeName+'"'+(pre.name ? ' value="'+esc(pre.name)+'"' : '')+'></div>'+
+      '<div class="field"><label class="input-label">Institution</label><input class="input" type="text" placeholder="e.g. HDFC Bank" list="instList"'+(pre.inst ? ' value="'+esc(pre.inst)+'"' : '')+'><datalist id="instList"><option>HDFC Bank</option><option>State Bank of India</option><option>ICICI Bank</option><option>Axis Bank</option><option>Kotak Mahindra Bank</option></datalist></div>'+
       '<div class="field"><label class="input-label">Current value</label><input class="input" type="text" id="valInput" placeholder="₹"><div class="hint-text" id="valPreview">Type an amount to preview</div></div>'+
       extra +
-      '<div class="field"><label class="input-label">As of</label><input class="input" type="date" value="2026-09-08"></div>'+
-      '<div class="field"><label class="input-label">Owned by</label>'+
-        '<div class="own-toggle"><button class="active" data-own="me">Just me</button><button data-own="joint">Joint / custom</button></div>'+
-        '<div class="own-split" id="ownSplit"><div class="field" style="flex:1;"><input class="input" type="number" value="50" id="ownA"></div><div class="field" style="flex:1;"><input class="input" type="number" value="50" id="ownB"></div></div>'+
+      '<div class="field"><label class="input-label">As of</label><input class="input" type="date" value="'+TODAY_ISO+'"></div>'+
+      '<div class="field"><label class="input-label">Owned by <span class="muted" style="font-weight:500;">(remembered from last time)</span></label>'+
+        '<div class="own-toggle"><button'+(lastOwner.mode==='me' ? ' class="active"' : '')+' data-own="me">Just me</button><button'+(lastOwner.mode==='joint' ? ' class="active"' : '')+' data-own="joint">Joint / custom</button></div>'+
+        '<div class="own-split'+(lastOwner.mode==='joint' ? ' open' : '')+'" id="ownSplit"><div class="field" style="flex:1;"><input class="input" type="number" value="'+lastOwner.a+'" id="ownA"></div><div class="field" style="flex:1;"><input class="input" type="number" value="'+lastOwner.b+'" id="ownB"></div></div>'+
         '<div class="remainder-chip" id="ownRemainder">Sums to 100%</div>'+
       '</div>'+
       '<div class="field"><label class="input-label">Tag to goal (optional)</label>'+
-        '<div class="chip-row"><button class="chip" data-goalchip="retirement">🏛️ Retirement</button><button class="chip" data-goalchip="education">🎓 Education</button><button class="chip" data-goalchip="emergency">🛟 Emergency</button></div>'+
+        '<div class="chip-row">'+GOALS.map((g)=> '<button class="chip'+(addState.goal===g.id ? ' selected' : '')+'" data-goalchip="'+g.id+'">'+g.icon+' '+g.name+'</button>').join('')+'</div>'+
       '</div>'+
       '<div class="accordion-trigger" id="notesTrigger">Notes (optional) <svg class="icon icon-sm"><use href="#ic-chev-r"/></svg></div>'+
       '<div class="accordion-body" id="notesBody"><textarea class="input" rows="3" placeholder="Anything worth remembering about this…"></textarea></div>'+
@@ -2218,23 +2626,40 @@
     document.getElementById('ownB').addEventListener('input', function(){ document.getElementById('ownA').value = 100-(parseFloat(this.value)||0); checkOwnSum(); });
     document.querySelectorAll('[data-goalchip]').forEach((b)=> { b.addEventListener('click', ()=> { b.classList.toggle('selected'); }); });
     document.getElementById('notesTrigger').addEventListener('click', ()=> { document.getElementById('notesBody').classList.toggle('open'); });
-    document.getElementById('saveAdd').addEventListener('click', ()=> { closeSheet('addSheet','addScrim'); showToast('✓ Added "'+typeName+'" to Accounts'); if(state.device==='mobile') go('accounts'); else dgo('accounts'); });
-    document.getElementById('saveAndAnother').addEventListener('click', ()=> { showToast('✓ Saved — add another'); openTypeStep(addState.cat); });
+    function rememberChoices(){
+      var active = document.querySelector('#addStep3 .own-toggle button.active');
+      lastOwner = { mode: active ? active.getAttribute('data-own') : 'me',
+                    a: parseFloat(document.getElementById('ownA').value)||50, b: parseFloat(document.getElementById('ownB').value)||50 };
+      rememberFrequent(addState.cat, typeName);
+    }
+    function goalNote(){
+      var sel = Array.prototype.map.call(document.querySelectorAll('#addStep3 [data-goalchip].selected'), (b)=> goalById(b.getAttribute('data-goalchip')).name);
+      return sel.length ? ' · tagged to '+sel.join(', ') : '';
+    }
+    // Save keeps you where you started (Home, a goal, Insights…) instead of jumping to Accounts.
+    document.getElementById('saveAdd').addEventListener('click', ()=> { rememberChoices(); var note = goalNote(); closeSheet('addSheet','addScrim'); showToast('✓ Added "'+typeName+'" to Accounts'+note); });
+    document.getElementById('saveAndAnother').addEventListener('click', ()=> { rememberChoices(); showToast('✓ Saved'+goalNote()+' — add another'); openTypeStep(addState.cat); });
   }
   document.getElementById('addBack').addEventListener('click', ()=> {
     if(addState.step===3){ openTypeStep(addState.cat); }
-    else if(addState.step===2){ resetAddFlow(); }
+    else if(addState.step===2){ resetAddFlow(addState.goal); }
   });
   document.getElementById('addClose').addEventListener('click', ()=> { closeSheet('addSheet','addScrim'); });
   document.getElementById('addScrim').addEventListener('click', ()=> { closeSheet('addSheet','addScrim'); });
-  document.getElementById('fabAdd').addEventListener('click', ()=> { resetAddFlow(); openSheet('addSheet','addScrim'); });
-  document.querySelectorAll('[data-quick]').forEach((b)=> {
-    b.addEventListener('click', ()=> {
-      var map = {mf:['invest','Mutual fund'], fd:['deposits','Fixed deposit'], sip:['invest','Mutual fund']};
-      var m = map[b.getAttribute('data-quick')];
-      addState.cat = m[0];
-      openFormStep(m[1]);
-    });
+  document.getElementById('fabAdd').addEventListener('click', ()=> { openAddFlow(); });
+
+  // Desktop: typing in the top bar (or ⌘K / Ctrl+K) opens the same Add search.
+  document.getElementById('deskSearch').addEventListener('input', ()=> {
+    var q = document.getElementById('deskSearch').value;
+    if(!q.trim()) return;
+    openAddFlow();
+    var s = document.getElementById('addSearch');
+    s.value = q; renderAddSearch();
+    document.getElementById('deskSearch').value = '';
+    setTimeout(()=> { s.focus(); try{ s.setSelectionRange(q.length, q.length); }catch(err){} }, 70);
+  });
+  document.addEventListener('keydown', (e)=> {
+    if((e.metaKey || e.ctrlKey) && (e.key==='k' || e.key==='K') && state.device==='desktop'){ e.preventDefault(); openAddFlow(); }
   });
 
   /* ============================= TOAST ============================= */
@@ -2275,6 +2700,7 @@
       document.getElementById('desktopFrame').classList.toggle('active', dev==='desktop');
       document.getElementById('mobileJump').style.display = dev==='mobile' ? 'flex' : 'none';
       document.getElementById('desktopJump').style.display = dev==='desktop' ? 'flex' : 'none';
+      placeOverlays();
       if(dev==='desktop'){ drawSparkline(); renderDeskAccounts(); renderGoals(); }
     });
   });
@@ -2346,12 +2772,13 @@
     if(!container) return;
     var maxAbs = 40;
     var html = '';
-    var worst = {key:null, drift:0};
+    var worst = {key:null, drift:0}, under = {key:null, drift:0};
     CATS.forEach(function(c){
       var actual = LENS.household.cats[c.key]/LENS.household.assets*100;
       var target = ALLOC_TARGET[c.key];
       var drift = actual-target;
       if(Math.abs(drift)>Math.abs(worst.drift)) worst = {key:c.key, drift:drift, label:c.label};
+      if(drift < under.drift) under = {key:c.key, drift:drift, label:c.label};
       var fillPct = Math.min(50, Math.abs(drift)/maxAbs*50);
       var dir = drift>0 ? 'over' : 'under';
       html += '<div class="drift-row"><div class="top"><span class="t">'+c.label+'</span><span class="tabular">'+actual.toFixed(1)+'% <span class="muted">(target '+target+'%)</span></span></div>'+
@@ -2365,6 +2792,15 @@
         (worst.drift>0
           ? (worst.key==='property' ? 'mostly your home, which is not wrong, but it means new savings should probably go elsewhere until the mix rebalances naturally.' : 'consider directing new contributions toward the underweight categories instead.')
           : 'this is where new savings would do the most to bring your mix back to policy.');
+    }
+    // Inline action: add straight into the most-underweight category (Add opens at its type list).
+    var actBtn = el('driftAction'+sfx);
+    if(actBtn){
+      if(under.key){
+        actBtn.setAttribute('data-arg', under.key==='foreign' ? 'invest' : under.key); // US stocks / RSU live under Investments in Add
+        actBtn.textContent = 'Add to '+under.label+' (most under target) →';
+        actBtn.style.display = '';
+      } else { actBtn.style.display = 'none'; }
     }
   }
 
@@ -2432,9 +2868,13 @@
   function renderStale(sfx){
     sfx = sfx||'';
     var list = el('staleList'+sfx); if(!list) return;
-    list.innerHTML = STALE_ITEMS.map(function(s){
-      return '<div class="nudge-card warn" style="margin-bottom:8px;"><svg class="icon"><use href="#ic-alert"/></svg><div><b>'+s.name+' — as of '+s.asOf+' ('+s.ageDays+' days ago)</b><p>'+s.note+'</p></div></div>';
-    }).join('');
+    var items = STALE_ITEMS.filter(function(s){ return !dismissedStale[s.accId]; });
+    list.innerHTML = items.length ? items.map(function(s){
+      return '<div class="nudge-card warn" style="margin-bottom:8px;" data-primary-act="edit" data-primary-arg="'+s.accId+'"><svg class="icon"><use href="#ic-alert"/></svg>'+
+        '<div class="nudge-main"><b>'+s.name+' — as of '+s.asOf+' ('+s.ageDays+' days ago)</b><p>'+s.note+'</p>'+
+        '<div class="nudge-actions"><button class="nudge-btn primary" data-act="edit" data-arg="'+s.accId+'">Update value</button>'+
+        '<button class="nudge-btn quiet" data-act="dismissStale" data-arg="'+s.accId+'">Dismiss</button></div></div></div>';
+    }).join('') : '<p class="muted" style="font-size:12.5px; margin:0;">Nothing stale right now — every manual value is recent.</p>';
   }
 
   function renderMilestone(sfx){
@@ -2591,9 +3031,10 @@
           '<div class="figs">Not a returns question — see the Liquidity Ladder above and the goal’s own suitability warning.</div></div>';
       }
       var extra = '';
-      if(g.id==='education'){
+      if(g.id==='education' && g.curSip < g.reqSip){
         var fixed = goalProbabilityAtSip(g, g.reqSip);
-        extra = '<div class="figs">At the required '+formatIndian(g.reqSip)+'/mo instead of '+formatIndian(g.curSip)+'/mo: ~'+fixed.probability+'% likely.</div>';
+        extra = '<div class="figs">At the required '+formatIndian(g.reqSip)+'/mo instead of '+formatIndian(g.curSip)+'/mo: ~'+fixed.probability+'% likely.</div>'+
+          '<button class="nudge-btn primary" style="margin-top:8px;" data-act="sip" data-arg="'+g.id+'">Raise SIP to '+formatIndian(g.reqSip)+'</button>';
       }
       return '<div class="prob-row"><div class="top"><span class="name">'+g.icon+' '+g.name+'</span><span class="pct" style="color:'+(res.probability>=50?'var(--status-good-text)':res.probability>=25?'var(--status-warning-text)':'var(--status-critical)')+';">~'+res.probability+'%</span></div>'+
         '<div class="figs">P10 '+formatCompact(res.p10)+' · P50 '+formatCompact(res.p50)+' · P90 '+formatCompact(res.p90)+' vs. target '+formatCompact(g.inflated)+'</div>'+extra+'</div>';
@@ -2723,7 +3164,6 @@
     if(!isNaN(v)){ ASSUMPTIONS.inflation = v; renderRealVsNominal(); }
   });
   wireScenarioControl('fanTableLink','click', function(){ el('fanTable').classList.toggle('open'); });
-  wireScenarioControl('driftNudge','click', function(){});
 
   document.querySelectorAll('[data-nav-real]').forEach(function(b){
     b.addEventListener('click', function(){
@@ -2738,6 +3178,7 @@
   renderGoals();
   applyLens('household');
   renderAllInsights();
+  renderOutlook();
   go('unlock');
   drawSparkline();
 })();
