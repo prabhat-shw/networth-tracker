@@ -36,4 +36,6 @@ become permanent once records exist.
 - Changing any of the above after real data exists needs a new envelope/format version.
 - JS cannot guarantee memory wiping; zeroing buffers is best effort. Keys are kept as
   non-extractable `CryptoKey`s wherever WebCrypto allows it.
+- gitleaks flags the vectors as `generic-api-key`; `.gitleaks.toml` extends the default rules
+  and allowlists **only** `src/crypto/__vectors__/kat.json` (public values, never real keys).
 - `hash-wasm` becomes a runtime dependency (WASM Argon2id; ~0.5 s per derive at defaults).
