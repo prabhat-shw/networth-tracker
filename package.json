@@ -38,6 +38,7 @@
     "vitest": "^5.0.0"
   },
   "packageManager": "pnpm@11.6.0",
+  "license": "AGPL-3.0-only",
   "description": "Zero-knowledge household net-worth tracker for India",
   "engines": {
     "node": ">=24"

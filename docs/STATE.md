@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-26 (session 3) · next session: start here_
+_Last updated: 2026-09-26 (session 3, #14 closed) · next session: start here_
 
 ## Where we are
 
@@ -33,7 +33,9 @@ Then #5 (household + HDK; fixes HKDF salt/info strings), #6 (auth), #7 (lock UX)
 - PR #17 (`docs/ux-insights-final`): insights + projections UX pass. Needs the owner's
   call on return assumptions, 6% inflation, 4% withdrawal rate, and deterministic vs Monte Carlo fan
   (`docs/UX.md` §12.1).
-- Issue #14: discuss features worth borrowing from other apps. Licence still unchosen.
+- Issue #14 decided (this PR): all six ideas accepted as #25–#32 on M3/M5/M7/M8
+  ([ADR-0016](decisions/0016-features-borrowed-from-other-apps.md)); licence AGPL-3.0-only
+  ([ADR-0015](decisions/0015-agpl-licence.md)). New deps must be AGPL-compatible.
 
 ## Gotchas / open threads
 
