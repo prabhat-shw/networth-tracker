@@ -1,28 +1,30 @@
 # State — read me first
 
-_Last updated: 2026-09-26 (session 4, #4 in review) · next session: start here_
+_Last updated: 2026-09-26 (session 5, #5 in review) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M1 — Identity & crypto core. M0 complete (PRs #18-#22).
 
-- #3 crypto primitives merged (PR #24): `kdf.ts`, `aead.ts`, `keys.ts`, KATs,
-  [ADR-0013](decisions/0013-crypto-primitives-and-envelope.md).
-- **#4 identity vault** on branch `feat/identity-vault`, PR open, **awaits owner approval**
-  (`area:crypto`). [ADR-0018](decisions/0018-identity-vault-and-recovery-code.md):
-  - `src/crypto/vault.ts`: `createIdentity`, `unlockWithPassphrase`, `changePassphrase`,
-    `restoreWithRecoveryCode`, `rotateRecoveryCode`; vault = `{v, publicKey, kdf,
-    byPassphrase, byRecovery}` (GCM `wrapKey` pkcs8, AAD binds slot + public key)
-  - `src/crypto/recovery.ts`: 24 BIP-39 words (`@scure/bip39`, MIT) → HKDF → AES-GCM key
-  - `aead.ts` gained `encodeEnvelope`; `keys.ts` exports `P256`
+- Merged: #3 primitives (PR #24, [ADR-0013](decisions/0013-crypto-primitives-and-envelope.md)),
+  #4 identity vault (PR #35, [ADR-0018](decisions/0018-identity-vault-and-recovery-code.md)).
+- **#5 household + HDK** on `feat/household-hdk`, PR open, **awaits owner approval**
+  (`area:crypto`). [ADR-0019](decisions/0019-household-key-wrapping.md):
+  - `src/crypto/household.ts`: `createHousehold` (HDK kid `hdk:1`, self-wrap),
+    `wrapHouseholdKey` (invite), `unwrapHouseholdKey` (accept; returns sender pubkey),
+    `keyFingerprint` (80-bit safety number). Static-static ECDH, random salt, info binds
+    household + kid + both public keys.
+  - Schema: `households`, `household_members` (public_key, wrapped_hdk), FK
+    `records.household_id` → households. Migration `drizzle/0001_households.sql`.
 
-Green on the branch: `pnpm test` (42) · `typecheck` · `check`.
+Green on the branch: `pnpm test` (50) · `typecheck` · `check`.
 
 ## Next session picks up
 
-**Issue #5: household + HDK** once #4 is merged (create, wrap to self, invite/accept;
-fix HKDF salt/info strings; add `records`→households FK). Brief: `docs/phases/M1.md`. Then #6
-(auth; also owns the vault's JSON/wire encoding + bounding stored KDF params), #7 (lock UX).
+**Issue #6: auth** (Better Auth, passkeys + email OTP, invite-only; `area:security`).
+Also owns: relay endpoints for member rows, `member_id` → user FK, the vault's JSON/wire
+encoding, bounding stored KDF params, `docs/api/CONTRACT.md`. Then #7 (lock UX; blocked on
+owner review of `docs/UX.md`).
 
 ## Also open
 
@@ -45,7 +47,7 @@ fix HKDF salt/info strings; add `records`→households FK). Brief: `docs/phases/
   remove `node_modules` from it. Docker Desktop must be running (`docker info`).
 - For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`
   and use `docker compose -p nwt-e2e …` then `down -v`, so the real volume is never touched.
-- `records` has no FK to households yet; add it with #5.
+- **Before merging #5:** run `pnpm db:migrate` on Neon (unpooled URL) for `0001_households`.
 - Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`).
 - Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
 - Merge policy (owner): merge when CI is green **and the owner says so** in the session
@@ -59,5 +61,5 @@ fix HKDF salt/info strings; add `records`→households FK). Brief: `docs/phases/
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 5
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 6
 ```
