@@ -999,7 +999,7 @@ Deflate every point in the net-worth trend to the series' own starting period:
 existing timeline (§3.3, §6.3), never a separate chart — the point is the *gap* between the two
 lines, which only reads clearly when they share one axis. Restate the headline as rupees, not
 just a percentage: *"Of the ₹X nominal gain this year, ₹Y was real — the rest reflects
-inflation, not new wealth."* In the reference year, roughly half of the nominal gain was
+inflation, not new wealth."* In the reference year, roughly 70% of the nominal gain (at 8%) was
 inflation, not growth — exactly the kind of thing a net-worth app should never let the user
 misread as progress.
 
@@ -1086,7 +1086,11 @@ governs every decision below: **show a range, never a point estimate, and make e
 assumption visible and editable.** A single "you'll have ₹X in 2046" number is a lie by
 omission; this section exists to stop that lie from ever shipping.
 
-### 12.1 Assumptions — the owner must sanity-check these
+### 12.1 Assumptions — reviewed by the owner (2026-09-26)
+
+**Owner decision ([ADR-0014](decisions/0014-projection-defaults.md)):** inflation is **8%**; every
+other figure below, the 4% withdrawal rate and the deterministic fan (§12.3) ship as v1
+defaults and are tuned from hands-on testing. They stay visible and editable in the UI.
 
 Every number below is a **starting point**, not a researched capital-markets assumption, and
 the UI says so (§3.11's Assumptions card, live-editable). Flagging explicitly for the owner's
@@ -1101,7 +1105,7 @@ own judgement, per the brief's own request:
 | Foreign (US stocks/RSU) | −2.0% | 10.0% | 22.0% | Widest band in the table — single-stock **and** FX risk stacked |
 | Property & Valuables | 2.0% | 5.0% | 8.0% | Real estate appreciates slower and more smoothly than equity, historically |
 | Insurance & Lending | 0.0% | 2.0% | 4.0% | Mostly money lent at no/low interest — not a growth asset |
-| Inflation | — | 6.0% | — | Matches the goals engine's existing default (`docs/PLAN.md`) |
+| Inflation | — | 8.0% | — | Owner's call (2026-09-26); per-goal rates (e.g. education) stay separate |
 
 These are nominal annual returns in INR. **The owner should replace every one of these with
 either researched long-run figures or their own house view before this ships** — they are
