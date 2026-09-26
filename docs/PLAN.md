@@ -286,13 +286,15 @@ Each milestone is a handful of issues; each issue is one session.
 | **M0** | Foundation | Repo, kanban board, CI, `CLAUDE.md` + docs skeleton, ADR-0001..0007, threat model, Next.js scaffold, Tailwind/shadcn, Drizzle + Postgres in Compose, health check, Vercel staging |
 | **M1** | Identity & crypto core | Key hierarchy, Argon2id, WebCrypto wrappers + test vectors, lock/unlock UX, recovery kit, Better Auth + passkeys, invite-only household |
 | **M2** | Encrypted sync engine | Record envelope, versioning, `pull`/`push`, tombstones, offline queue, Dexie store, contract + plaintext-scan tests |
-| **M3** | Data model & manual entry | Households/members/ownership shares, accounts, holdings, transactions, liabilities, **goals + allocations**; entry forms; net-worth engine with tests |
+| **M3** | Data model & manual entry | Households/members/ownership shares, accounts, holdings, transactions, liabilities, **goals + allocations**, nominees (#25), tax lots (#26), linked transfers (#27); entry forms; net-worth engine with tests |
 | **M4** | Prices & valuation | Daily AMFI ingest, Yahoo equity/US/crypto, Frankfurter FX, gold; universe download; client valuation; historical timeline |
-| **M5** | Dashboard, goals & insights | Net worth over time, allocation, per-owner views, XIRR/CAGR, **goal tagging UI, auto-tag rules, inflated targets, required SIP, on-track projections, Unallocated bucket**, drill-down; mobile + dense desktop |
+| **M5** | Dashboard, goals & insights | Net worth over time, allocation, per-owner views, XIRR/CAGR, **goal tagging UI, auto-tag rules, inflated targets, required SIP, on-track projections, Unallocated bucket**, drill-down, post-tax net worth (#28), commission drag (#29), Nifty 50 TRI benchmark (#30); mobile + dense desktop |
 | **M6** | Statement import | NSDL/CDSL CAS PDF (on-device), CAMS/KFin, broker + bank CSV, mapping UI, dedupe |
-| **M7** | Long-tail coverage | Insurance surrender values, property, vehicles, money lent, chit funds, EPF/PPF/NPS/SSY accrual calculators, RSU/ESPP vesting |
-| **M8** | Hardening & home deploy | CSP, rate limits, security review, backups + **restore drill**, Tailscale production, user guide, **v1.0** |
+| **M7** | Long-tail coverage | Insurance surrender values, property, vehicles, money lent, chit funds, EPF/PPF/NPS/SSY accrual calculators, RSU/ESPP vesting, nominee gap alerts (#31) |
+| **M8** | Hardening & home deploy | CSP, rate limits, security review, backups + **restore drill**, Tailscale production, user guide, succession packet (#32), **v1.0** |
 | **M9** | Backend v2 (learning) | Rust/Axum reimplementation of sync + price service behind the identical contract; parity proven by contract tests |
+
+Features borrowed from other apps (#14) are placed per [ADR-0016](decisions/0016-features-borrowed-from-other-apps.md).
 
 M0 starts immediately after approval; M1–M2 are the crypto backbone and deserve unhurried
 sessions.

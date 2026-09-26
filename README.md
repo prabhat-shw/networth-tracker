@@ -16,8 +16,9 @@ Encrypted on your device. The server only ever stores ciphertext.
 
 ## Why
 
-INDMoney and its peers track what they can pull under a single PAN. They cannot represent a
-real Indian household: a joint savings account, a flat bought 50/50 with your spouse, ₹2L
+INDmoney and its peers track what they can pull per PAN; some now add family views that sum
+members. None of them can split a **single asset** by ownership share, or represent a real
+Indian household: a joint savings account, a flat bought 50/50 with your spouse, ₹2L
 lent to a cousin, a chit fund, gold in a locker, your spouse's EPF, RSUs vesting in USD, a
 rental security deposit.
 
@@ -42,8 +43,8 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | --- | --- |
 | Version | `0.1.0` |
 | Milestone | M1 — Identity & crypto core. M0 complete (PRs #18-#22). |
-| Next up | see docs/STATE.md |
-| Decisions recorded | 15 ADRs |
+| Next up | Issue #4: identity vault |
+| Decisions recorded | 17 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.
@@ -89,5 +90,6 @@ or [developer onboarding](docs/kb/05-developer-onboarding.md).
 
 ## Licence
 
-No licence has been chosen yet, so default copyright applies: the code is public to read,
-but not yet licensed for reuse. See [ADR-0010](docs/decisions/0010-public-repository.md).
+[GNU AGPL-3.0](LICENSE) (`AGPL-3.0-only`). You may use, modify and self-host it; if you run a
+modified version as a network service, you must publish your changes under the same licence.
+See [ADR-0015](docs/decisions/0015-agpl-licence.md).

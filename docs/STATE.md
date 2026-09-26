@@ -1,13 +1,12 @@
 # State — read me first
 
-_Last updated: 2026-09-26 (session 3) · next session: start here_
+_Last updated: 2026-09-26 (session 3, #14 closed) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M1 — Identity & crypto core. M0 complete (PRs #18-#22).
 
-Session 3 built issue #3 (crypto primitives) on branch `phase-1-crypto-core`. **The PR is open
-and waits for the owner's approval** (`area:crypto`, never self-merge):
+Session 3 shipped issue #3 (crypto primitives), PR #24, merged with the owner's approval:
 
 - `src/crypto/kdf.ts`: `deriveUnlockKey` (Argon2id via `hash-wasm`, m=64 MiB t=3 p=1,
   params returned with the key), `newKdfParams`, `argon2idBytes` (KAT only)
@@ -24,16 +23,18 @@ Neon in Singapore). Green on the branch: `pnpm test` (34) · `typecheck` · `che
 
 ## Next session picks up
 
-If the #3 PR is merged: **Issue #4: identity vault** (keypair wrapped under the unlock key,
+**Issue #4: identity vault** (keypair wrapped under the unlock key,
 passphrase change, 24-word recovery kit; `size:M`, `area:crypto`). Brief: `docs/phases/M1.md`.
 Then #5 (household + HDK; fixes HKDF salt/info strings), #6 (auth), #7 (lock UX).
 
 ## Also open
 
-- PR #17 (`docs/ux-insights-final`): insights + projections UX spec + prototype. Owner
-  reviewed it: inflation 8%, other defaults kept for v1 and tuned by testing
-  ([ADR-0014](decisions/0014-projection-defaults.md)). Merges once CI is green and the owner says so.
-- Issue #14: discuss features worth borrowing from other apps. Licence still unchosen.
+- Insights + projections UX (PR #17) merged: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)),
+  UX principle 8 "fewest actions" with tap budgets ([ADR-0017](decisions/0017-tap-budgets.md)); the
+  prototype meets all 7 budgets. Leftovers in #34 (settle "Home fits one screen" before M3 forms).
+- Issue #14 decided: all six ideas accepted as #25–#32 on M3/M5/M7/M8
+  ([ADR-0016](decisions/0016-features-borrowed-from-other-apps.md)); licence AGPL-3.0-only
+  ([ADR-0015](decisions/0015-agpl-licence.md)). New deps must be AGPL-compatible.
 
 ## Gotchas / open threads
 

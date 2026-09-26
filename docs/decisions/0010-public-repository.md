@@ -1,6 +1,6 @@
 # ADR-0010 — Public repository
 
-**Status:** Accepted · 2026-09-08
+**Status:** Accepted · 2026-09-08 · licence section superseded by [ADR-0015](0015-agpl-licence.md)
 
 ## Context
 
