@@ -19,6 +19,7 @@ what type, with which institutions).
 | Stolen locked device | Disk read | IndexedDB holds ciphertext only; unlock key derived per session, never persisted |
 | Malicious dependency | Exfiltration at runtime | Strict CSP (no third-party origins), lockfile + `osv-scanner` + dependency review, no analytics/CDN |
 | Malicious statement file | Parser exploit | PDF/CSV parsed in a Web Worker with no network access; pdf.js sandboxed; fuzz-style parser tests |
+| Malicious server swaps an invitee's public key | Relays a key it controls | Static-static ECDH wrap + out-of-band key fingerprint check before inviting ([ADR-0019](decisions/0019-household-key-wrapping.md)) |
 | Curious household member | Legitimate login | Per-record ownership; private (non-shared) records are wrapped only to their owner |
 | Us (the developers) | Bugs | Plaintext-scan test on the DB, cross-household E2E isolation test, no PII in logs |
 

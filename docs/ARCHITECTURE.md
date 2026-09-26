@@ -38,6 +38,9 @@ goal · allocation · valuationOverride · document · snapshot`
 Every asset/liability record carries `owners[] {memberId, sharePercent}` (sums to 100),
 `allocations[] {goalId, mode, value}`, `includeInNetWorth`, `tags[]`, `asOf`.
 
+Server side there are only three tables: `records` (ADR-0003), `households` (id) and
+`household_members` (public key + HDK wrapped to it, ADR-0019). All opaque.
+
 Money is **integer paise** everywhere. Dates are ISO strings in IST.
 
 ## Why the server is dumb
