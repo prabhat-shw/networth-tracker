@@ -20,7 +20,8 @@ resolve it against these first.
 1. **The visit is the test.** Most opens of this app last under 10 seconds: "what's my number,
    is anything wrong, done." Home must answer that in one screen, unscrolled, on a phone held
    one-handed. Everything else — accounts, goals, household — exists for the 20% of visits
-   that come to *edit* or *investigate*, and can afford to cost more taps.
+   that come to *edit* or *investigate*, and can afford a few more taps (still within the
+   budgets in principle 8).
 2. **Never show a number without saying whose it is.** INDMoney's failure mode is a single
    undifferentiated total. Every money figure on screen sits under an explicit, persistent
    lens (Me / Household / a named person). The lens is a *view mode*, not a destination — it
@@ -45,6 +46,32 @@ resolve it against these first.
    flows and bottom sheets. The laptop gets dense tables, hover states, and keyboard shortcuts
    — not a phone screen stretched wide. Design both explicitly; never derive one from the other
    with just a breakpoint.
+8. **Fewest actions to the outcome** (owner, 2026-09-26; [ADR-0017](decisions/0017-tap-budgets.md)).
+   Every feature is judged by how few taps it takes to get its value, not by how much it
+   shows. The tactics, in order of preference:
+   - **Don't ask:** smart defaults (as-of = today, owner = last used, currency = INR) and
+     remembered choices. Import or auto-value beats typing; a field we can derive is never asked.
+   - **Fix it where you see it:** every nudge, stale badge or insight carries its action inline
+     (edit the value, tag the goal, dismiss). Never "go to Settings to fix this".
+   - **Skip steps when intent is known:** search and *Frequently added* chips jump straight to
+     step 3 of Add (§4.2); a goal's *Add money* pre-fills the tag.
+   - **Progressive disclosure, not wizards:** optional fields collapse (`▸ Notes`), and advanced
+     inputs hide behind one expander rather than extra screens.
+
+   **Tap budgets** (from Home, unlocked; typing a value doesn't count as a tap):
+
+   | Task | Budget |
+   | --- | --- |
+   | See net worth, what changed, anything wrong | 0 |
+   | Switch lens (Me / Household / person) | 1 |
+   | Update a stale value from its nudge | 2 (tap nudge → save) |
+   | Add a frequently added asset | 3 (Add → chip → save) |
+   | Add any asset via search | 4 (Add → search → pick → save) |
+   | Tag money to a goal | 2 from the item; bulk-tag from *Unallocated* |
+   | Open any insight's detail | 1 |
+
+   A design that exceeds a budget must say why in its spec section. Playwright E2E specs
+   (M5 onward) count taps for these tasks and fail when a budget is exceeded.
 
 ---
 
