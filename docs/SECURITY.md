@@ -26,6 +26,8 @@ what type, with which institutions).
 
 - gitleaks (secrets), CodeQL/semgrep (SAST), `osv-scanner` + dependency review, SBOM
 - Doc-size caps, typecheck, Biome, unit tests
+- `src/crypto` known-answer vectors (RFC/Wycheproof/PHC) and fail-closed tests on every PR
+  ([ADR-0013](decisions/0013-crypto-primitives-and-envelope.md))
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
 ## Explicitly accepted risks
