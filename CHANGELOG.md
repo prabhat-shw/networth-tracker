@@ -6,6 +6,10 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 ## [Unreleased]
 
 ### Added
+- Staging guard: Vercel builds fail unless `DEMO_MODE=true`; a demo banner shows on
+  every page when it is on. `docs/DEPLOYMENT.md` covers home and staging.
+- Database: Drizzle + Postgres, the ciphertext-only `records` sync table, `pnpm db:generate`
+  / `db:migrate`, a one-shot Compose `migrate` service, and `/api/health` (ADR-0011).
 - Build identity: `/api/version`, in-app build badge, and an update banner that offers a
   reload when the server is serving a newer build (ADR-0009).
 - Branch-based workflow: ADR-0008, pre-push hook blocking direct pushes to `main`.
@@ -13,5 +17,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   money module with Indian formatting, Docker Compose (app + Postgres + Caddy), CI
   (doc caps, typecheck, lint, tests, gitleaks, dependency audit).
 - Docs: plan, architecture, threat model, session/context framework, ADRs 0001–0009.
+
+### Fixed
+- Vercel builds: skip standalone output there (Next 16.3 `next-server.js.nft.json` ENOENT).
+- Docker image builds from a Windows checkout: added `.dockerignore` and `public/`.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/

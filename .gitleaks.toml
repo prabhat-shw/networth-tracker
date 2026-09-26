@@ -1,0 +1,9 @@
+# Default gitleaks rules, plus one narrow exception (ADR-0013).
+# The exception is only for published crypto test vectors (RFC/Wycheproof/PHC). They are
+# public, so they are not secrets. Never add real key material to this file's paths.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Published known-answer test vectors (public, not secrets)"
+paths = ['''^src/crypto/__vectors__/kat\.json$''']

@@ -41,9 +41,9 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M0 — Foundation (complete except issues #1 and #2) |
-| Next up | Issue #1 — Drizzle + Postgres wiring and health check |
-| Decisions recorded | 10 ADRs |
+| Milestone | M1 — Identity & crypto core. M0 complete (PRs #18-#22). |
+| Next up | see docs/STATE.md |
+| Decisions recorded | 14 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.
@@ -60,12 +60,15 @@ cp .env.example .env                  # set POSTGRES_PASSWORD and BETTER_AUTH_SE
 pnpm dev                              # http://localhost:3000
 ```
 
+Schema changes: edit `src/server/db/schema.ts`, then `pnpm db:generate` and commit `drizzle/`.
+
 Verification: `pnpm test` · `pnpm typecheck` · `pnpm check` · `pnpm check:docs`
 
 Self-host (production topology, ADR-0006):
 
 ```bash
-docker compose up -d --build   # app + Postgres + Caddy, published only on your tailnet
+docker compose up -d --build   # db → migrate → app → Caddy, published only on your tailnet
+curl -k https://localhost/api/health   # {"status":"ok","app":"ok","db":"ok"}
 ```
 
 ## Docs
