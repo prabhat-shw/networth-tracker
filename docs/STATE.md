@@ -1,19 +1,29 @@
 # State — read me first
 
-_Last updated: 2026-09-25 (end of session 2, M0 closed) · next session: start here_
+_Last updated: 2026-09-26 (end of session 2) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M0 — Foundation: **complete** once this PR merges (closes #2).
+**Milestone:** M0 — Foundation: **complete.** No open M0 issues. Next: **M1 — Identity & crypto core.**
 
-- #1 Drizzle + Postgres, `/api/health`, migrate service (PR #18, ADR-0011).
-- #2 staging: DEMO_MODE build guard + banner (PR #19), Vercel standalone fix (PR #20),
-  live at https://networth-staging.vercel.app with Neon (Singapore). Verified: `/api/health` 200
-  `db:"ok"`, and the demo banner renders. `docs/DEPLOYMENT.md` has the exact dashboard steps.
+Session 2 closed #1 and #2:
+
+| PR | What landed |
+| --- | --- |
+| #18 | Drizzle + Postgres, ciphertext-only `records` table, Compose `migrate` service, `/api/health` ([ADR-0011](decisions/0011-database-access-and-migrations.md)) |
+| #19 | `DEMO_MODE` build guard + demo banner ([ADR-0012](decisions/0012-staging-guard-and-vercel-build.md)) |
+| #20 | Standalone output off on Vercel (Next 16.3 `nft.json` ENOENT) |
+| #21, #22 | Staging live; click-by-click `docs/DEPLOYMENT.md`; URL moved to `networth-staging` |
+
+Staging: **https://networth-staging.vercel.app** (Vercel project `networth-tracker-pxac`,
+Neon in Singapore). Verified 2026-09-26: `/api/health` 200 `db:"ok"`, banner renders,
+`/api/version` = latest `main`. Home stack verified end to end via Compose (PR #18).
+Green on `main`: `pnpm test` (18) · `typecheck` · `check` · `check:docs` · `docs:check`.
 
 ## Next session picks up
 
-M1 from **#3 (crypto primitives)**. Brief: `docs/phases/M1.md`. `area:crypto` needs owner approval to merge.
+**Issue #3: crypto primitives** (Argon2id, AES-GCM, ECDH P-256, HKDF, AES-KW; `size:M`).
+Brief: `docs/phases/M1.md`. `area:crypto`, so **the owner approves the merge**; never self-merge.
 
 ## Also open
 
@@ -28,7 +38,8 @@ M1 from **#3 (crypto primitives)**. Brief: `docs/phases/M1.md`. `area:crypto` ne
   against Neon's unpooled URL (DEPLOYMENT.md step 4) *before* merging code that needs it.
 - Neon URLs may carry `channel_binding=require`; postgres.js forwards it as a startup param.
   It works on Vercel today; if staging ever reports `db:"down"`, strip it in `client.ts`.
-
+- **Vercel:** import the repo only once (a re-import made a duplicate project, since deleted).
+  Env vars need a **Redeploy** to take effect. `APP_ORIGIN` = the staging URL (used from M1 auth).
 - **Docker on Windows:** the image only builds because of the new `.dockerignore`; never
   remove `node_modules` from it. Docker Desktop must be running (`docker info`).
 - For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`
@@ -36,8 +47,8 @@ M1 from **#3 (crypto primitives)**. Brief: `docs/phases/M1.md`. `area:crypto` ne
 - `records` has no FK to households yet; add it with #5.
 - Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`).
 - Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
-- Merge policy (owner): merge PRs yourself when CI is green; only core features
-  (`area:crypto` / `area:security`) wait for approval.
+- Merge policy (owner): merge when CI is green **and the owner says so** in the session
+  (the auto-mode classifier blocks unrequested merges). `area:crypto`/`area:security` always wait for approval.
 - `docs/` is excluded from Biome; `next dev` appends an agent-rules block to `CLAUDE.md` (committed on purpose).
 - Money is integer **paise**; use `src/domain/money.ts`.
 - **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).

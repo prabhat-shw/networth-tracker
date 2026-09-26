@@ -9,3 +9,4 @@ One line per session: date · issue · outcome.
 - 2026-09-25 · issue #2 · DEMO_MODE build guard, demo banner, DEPLOYMENT.md; Vercel/Neon linking left to owner · green
 - 2026-09-25 · fix · Vercel ENOENT (standalone off on Vercel), detailed staging steps in DEPLOYMENT.md
 - 2026-09-26 · issue #2 · staging live on Vercel + Neon, DEPLOYMENT.md corrected from the real setup · M0 complete
+- 2026-09-26 · handoff · M0 closed (PRs #18-#22), staging at networth-staging.vercel.app, ADR-0012 · next: #3
