@@ -18,3 +18,4 @@ One line per session: date · issue · outcome.
 - 2026-09-26 · issue #4 · identity vault: passphrase + 24-word recovery wraps, passphrase change, restore, rotation (ADR-0018)
 - 2026-09-26 · issue #5 · household HDK: static-static ECDH wraps, key fingerprints, households/members tables + records FK (ADR-0019)
 - 2026-09-26 · issue #6 · split into #6/#37/#38; auth core: Better Auth, passkeys + SMTP OTP, invite-only, rate limits (ADR-0020)
+- 2026-09-26 · issue #40 · fix: auth table ids default to gen_random_uuid(); PGlite migration-backed auth test
