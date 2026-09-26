@@ -41,9 +41,9 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M0 — Foundation: **complete.** No open M0 issues. Next: **M1 — Identity & crypto core.** |
-| Next up | Issue #3: crypto primitives |
-| Decisions recorded | 12 ADRs |
+| Milestone | M1 — Identity & crypto core. M0 complete (PRs #18-#22). |
+| Next up | see docs/STATE.md |
+| Decisions recorded | 13 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.
