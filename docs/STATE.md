@@ -1,19 +1,15 @@
 # State — read me first
 
-_Last updated: 2026-09-25 (end of session 2, part 2) · next session: start here_
+_Last updated: 2026-09-25 (end of session 2, M0 closed) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M0 — Foundation: code complete. #1 merged (PR #18). #2 PR open (`chore/vercel-staging`).
+**Milestone:** M0 — Foundation: **complete** once this PR merges (closes #2).
 
-Issue #2 (this PR) added:
-- `src/lib/deploy-guard.ts` (+ test): `VERCEL=1` without `DEMO_MODE=true` → `next build`
-  throws. Verified with real builds: fails without it, passes with it.
-- `src/features/version/demo-banner.tsx` in the root layout; `NEXT_PUBLIC_DEMO_MODE` is inlined at build.
-- `docs/DEPLOYMENT.md`: both targets, including the Vercel/Neon dashboard steps.
-
-**Owner action to finish #2:** create the Vercel project + Neon store and set env vars,
-exactly as `docs/DEPLOYMENT.md` → *Staging* says. Needs your accounts; no CLI here.
+- #1 Drizzle + Postgres, `/api/health`, migrate service (PR #18, ADR-0011).
+- #2 staging: DEMO_MODE build guard + banner (PR #19), Vercel standalone fix (PR #20),
+  live at https://networth-tracker-pxac.vercel.app with Neon (Singapore). Verified: `/api/health` 200
+  `db:"ok"`, and the demo banner renders. `docs/DEPLOYMENT.md` has the exact dashboard steps.
 
 ## Next session picks up
 
@@ -27,6 +23,11 @@ M1 from **#3 (crypto primitives)**. Brief: `docs/phases/M1.md`. `area:crypto` ne
 - Issue #14: discuss features worth borrowing from other apps. Licence still unchosen.
 
 ## Gotchas / open threads
+
+- **Staging migrations are manual**: after any new `drizzle/` migration, run `pnpm db:migrate`
+  against Neon's unpooled URL (DEPLOYMENT.md step 4) *before* merging code that needs it.
+- Neon URLs may carry `channel_binding=require`; postgres.js forwards it as a startup param.
+  It works on Vercel today; if staging ever reports `db:"down"`, strip it in `client.ts`.
 
 - **Docker on Windows:** the image only builds because of the new `.dockerignore`; never
   remove `node_modules` from it. Docker Desktop must be running (`docker info`).
