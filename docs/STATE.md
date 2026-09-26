@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-26 (session 6, #6 in review) · next session: start here_
+_Last updated: 2026-09-26 (session 6, #40 in review) · next session: start here_
 
 ## Where we are
 
@@ -12,14 +12,14 @@ _Last updated: 2026-09-26 (session 6, #6 in review) · next session: start here_
 - #6 was too big and is split: **#6 auth core** (this PR), **#37 authorisation** (membership
   guard, A-can't-read-B test, `member_id`→user FK), **#38 key relay** (member-row + vault
   endpoints, wire encoding, KDF bounds).
-- **#6 auth core** on `feat/auth-core`, PR open, **awaits owner approval** (`area:security`).
-  [ADR-0020](decisions/0020-auth-invite-only-otp-passkeys.md):
-  - `src/server/auth.ts`: `createAuth(deps)` (testable) + lazy `getAuth()`; passkeys + email
-    OTP over SMTP, no passwords, invite gate in `user.create.before`, rate limits in Postgres
-  - `src/server/invites.ts` (SHA-256 email invites), `scripts/invite.mjs` (`pnpm auth:invite`)
-  - `/api/auth/[...all]` route; auth tables + `invites`, migration `drizzle/0002_auth.sql`
+- **#6 auth core** merged (PR #39, [ADR-0020](decisions/0020-auth-invite-only-otp-passkeys.md)):
+  `src/server/auth.ts` (`createAuth` + lazy `getAuth`), `invites.ts`, `pnpm auth:invite`,
+  `/api/auth/[...all]`, migration `0002_auth`. Staging has SMTP vars set.
+- **#40 fix** on `fix/auth-uuid-defaults`, PR open: every `/api/auth` call 500'd on staging
+  (auth ids had no DB default; Better Auth's `generateId: "uuid"` relies on one). Migration
+  `0003_auth_id_defaults`; new `auth.pg.test.ts` runs all migrations on PGlite + drizzle adapter.
 
-Green on the branch: `pnpm test` (57) · `typecheck` · `check` · `build`.
+Green on the branch: `pnpm test` (58) · `typecheck` · `check`.
 
 ## Next session picks up
 
@@ -48,8 +48,10 @@ blocked on owner review of `docs/UX.md`).
 - For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`,
   `SMTP_HOST`, `SMTP_FROM` (dummies are fine)
   and use `docker compose -p nwt-e2e …` then `down -v`, so the real volume is never touched.
-- **Before merging #6:** run `pnpm db:migrate` on Neon for `0002_auth`. For codes on staging set
-  `SMTP_*` + `SMTP_DEMO_TO` in Vercel (optional). Owner bootstrap: `pnpm auth:invite <email>`.
+- **Before merging #40:** run `pnpm db:migrate` on Neon for `0003_auth_id_defaults`, then
+  Redeploy; check `/api/auth/get-session` returns `200 null`.
+- Server tests that touch SQL: use PGlite with the real migrations (`auth.pg.test.ts`), not
+  the Better Auth memory adapter, which hides schema bugs.
 - Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`).
 - Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
 - Merge policy (owner): merge when CI is green **and the owner says so** in the session

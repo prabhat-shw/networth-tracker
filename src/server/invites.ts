@@ -4,7 +4,8 @@
  * `scripts/invite.mjs` bootstraps the first owner with the same hash.
  */
 import { and, eq, gt, isNull } from "drizzle-orm";
-import type { getDb } from "./db/client";
+import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
+import type * as schema from "./db/schema";
 import { invites } from "./db/schema";
 
 export interface InviteStore {
@@ -25,7 +26,9 @@ export async function emailHash(email: string): Promise<Uint8Array> {
   return new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
 }
 
-export function pgInviteStore(db: ReturnType<typeof getDb>): InviteStore {
+export function pgInviteStore(
+  db: PgDatabase<PgQueryResultHKT, typeof schema>,
+): InviteStore {
   const open = async (email: string) =>
     and(
       eq(invites.emailHash, await emailHash(email)),
