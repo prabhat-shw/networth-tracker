@@ -48,6 +48,6 @@
   "license": "AGPL-3.0-only",
   "description": "Zero-knowledge household net-worth tracker for India",
   "engines": {
-    "node": ">=24"
+    "node": "24.x"
   }
 }

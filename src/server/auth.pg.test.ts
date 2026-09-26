@@ -1,28 +1,15 @@
 // Auth against real Postgres SQL: PGlite runs every committed migration, then Better Auth
 // goes through the drizzle adapter exactly as in production (#40: the memory adapter hid
 // a missing id default that made every /api/auth request fail).
-import { readdirSync, readFileSync } from "node:fs";
-import { PGlite } from "@electric-sql/pglite";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/pglite";
 import { expect, it } from "vitest";
 import { createAuth } from "./auth";
 import * as schema from "./db/schema";
+import { migratedDb } from "./db/test-db";
 import { emailHash, pgInviteStore } from "./invites";
 
 const ORIGIN = "https://nwt.example";
-
-async function migratedDb() {
-  const pg = new PGlite();
-  const files = readdirSync("drizzle").filter((f) => f.endsWith(".sql"));
-  for (const file of files.sort())
-    for (const stmt of readFileSync(`drizzle/${file}`, "utf8").split(
-      "--> statement-breakpoint",
-    ))
-      await pg.exec(stmt);
-  return drizzle(pg, { schema });
-}
 
 it(
   "signs an invited user in through Postgres",

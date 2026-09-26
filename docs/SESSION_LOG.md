@@ -19,3 +19,4 @@ One line per session: date · issue · outcome.
 - 2026-09-26 · issue #5 · household HDK: static-static ECDH wraps, key fingerprints, households/members tables + records FK (ADR-0019)
 - 2026-09-26 · issue #6 · split into #6/#37/#38; auth core: Better Auth, passkeys + SMTP OTP, invite-only, rate limits (ADR-0020)
 - 2026-09-26 · issue #40 · fix: auth table ids default to gen_random_uuid(); PGlite migration-backed auth test
+- 2026-09-27 · issue #37 · membership guard (401/404, no existence oracle), guarded records read route, member_id→user FK, node 24.x (ADR-0021)
