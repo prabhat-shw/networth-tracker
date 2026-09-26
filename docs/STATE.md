@@ -30,9 +30,9 @@ Then #5 (household + HDK; fixes HKDF salt/info strings), #6 (auth), #7 (lock UX)
 
 ## Also open
 
-- PR #17 (`docs/ux-insights-final`): insights + projections UX pass. Needs the owner's
-  call on return assumptions, 6% inflation, 4% withdrawal rate, and deterministic vs Monte Carlo fan
-  (`docs/UX.md` §12.1).
+- PR #17 (`docs/ux-insights-final`): insights + projections UX spec + prototype. Owner
+  reviewed it: inflation 8%, other defaults kept for v1 and tuned by testing
+  ([ADR-0014](decisions/0014-projection-defaults.md)). Merges once CI is green and the owner says so.
 - Issue #14: discuss features worth borrowing from other apps. Licence still unchosen.
 
 ## Gotchas / open threads

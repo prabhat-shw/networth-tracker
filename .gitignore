@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Keep the example env committed
 !.env.example
+
+# Agent worktrees are scratch space
+.claude/worktrees/

@@ -11,3 +11,6 @@ One line per session: date · issue · outcome.
 - 2026-09-26 · issue #2 · staging live on Vercel + Neon, DEPLOYMENT.md corrected from the real setup · M0 complete
 - 2026-09-26 · handoff · M0 closed (PRs #18-#22), staging at networth-staging.vercel.app, ADR-0012 · next: #3
 - 2026-09-26 · issue #3 · crypto primitives (Argon2id, AES-GCM envelope, ECDH/HKDF/AES-KW) + KAT vectors, ADR-0013 · PR awaits owner approval
+- 2026-09-26 · PR #17 · merged main, inflation default 8% (ADR-0014), UX §12.1 marked owner-reviewed
+- 2026-09-26 · PR #17 · UX principle 8: fewest actions, tap budgets per task (ADR-0017)
+- 2026-09-26 · PR #17 · prototype brought within all 7 tap budgets (principle 8), mobile scroll fix
