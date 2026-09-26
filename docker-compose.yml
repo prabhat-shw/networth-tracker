@@ -46,6 +46,11 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env}
       APP_ORIGIN: ${APP_ORIGIN:?e.g. https://networth.your-tailnet.ts.net}
       DEMO_MODE: "false"
+      SMTP_HOST: ${SMTP_HOST:?set SMTP_HOST in .env}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:?set SMTP_FROM in .env}
       NODE_ENV: production
     expose:
       - "3000"

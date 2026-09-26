@@ -1,30 +1,30 @@
 # State — read me first
 
-_Last updated: 2026-09-26 (session 5, #5 in review) · next session: start here_
+_Last updated: 2026-09-26 (session 6, #6 in review) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M1 — Identity & crypto core. M0 complete (PRs #18-#22).
 
-- Merged: #3 primitives (PR #24, [ADR-0013](decisions/0013-crypto-primitives-and-envelope.md)),
-  #4 identity vault (PR #35, [ADR-0018](decisions/0018-identity-vault-and-recovery-code.md)).
-- **#5 household + HDK** on `feat/household-hdk`, PR open, **awaits owner approval**
-  (`area:crypto`). [ADR-0019](decisions/0019-household-key-wrapping.md):
-  - `src/crypto/household.ts`: `createHousehold` (HDK kid `hdk:1`, self-wrap),
-    `wrapHouseholdKey` (invite), `unwrapHouseholdKey` (accept; returns sender pubkey),
-    `keyFingerprint` (80-bit safety number). Static-static ECDH, random salt, info binds
-    household + kid + both public keys.
-  - Schema: `households`, `household_members` (public_key, wrapped_hdk), FK
-    `records.household_id` → households. Migration `drizzle/0001_households.sql`.
+- Merged: #3 primitives (PR #24, ADR-0013), #4 identity vault (PR #35, ADR-0018),
+  #5 household + HDK (PR #36, [ADR-0019](decisions/0019-household-key-wrapping.md)); staging
+  migrated through `0001_households`.
+- #6 was too big and is split: **#6 auth core** (this PR), **#37 authorisation** (membership
+  guard, A-can't-read-B test, `member_id`→user FK), **#38 key relay** (member-row + vault
+  endpoints, wire encoding, KDF bounds).
+- **#6 auth core** on `feat/auth-core`, PR open, **awaits owner approval** (`area:security`).
+  [ADR-0020](decisions/0020-auth-invite-only-otp-passkeys.md):
+  - `src/server/auth.ts`: `createAuth(deps)` (testable) + lazy `getAuth()`; passkeys + email
+    OTP over SMTP, no passwords, invite gate in `user.create.before`, rate limits in Postgres
+  - `src/server/invites.ts` (SHA-256 email invites), `scripts/invite.mjs` (`pnpm auth:invite`)
+  - `/api/auth/[...all]` route; auth tables + `invites`, migration `drizzle/0002_auth.sql`
 
-Green on the branch: `pnpm test` (50) · `typecheck` · `check`.
+Green on the branch: `pnpm test` (57) · `typecheck` · `check` · `build`.
 
 ## Next session picks up
 
-**Issue #6: auth** (Better Auth, passkeys + email OTP, invite-only; `area:security`).
-Also owns: relay endpoints for member rows, `member_id` → user FK, the vault's JSON/wire
-encoding, bounding stored KDF params, `docs/api/CONTRACT.md`. Then #7 (lock UX; blocked on
-owner review of `docs/UX.md`).
+**Issue #37: authorisation guard** (after #6 merges). Then #38 (key relay), then #7 (lock UX;
+blocked on owner review of `docs/UX.md`).
 
 ## Also open
 
@@ -45,9 +45,11 @@ owner review of `docs/UX.md`).
   Env vars need a **Redeploy** to take effect. `APP_ORIGIN` = the staging URL (used from M1 auth).
 - **Docker on Windows:** the image only builds because of the new `.dockerignore`; never
   remove `node_modules` from it. Docker Desktop must be running (`docker info`).
-- For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`
+- For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`,
+  `SMTP_HOST`, `SMTP_FROM` (dummies are fine)
   and use `docker compose -p nwt-e2e …` then `down -v`, so the real volume is never touched.
-- **Before merging #5:** run `pnpm db:migrate` on Neon (unpooled URL) for `0001_households`.
+- **Before merging #6:** run `pnpm db:migrate` on Neon for `0002_auth`. For codes on staging set
+  `SMTP_*` + `SMTP_DEMO_TO` in Vercel (optional). Owner bootstrap: `pnpm auth:invite <email>`.
 - Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`).
 - Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
 - Merge policy (owner): merge when CI is green **and the owner says so** in the session
@@ -61,5 +63,5 @@ owner review of `docs/UX.md`).
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 6
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 37
 ```

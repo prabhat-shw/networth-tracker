@@ -16,13 +16,17 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "docs:sync": "node scripts/sync-docs.mjs",
-    "docs:check": "node scripts/sync-docs.mjs --check"
+    "docs:check": "node scripts/sync-docs.mjs --check",
+    "auth:invite": "node scripts/invite.mjs"
   },
   "dependencies": {
+    "@better-auth/passkey": "1.7.6",
     "@scure/bip39": "^2.4.0",
+    "better-auth": "^1.7.6",
     "drizzle-orm": "^0.45.3",
     "hash-wasm": "^4.12.0",
     "next": "16.3.4",
+    "nodemailer": "^10.0.10",
     "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8"
@@ -31,6 +35,7 @@
     "@biomejs/biome": "2.4.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.11",
