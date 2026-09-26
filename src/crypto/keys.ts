@@ -4,7 +4,7 @@
  */
 import type { Bytes } from "./kdf";
 
-const P256 = { name: "ECDH", namedCurve: "P-256" } as const;
+export const P256 = { name: "ECDH", namedCurve: "P-256" } as const;
 
 /**
  * Identity keypair. The private key is extractable only so it can be wrapped under the

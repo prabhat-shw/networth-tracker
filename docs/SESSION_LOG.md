@@ -15,3 +15,4 @@ One line per session: date · issue · outcome.
 - 2026-09-26 · PR #17 · UX principle 8: fewest actions, tap budgets per task (ADR-0017)
 - 2026-09-26 · PR #17 · prototype brought within all 7 tap budgets (principle 8), mobile scroll fix
 - 2026-09-26 · issue #14 · six borrowed features filed as #25-#32 (ADR-0016), AGPL-3.0-only licence (ADR-0015)
+- 2026-09-26 · issue #4 · identity vault: passphrase + 24-word recovery wraps, passphrase change, restore, rotation (ADR-0018)
