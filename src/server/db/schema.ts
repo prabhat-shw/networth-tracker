@@ -30,7 +30,7 @@ export const households = pgTable("households", {
 /**
  * One row per member (ADR-0019): their identity public key and the HDK wrapped to it. The
  * inviter writes the row; the server only relays `wrappedHdk`, which it cannot open.
- * `memberId` gains a FK to the auth user table in #6.
+ * `memberId` is the member's auth user id; membership is what authorises access (ADR-0021).
  */
 export const householdMembers = pgTable(
   "household_members",
@@ -38,7 +38,9 @@ export const householdMembers = pgTable(
     householdId: uuid("household_id")
       .notNull()
       .references(() => households.id, { onDelete: "cascade" }),
-    memberId: uuid("member_id").notNull(),
+    memberId: uuid("member_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
     publicKey: bytea("public_key").notNull(),
     wrappedHdk: bytea("wrapped_hdk").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })

@@ -17,6 +17,7 @@ same contract. Every endpoint here is exercised by the shared contract test suit
 | GET | `/api/health` | `{ status, app, db }`: 200 when Postgres answers, 503 otherwise. No auth, no secrets (ADR-0011) |
 | GET | `/api/version` | Build identity for the stale-build banner (ADR-0009) |
 | GET/POST | `/api/auth/*` | Better Auth; see *Auth* below |
+| GET | `/api/households/:householdId/records?since=N` | Member only; see *Authorisation* below |
 | GET | `/api/household/keys` | Wrapped-key blobs for the current member |
 | POST | `/api/household/invite` | Store a wrapped HDK blob for an invitee |
 | POST | `/api/sync/pull` | `{ sinceVersion }` → `{ records[], serverVersion }` |
@@ -44,6 +45,17 @@ Better Auth under `/api/auth`, paths as Better Auth 1.7 defines them. Session co
 Not available: `/sign-up/email` or any password or social route. Invites are created by
 `pnpm auth:invite <email>` (owner bootstrap); the in-app invite endpoint arrives with #38.
 
-Record envelope: `{ id, householdId, version, updatedAt, ciphertext, deleted }`.
+## Authorisation (ADR-0021)
+
+Every household-scoped route runs the membership guard first. No or invalid session →
+`401 {"error":"unauthorized"}`. Not a member, no such household, or a malformed id → the
+same `404 {"error":"not found"}`, so ids cannot be probed.
+
+`GET /api/households/:householdId/records?since=N` (`N` a non-negative integer, default 0;
+otherwise `400`) → `200 { records: RecordEnvelope[] }` with `version > N`, ascending,
+at most 500; page by passing the last `version` seen. `cache-control: no-store`.
+
+Record envelope: `{ id, householdId, version, updatedAt, ciphertext, deleted }` —
+`updatedAt` ISO-8601, `ciphertext` base64url.
 
 Filled in properly during M2 — treat the table above as the shape, not the spec.
