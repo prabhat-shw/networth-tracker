@@ -18,6 +18,7 @@ same contract. Every endpoint here is exercised by the shared contract test suit
 | GET | `/api/version` | Build identity for the stale-build banner (ADR-0009) |
 | GET/POST | `/api/auth/*` | Better Auth; see *Auth* below |
 | GET | `/api/households/:householdId/records?since=N` | Member only; see *Authorisation* below |
+| GET/PUT | `/api/identity/vault` | Own identity vault; see *Identity vault* below |
 | GET | `/api/household/keys` | Wrapped-key blobs for the current member |
 | POST | `/api/household/invite` | Store a wrapped HDK blob for an invitee |
 | POST | `/api/sync/pull` | `{ sinceVersion }` → `{ records[], serverVersion }` |
@@ -44,6 +45,21 @@ Better Auth under `/api/auth`, paths as Better Auth 1.7 defines them. Session co
 
 Not available: `/sign-up/email` or any password or social route. Invites are created by
 `pnpm auth:invite <email>` (owner bootstrap); the in-app invite endpoint arrives with #38.
+
+## Identity vault (ADR-0022)
+
+Session required (`401`); always the caller's own vault. Body is the vault wire form:
+
+```json
+{ "v": 1, "publicKey": "<b64url 65 B>", "byPassphrase": "<b64url>", "byRecovery": "<b64url>",
+  "kdf": { "alg": "argon2id", "memoryKiB": 65536, "iterations": 3, "parallelism": 1, "salt": "<b64url>" } }
+```
+
+- `GET` → `200` vault (`cache-control: no-store`), or `404` before the first upload.
+- `PUT` (`content-type: application/json`, ≤ 4 KiB) → `204`. `400` wrong shape or KDF
+  params outside memory 19 MiB–1 GiB, iterations 2–10, parallelism 1–4, salt 16–64 B;
+  `409` if `publicKey` differs from the stored one (immutable); `413`; `415`.
+- Clients decode every fetched vault with the same bounds before running Argon2id.
 
 ## Authorisation (ADR-0021)
 

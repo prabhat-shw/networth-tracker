@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 7, #37 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 7, #38 in review) · next session: start here_
 
 ## Where we are
 
@@ -16,18 +16,21 @@ _Last updated: 2026-09-27 (session 7, #37 in review) · next session: start here
   `src/server/auth.ts` (`createAuth` + lazy `getAuth`), `invites.ts`, `pnpm auth:invite`,
   `/api/auth/[...all]`, migration `0002_auth`. Staging has SMTP vars set.
 - **#40 fix** merged (PR #41): auth ids default to `gen_random_uuid()` (`0003_auth_id_defaults`).
-- **#37 authorisation** on `feat/authorisation-guard`, PR open ([ADR-0021](decisions/0021-household-authorisation.md)):
-  `src/server/guard.ts` (`guardHousehold`: 401 no session, identical 404 for non-member /
-  missing / malformed id), `src/server/records.ts` + `GET /api/households/:id/records?since=`,
-  migration `0004_member_user_fk`, `records.pg.test.ts` (real Better Auth sessions on
-  PGlite; A cannot read B). Shared `migratedDb()` in `src/server/db/test-db.ts`.
-  `engines.node` pinned to `24.x` (owner request).
+- **#37 authorisation** merged (PR #42, [ADR-0021](decisions/0021-household-authorisation.md)):
+  `guardHousehold` (401 / identical 404), `GET /api/households/:id/records`, member_id→user FK
+  (`0004`, applied on Neon). `migratedDb()` in `src/server/db/test-db.ts`. Node pinned `24.x`.
+- #38 split: **#38 vault relay** (this PR), **#43 member relay + in-app invite**.
+- **#38 vault relay** on `feat/identity-vault-relay`, PR open ([ADR-0022](decisions/0022-identity-vault-relay.md)):
+  `src/crypto/wire.ts` (base64url codec, `decodeVault` with `KDF_BOUNDS`), table
+  `identity_vaults` (`0005`), `src/server/vault.ts` + `GET/PUT /api/identity/vault`
+  (public key immutable → 409), `vault.pg.test.ts`.
 
-Green on the branch: `pnpm test` (64) · `typecheck` · `check`.
+Green on the branch: `pnpm test` (93) · `typecheck` · `check`.
 
 ## Next session picks up
 
-**Issue #38: key relay** (after #37 merges; member rows need an existing user — FK). Then #7
+**Issue #43: member relay + in-app invite** (after #38 merges): create household with own
+wrap, invite → invitee's vault public key → wrapped-HDK row, second member decrypts. Then #7
 (lock UX; blocked on owner review of `docs/UX.md`).
 
 ## Also open
@@ -52,7 +55,8 @@ Green on the branch: `pnpm test` (64) · `typecheck` · `check`.
 - For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`,
   `SMTP_HOST`, `SMTP_FROM` (dummies are fine)
   and use `docker compose -p nwt-e2e …` then `down -v`, so the real volume is never touched.
-- **Before merging #37:** run `pnpm db:migrate` on Neon for `0004_member_user_fk`, then Redeploy.
+- **Before merging #38:** run `pnpm db:migrate` on Neon for `0005_identity_vaults`, then Redeploy.
+  The "…already exists, skipping" lines it prints are harmless Postgres NOTICEs.
 - New household-scoped routes: call `guardHousehold` first; never answer 403 (ADR-0021).
 - Server tests that touch SQL: use PGlite with the real migrations (`migratedDb()` from `db/test-db.ts`), not
   the Better Auth memory adapter, which hides schema bugs.
@@ -69,5 +73,5 @@ Green on the branch: `pnpm test` (64) · `typecheck` · `check`.
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 38
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 43
 ```

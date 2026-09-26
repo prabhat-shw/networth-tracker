@@ -31,6 +31,8 @@ what type, with which institutions).
   ([ADR-0013](decisions/0013-crypto-primitives-and-envelope.md))
 - Identity vault tests: the private key is absent from the stored vault, and create /
   change / restore make no `fetch` or IndexedDB call ([ADR-0018](decisions/0018-identity-vault-and-recovery-code.md))
+- Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
+  only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
 ## Explicitly accepted risks
