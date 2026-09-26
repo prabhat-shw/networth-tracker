@@ -33,6 +33,11 @@ Green on the branch: `pnpm test` (93) · `typecheck` · `check`.
 wrap, invite → invitee's vault public key → wrapped-HDK row, second member decrypts. Then #7
 (lock UX; blocked on owner review of `docs/UX.md`).
 
+**Parallel tracks (owner, 2026-09-27):** #43 (server), #7 (unlock UI) and #45 (sign-in +
+first-run UI; needs a new UX.md §3.0 first) can run at once, each in its own worktree/session
+(`git worktree add ../nwt-<name> <branch>`). #46 is the M1 E2E gate after all three.
+Frontend builds against the CONTRACT.md shapes with a fake API until the server side merges.
+
 ## Also open
 
 - Insights + projections UX (PR #17) merged: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)),
