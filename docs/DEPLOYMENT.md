@@ -85,8 +85,8 @@ New migrations apply automatically on the way up. Data lives in the `db-data` vo
 
 ## Staging: Vercel + Neon
 
-Live at <https://networth-tracker-pxac.vercel.app> (Vercel project `networth-tracker-pxac`,
-Neon database in Singapore).
+Live at <https://networth-staging.vercel.app> (Vercel project `networth-tracker-pxac`,
+Neon database in Singapore). The first import created a duplicate project; see S1 step 4.
 
 One-time setup by the owner, in the browser. About 20 minutes. Do the steps in order; each
 ends with a check.
@@ -100,13 +100,16 @@ ends with a check.
    2. Under **Repository access**, choose **Only select repositories**.
    3. Pick `networth-tracker` and click **Save**. GitHub returns you to Vercel.
    4. Click **Import** next to the repo.
+4. **Import once.** If the first deploy fails, fix it and use **Deployments → ⋯ → Redeploy**.
+   Going back to `/new` and importing again creates a second project that also builds every
+   push and PR (this happened once; the duplicate had to be deleted).
 
 **Check:** you are on the **New Project / Configure Project** screen.
 
 ### S2. Configure the project (before the first Deploy)
 
 1. **Project Name:** anything (Vercel may suggest one with a suffix, e.g. `networth-tracker-pxac`).
-   The name becomes the URL: `https://<project-name>.vercel.app`.
+   It becomes the default URL `https://<project-name>.vercel.app`; a cleaner one is set in S5.
 2. **Framework Preset:** Next.js (auto-detected). **Root Directory:** `./`.
 3. **Build and Output Settings:** leave every field on its default.
 4. Expand **Environment Variables**. Vercel **pre-fills rows from `.env.example`**: placeholders
@@ -210,9 +213,16 @@ In Neon, **Tables** (left sidebar) shows `records` with 6 columns: `id`, `househ
 - `unrecognized configuration parameter "channel_binding"` → step 6 was skipped.
 - `ENOTFOUND` / timeout → the string is incomplete; copy it again.
 
-### S5. Set the final APP_ORIGIN and redeploy
+### S5. Choose the domain, set APP_ORIGIN and redeploy
 
-1. **Settings → Domains**: note the production domain, e.g. `networth-tracker-pxac.vercel.app`.
+1. **Settings → Domains → Add Domain** → `networth-staging.vercel.app` (ours) → **Add**.
+   - `.vercel.app` names are unique across **all** Vercel accounts. *"Cannot add … since it's
+     already assigned to another project"* means someone else owns it (`networth-tracker.vercel.app`
+     is taken). Pick another name.
+   - Check a name first: `curl -sI https://<name>.vercel.app | grep -i x-vercel-error`. Output
+     `DEPLOYMENT_NOT_FOUND` means nobody serves it (likely free); a page means it is taken.
+   - Asked what to do with the old suffixed domain: **Redirect** (308) is safest; removing it
+     is also fine, since nothing depends on it.
 2. **Settings → Environment Variables** → `APP_ORIGIN` → **⋯ → Edit** → set
    `https://<that domain>` (no trailing slash) → **Save**.
 3. **Deployments** → the top (latest) deployment → **⋯** → **Redeploy** → confirm.
