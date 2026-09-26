@@ -17,3 +17,4 @@ One line per session: date · issue · outcome.
 - 2026-09-26 · issue #14 · six borrowed features filed as #25-#32 (ADR-0016), AGPL-3.0-only licence (ADR-0015)
 - 2026-09-26 · issue #4 · identity vault: passphrase + 24-word recovery wraps, passphrase change, restore, rotation (ADR-0018)
 - 2026-09-26 · issue #5 · household HDK: static-static ECDH wraps, key fingerprints, households/members tables + records FK (ADR-0019)
+- 2026-09-26 · issue #6 · split into #6/#37/#38; auth core: Better Auth, passkeys + SMTP OTP, invite-only, rate limits (ADR-0020)

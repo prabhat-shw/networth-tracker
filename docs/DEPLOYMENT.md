@@ -39,6 +39,7 @@ time; if one is missing, look for the nearest equivalent and fix this file in yo
 | `APP_ORIGIN` | `https://<machine>.<tailnet>.ts.net`, from `tailscale status` or the Tailscale admin console |
 | `BIND_ADDR` | The machine's Tailscale IP, from `tailscale ip -4` (e.g. `100.x.y.z`). **Never `0.0.0.0`** |
 | `DEMO_MODE` | `false` |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Mail server for sign-in codes (ADR-0020). Gmail: `smtp.gmail.com`, `465`, your address, an [app password](https://myaccount.google.com/apppasswords) |
 
 Random value, PowerShell:
 `[Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))`
@@ -70,6 +71,13 @@ curl -k https://<tailnet-host>/api/health
 
 Expected: `{"status":"ok","app":"ok","db":"ok"}` with HTTP 200. A `503` with `"db":"down"`
 means the app cannot reach Postgres: check `docker compose logs db`.
+
+**First owner (once):** registration is invite-only (ADR-0020). Invite yourself, then sign
+in with an emailed code and add a passkey:
+
+```bash
+docker compose run --rm migrate pnpm auth:invite you@example.com
+```
 
 ### H4. Upgrade
 
@@ -126,6 +134,8 @@ ends with a check.
 | `ENABLE_EXPERIMENTAL_COREPACK` | `1` | Vercel does not know pnpm 11 and falls back to pnpm 9, which cannot read `pnpm-workspace.yaml`. Corepack uses `packageManager` from `package.json` |
 | `BETTER_AUTH_SECRET` | a fresh random value | Staging-only. **Never** the home value; never `change-me` |
 | `APP_ORIGIN` | `https://<project-name>.vercel.app` | Corrected in S5 if the final URL differs |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | a test mailbox | Sign-in codes. Optional: without them no code is sent |
+| `SMTP_DEMO_TO` | your test inbox | Every staging code goes here, whoever it is for |
 
    Generate the secret in PowerShell and paste it straight into the field (not into chat or a file):
    `[Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))`

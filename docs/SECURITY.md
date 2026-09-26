@@ -38,6 +38,8 @@ what type, with which institutions).
 - Lose passphrase + recovery kit + spouse's copy ⇒ data unrecoverable (disclosed in-app).
 - Third-party price feeds are unofficial and may break or be poisoned; every price has a
   manual override and a staleness indicator.
+- Auth tables (ADR-0020) hold account data in the clear: email, display name, session IP
+  and user agent, passkey public keys. Needed to decide who may sync; none of it is financial.
 - Traffic *volume* (roughly how many records exist) is visible to the host. Accepted.
 
 ## Reporting
