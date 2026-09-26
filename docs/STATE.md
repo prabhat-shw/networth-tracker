@@ -8,7 +8,7 @@ _Last updated: 2026-09-25 (end of session 2, M0 closed) · next session: start h
 
 - #1 Drizzle + Postgres, `/api/health`, migrate service (PR #18, ADR-0011).
 - #2 staging: DEMO_MODE build guard + banner (PR #19), Vercel standalone fix (PR #20),
-  live at https://networth-tracker-pxac.vercel.app with Neon (Singapore). Verified: `/api/health` 200
+  live at https://networth-staging.vercel.app with Neon (Singapore). Verified: `/api/health` 200
   `db:"ok"`, and the demo banner renders. `docs/DEPLOYMENT.md` has the exact dashboard steps.
 
 ## Next session picks up
