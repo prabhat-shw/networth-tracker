@@ -1,31 +1,28 @@
 # State — read me first
 
-_Last updated: 2026-09-26 (session 3, #14 closed) · next session: start here_
+_Last updated: 2026-09-26 (session 4, #4 in review) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M1 — Identity & crypto core. M0 complete (PRs #18-#22).
 
-Session 3 shipped issue #3 (crypto primitives), PR #24, merged with the owner's approval:
+- #3 crypto primitives merged (PR #24): `kdf.ts`, `aead.ts`, `keys.ts`, KATs,
+  [ADR-0013](decisions/0013-crypto-primitives-and-envelope.md).
+- **#4 identity vault** on branch `feat/identity-vault`, PR open, **awaits owner approval**
+  (`area:crypto`). [ADR-0018](decisions/0018-identity-vault-and-recovery-code.md):
+  - `src/crypto/vault.ts`: `createIdentity`, `unlockWithPassphrase`, `changePassphrase`,
+    `restoreWithRecoveryCode`, `rotateRecoveryCode`; vault = `{v, publicKey, kdf,
+    byPassphrase, byRecovery}` (GCM `wrapKey` pkcs8, AAD binds slot + public key)
+  - `src/crypto/recovery.ts`: 24 BIP-39 words (`@scure/bip39`, MIT) → HKDF → AES-GCM key
+  - `aead.ts` gained `encodeEnvelope`; `keys.ts` exports `P256`
 
-- `src/crypto/kdf.ts`: `deriveUnlockKey` (Argon2id via `hash-wasm`, m=64 MiB t=3 p=1,
-  params returned with the key), `newKdfParams`, `argon2idBytes` (KAT only)
-- `src/crypto/aead.ts`: `seal`/`open` (AES-256-GCM, v1 envelope with key id),
-  `recordAad`, `DecryptError`
-- `src/crypto/keys.ts`: P-256 identity keypair, public-key export/import, ECDH, HKDF,
-  `deriveWrappingKey` (ECDH→HKDF→AES-KW), `generateDataKey`, `wrapDataKey`/`unwrapDataKey`
-- Vectors in `src/crypto/__vectors__/kat.json` (PHC, Wycheproof, RFC 5869/3394/5903)
-- Decisions: [ADR-0013](decisions/0013-crypto-primitives-and-envelope.md) (envelope bytes,
-  AAD rules, GCM unlock key, NFKC passphrase)
-
-Staging: **https://networth-staging.vercel.app** (Vercel project `networth-tracker-pxac`,
-Neon in Singapore). Green on the branch: `pnpm test` (34) · `typecheck` · `check`.
+Green on the branch: `pnpm test` (42) · `typecheck` · `check`.
 
 ## Next session picks up
 
-**Issue #4: identity vault** (keypair wrapped under the unlock key,
-passphrase change, 24-word recovery kit; `size:M`, `area:crypto`). Brief: `docs/phases/M1.md`.
-Then #5 (household + HDK; fixes HKDF salt/info strings), #6 (auth), #7 (lock UX).
+**Issue #5: household + HDK** once #4 is merged (create, wrap to self, invite/accept;
+fix HKDF salt/info strings; add `records`→households FK). Brief: `docs/phases/M1.md`. Then #6
+(auth; also owns the vault's JSON/wire encoding + bounding stored KDF params), #7 (lock UX).
 
 ## Also open
 
@@ -62,5 +59,5 @@ Then #5 (household + HDK; fixes HKDF salt/info strings), #6 (auth), #7 (lock UX)
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 4
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue view 5
 ```

@@ -43,8 +43,8 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | --- | --- |
 | Version | `0.1.0` |
 | Milestone | M1 — Identity & crypto core. M0 complete (PRs #18-#22). |
-| Next up | Issue #4: identity vault |
-| Decisions recorded | 17 ADRs |
+| Next up | Issue #5: household + HDK |
+| Decisions recorded | 18 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.

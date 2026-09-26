@@ -7,7 +7,7 @@
 import { type Bytes, randomBytes } from "./kdf";
 
 const FORMAT_V1 = 0x01;
-const IV_BYTES = 12;
+export const IV_BYTES = 12;
 const TAG_BYTES = 16;
 const MAX_KID_BYTES = 255;
 
@@ -32,8 +32,6 @@ export async function seal(
   aad: Bytes,
   kid: string,
 ): Promise<Bytes> {
-  const kidBytes = new TextEncoder().encode(kid);
-  if (kidBytes.length > MAX_KID_BYTES) throw new Error("kid too long");
   const iv = randomBytes(IV_BYTES);
   const ct = new Uint8Array(
     await crypto.subtle.encrypt(
@@ -42,6 +40,14 @@ export async function seal(
       plaintext,
     ),
   );
+  return encodeEnvelope(kid, iv, ct);
+}
+
+/** Frames an AES-GCM output (from `seal` or a GCM `wrapKey`) as a v1 envelope. */
+export function encodeEnvelope(kid: string, iv: Bytes, ct: Bytes): Bytes {
+  const kidBytes = new TextEncoder().encode(kid);
+  if (kidBytes.length > MAX_KID_BYTES) throw new Error("kid too long");
+  if (iv.length !== IV_BYTES) throw new Error("invalid iv");
   const out = new Uint8Array(2 + kidBytes.length + IV_BYTES + ct.length);
   out[0] = FORMAT_V1;
   out[1] = kidBytes.length;
