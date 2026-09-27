@@ -8,6 +8,8 @@ import {
 } from "react";
 import type { IdentityVault } from "@/crypto/vault";
 import { decodeVault } from "@/crypto/wire";
+import type { HouseholdApi } from "@/features/household/household-client";
+import { HouseholdGate } from "@/features/household/household-gate";
 import { type KeySession, keySession } from "@/features/lock/key-session";
 import { UnlockScreen, useAutoLock } from "@/features/lock/unlock-screen";
 import { FirstRun, type FirstRunApi } from "@/features/onboarding/first-run";
@@ -35,8 +37,8 @@ type VaultState =
 
 /**
  * The app decides where a person goes (UX.md §3.0, ADR-0025): signed out → sign-in; no
- * vault → first run (#53); vault → unlock (§3.1); unlocked → the app, or a wait for the
- * invite to be completed (#52). Re-locking returns here, to the unlock screen, without
+ * vault → first run (#53); vault → unlock (§3.1); unlocked → the household gate (#63),
+ * which loads the household key or shows the waiting / confirm screens, then the app. Re-locking returns here, to the unlock screen, without
  * signing out.
  */
 export function AppGateView({
@@ -44,12 +46,14 @@ export function AppGateView({
   loadVault = fetchVault,
   keys = keySession,
   firstRunApi,
+  householdApi,
   children,
 }: {
   session: GateSession;
   loadVault?: () => Promise<IdentityVault | null>;
   keys?: KeySession;
   firstRunApi?: FirstRunApi;
+  householdApi?: HouseholdApi;
   children: ReactNode;
 }) {
   const { status } = useSyncExternalStore(
@@ -59,7 +63,6 @@ export function AppGateView({
   );
   const [vault, setVault] = useState<VaultState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
-  const [waitingToJoin, setWaitingToJoin] = useState(false);
   useAutoLock(keys);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` re-runs the load on "Try again".
@@ -98,10 +101,7 @@ export function AppGateView({
         email={session.email}
         api={firstRunApi}
         keys={keys}
-        onDone={(done) => {
-          setVault({ status: "ready", vault: done.vault });
-          setWaitingToJoin(done.waitingToJoin);
-        }}
+        onDone={(done) => setVault({ status: "ready", vault: done.vault })}
       />
     );
   if (status !== "unlocked")
@@ -113,14 +113,12 @@ export function AppGateView({
         onVaultChanged={(next) => setVault({ status: "ready", vault: next })}
       />
     );
-  if (waitingToJoin)
-    return (
-      <Centered>
-        You're set up. The person who invited you now needs to add you to their
-        household.
-      </Centered>
-    );
-  return children;
+  // Household key: loaded after every unlock, or the waiting / confirm screens (#63).
+  return (
+    <HouseholdGate keys={keys} api={householdApi}>
+      {children}
+    </HouseholdGate>
+  );
 }
 
 function Centered({ children }: { children: ReactNode }) {

@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 14, #52 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 15, #63 in review) · next session: start here_
 
 ## Where we are
 
@@ -13,15 +13,16 @@ _Last updated: 2026-09-27 (session 14, #52 in review) · next session: start her
   (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0006`.
 - **#54 restore** merged (PR #60); **#58 test speed** merged (PR #62, [ADR-0028](decisions/0028-fast-kdf-in-tests.md):
   tests use the Argon2id bounds floor except `crypto.test.ts`). Vitest config is `vitest.config.mts`.
-- **#52 join API** on `feat/join-api`, PR open, **needs owner approval** (area:security;
-  [ADR-0029](decisions/0029-ending-an-invite.md)): `GET /api/households` lists invites with
-  the inviter's name; cancel (`DELETE …/invites`) and decline (`DELETE …/invite`, always 204).
-  #52 was split: **#63** invitee + household key after unlock, **#64** inviter Household panel.
+- **#52 join API** merged (PR #65, [ADR-0029](decisions/0029-ending-an-invite.md)): invites with
+  the inviter's name in `GET /api/households`; cancel and decline endpoints.
+- **#63 household gate** on `feat/invitee-join`, PR open ([ADR-0030](decisions/0030-household-key-after-unlock.md)):
+  `src/features/household/`. Unwraps the household key after every unlock; waiting-to-join and
+  confirm-the-sender screens; confirmed senders in `localStorage` per device.
 
 ## Next session picks up
 
-Next: **#63** (invitee waiting screen + unwrap the household key after every unlock), then
-**#64** (inviter panel: invite, code check, add). **#48** any time. **#46** = M1 E2E gate, last. Green: `pnpm test` (137) ·
+Next: **#64** (inviter Household panel: invite, code check, add). Follow-ups from ADR-0030:
+leave-household / pre-add code check, self re-wrap after confirming. **#48** any time. **#46** = M1 E2E gate, last. Green: `pnpm test` (137) ·
 typecheck · check · build.
 
 ## Also open
