@@ -25,3 +25,4 @@ One line per session: date · issue · outcome.
 - 2026-09-27 · issue #7 · key session (closure-held keys, 5-min auto-lock, pagehide lock), unlock screen; UX §3.1 owner decisions; passkey PRF split to #48 (ADR-0024)
 - 2026-09-27 · issue #50 · UX.md §3.0 draft: sign-in, first run, joining with two-way code check, tap budgets, API gaps for #45 (ADR-0025, proposed)
 - 2026-09-27 · issue #45 · split (#53 first run, #54 restore); sign-in screen (auto-submitting code, 429 countdown, passkey hint), routing gate, Vitest browser mode on installed Chrome (ADR-0026)
+- 2026-09-27 · issue #56 · GET /api/households: own memberships + invited flag (split from #53)

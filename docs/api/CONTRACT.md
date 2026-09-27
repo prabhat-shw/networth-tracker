@@ -19,7 +19,7 @@ same contract. Every endpoint here is exercised by the shared contract test suit
 | GET/POST | `/api/auth/*` | Better Auth; see *Auth* below |
 | GET | `/api/households/:householdId/records?since=N` | Member only; see *Authorisation* below |
 | GET/PUT | `/api/identity/vault` | Own identity vault; see *Identity vault* below |
-| POST | `/api/households` | Create a household with the caller's own wrapped HDK; see *Household members* |
+| GET/POST | `/api/households` | My households and whether I'm invited; create a household with my own wrap. See *Household members* |
 | GET/POST | `/api/households/:householdId/members` | Own wrap + members' public keys; relay a wrap to an invitee |
 | GET/POST | `/api/households/:householdId/invites` | List open invites; invite an email |
 | POST | `/api/sync/pull` | `{ sinceVersion }` → `{ records[], serverVersion }` |
@@ -68,6 +68,10 @@ Bytes are base64url. A wrap is the ADR-0019 blob (first byte `0x01`, 123–378 b
 bodies: `content-type: application/json` (`415`), ≤ 4 KiB (`413`), exactly the keys
 listed (`400`). Member public keys always come from the member's stored vault.
 
+- `GET /api/households` → `200 { households: [{ id, joinedAt }], invited }`, the caller's
+  own memberships only; `invited` is true when an unexpired household invite matches the
+  caller's normalised email for a household they aren't in. `401` without a session;
+  `no-store`. First run routes on it (ADR-0025).
 - `POST /api/households` `{ id: uuid, wrappedHdk }` → `201 { id }`. `401` no session;
   `409` caller has no vault, or the id is taken; `400` bad id or wrap.
 - `GET …/:householdId/members` → `200 { wrappedHdk, members: [{ userId, publicKey,
