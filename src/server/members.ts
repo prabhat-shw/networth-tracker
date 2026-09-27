@@ -27,7 +27,7 @@ const fail = (status: 409 | 413 | 415, error: string) =>
 const noStore = { "cache-control": "no-store" };
 
 /** Parses a small JSON object with exactly `keys`, or answers the error response. */
-async function readBody(
+export async function readBody(
   request: Request,
   keys: string[],
 ): Promise<Record<string, unknown> | Response> {

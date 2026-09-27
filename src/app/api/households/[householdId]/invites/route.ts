@@ -1,6 +1,7 @@
 import { getAuth } from "@/server/auth";
 import { getDb } from "@/server/db/client";
 import type { GuardDeps } from "@/server/guard";
+import { cancelInvite } from "@/server/households";
 import { inviteMember, listInvites } from "@/server/members";
 
 export const dynamic = "force-dynamic";
@@ -18,3 +19,6 @@ export const GET = async (request: Request, { params }: Ctx) =>
   listInvites(deps(), request, (await params).householdId);
 export const POST = async (request: Request, { params }: Ctx) =>
   inviteMember(deps(), request, (await params).householdId);
+/** A member cancels an invite, `{ emailHash }` in the body (#52). */
+export const DELETE = async (request: Request, { params }: Ctx) =>
+  cancelInvite(deps(), request, (await params).householdId);
