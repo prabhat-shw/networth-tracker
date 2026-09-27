@@ -19,8 +19,7 @@ _Last updated: 2026-09-27 (session 7, #38 in review) · next session: start here
 - **#37 authorisation** merged (PR #42, [ADR-0021](decisions/0021-household-authorisation.md)):
   `guardHousehold` (401 / identical 404), `GET /api/households/:id/records`, member_id→user FK
   (`0004`, applied on Neon). `migratedDb()` in `src/server/db/test-db.ts`. Node pinned `24.x`.
-- #38 split: **#38 vault relay** (this PR), **#43 member relay + in-app invite**.
-- **#38 vault relay** on `feat/identity-vault-relay`, PR open ([ADR-0022](decisions/0022-identity-vault-relay.md)):
+- **#38 vault relay** (split; member relay → #43) on `feat/identity-vault-relay`, PR open ([ADR-0022](decisions/0022-identity-vault-relay.md)):
   `src/crypto/wire.ts` (base64url codec, `decodeVault` with `KDF_BOUNDS`), table
   `identity_vaults` (`0005`), `src/server/vault.ts` + `GET/PUT /api/identity/vault`
   (public key immutable → 409), `vault.pg.test.ts`.
@@ -33,10 +32,8 @@ Green on the branch: `pnpm test` (93) · `typecheck` · `check`.
 wrap, invite → invitee's vault public key → wrapped-HDK row, second member decrypts. Then #7
 (lock UX; blocked on owner review of `docs/UX.md`).
 
-**Parallel tracks (owner, 2026-09-27):** #43 (server), #7 (unlock UI) and #45 (sign-in +
-first-run UI; needs a new UX.md §3.0 first) can run at once, each in its own worktree/session
-(`git worktree add ../nwt-<name> <branch>`). #46 is the M1 E2E gate after all three.
-Frontend builds against the CONTRACT.md shapes with a fake API until the server side merges.
+**Parallel (owner):** #43, #7, #45 (needs UX.md §3.0) run at once, one worktree/session each;
+UI uses a fake API per CONTRACT.md until the server merges. #46 = M1 E2E gate after all three.
 
 ## Also open
 
