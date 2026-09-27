@@ -21,7 +21,8 @@ same contract. Every endpoint here is exercised by the shared contract test suit
 | GET/PUT | `/api/identity/vault` | Own identity vault; see *Identity vault* below |
 | GET/POST | `/api/households` | My households and whether I'm invited; create a household with my own wrap. See *Household members* |
 | GET/POST | `/api/households/:householdId/members` | Own wrap + members' public keys; relay a wrap to an invitee |
-| GET/POST | `/api/households/:householdId/invites` | List open invites; invite an email |
+| GET/POST/DELETE | `/api/households/:householdId/invites` | List open invites; invite an email; cancel an invite |
+| DELETE | `/api/households/:householdId/invite` | The invitee declines their own invite |
 | POST | `/api/sync/pull` | `{ sinceVersion }` → `{ records[], serverVersion }` |
 | POST | `/api/sync/push` | `{ records[] }` → `{ applied[], conflicts[] }` (409 on stale version) |
 | PUT | `/api/blobs/:id` | Encrypted attachment upload (statements, receipts) |
@@ -68,10 +69,12 @@ Bytes are base64url. A wrap is the ADR-0019 blob (first byte `0x01`, 123–378 b
 bodies: `content-type: application/json` (`415`), ≤ 4 KiB (`413`), exactly the keys
 listed (`400`). Member public keys always come from the member's stored vault.
 
-- `GET /api/households` → `200 { households: [{ id, joinedAt }], invited }`, the caller's
-  own memberships only; `invited` is true when an unexpired household invite matches the
-  caller's normalised email for a household they aren't in. `401` without a session;
-  `no-store`. First run routes on it (ADR-0025).
+- `GET /api/households` → `200 { households: [{ id, joinedAt }], invited, invites:
+  [{ householdId, invitedBy }] }`, the caller's own rows only. `invites` are unexpired
+  household invites matching the caller's normalised email for households they aren't in;
+  `invitedBy` is the inviter's display name, or their email if they have none. `invited` =
+  `invites.length > 0`. `401` without a session; `no-store`. First run routes on it
+  (ADR-0025).
 - `POST /api/households` `{ id: uuid, wrappedHdk }` → `201 { id }`. `401` no session;
   `409` caller has no vault, or the id is taken; `400` bad id or wrap.
 - `GET …/:householdId/members` → `200 { wrappedHdk, members: [{ userId, publicKey,
@@ -81,6 +84,10 @@ listed (`400`). Member public keys always come from the member's stored vault.
 - `GET …/:householdId/invites` → `200 { invites: [{ emailHash, expiresAt, invitee }] }`.
   `invitee` is `{ userId, email, publicKey }` once that address has an account and a
   vault, else `null`; `no-store`. Check the key's fingerprint out of band before wrapping.
+- `DELETE …/:householdId/invites` `{ emailHash }` (32-byte SHA-256, b64url, **body only**,
+  never the URL) → `204`; a member cancels an invite. `404` no such invite; `400` bad hash.
+- `DELETE …/:householdId/invite` (no body) → always `204`: the signed-in invitee declines
+  their own invite to that household, whether or not one exists. `401` without a session.
 - `POST …/:householdId/members` `{ userId, wrappedHdk }` → `201`; consumes the invite.
   `404` no open invite of this household for that user, or they have no vault; `409`
   already a member.
