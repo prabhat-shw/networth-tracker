@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 13, #54 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 13, #58 in review) · next session: start here_
 
 ## Where we are
 
@@ -11,13 +11,15 @@ _Last updated: 2026-09-27 (session 13, #54 in review) · next session: start her
   relay (0022), member relay + invites (0023), key session + unlock (0024, `src/features/lock/`),
   onboarding spec (0025, UX.md §3.0), sign-in + gate (0026, `src/features/auth/`), first run
   (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0006`.
-- **#54 restore** on `feat/restore-kit`, PR open: `src/features/lock/restore-with-kit.tsx`
-  (typed-kit checks name the bad word), in place on the unlock screen; gate takes the new vault.
+- **#54 restore** merged (PR #60): `src/features/lock/restore-with-kit.tsx`, in place on unlock.
+- **#58 test speed** on `fix/crypto-test-speed`, PR open, **needs owner approval** (area:crypto;
+  [ADR-0028](decisions/0028-fast-kdf-in-tests.md)): `src/test/fast-kdf.ts` mocks Argon2id to the
+  bounds floor except in `crypto.test.ts`; IV test 2k seals. Vitest config is `vitest.config.mts`.
 
 ## Next session picks up
 
-Next: **#52** joining (two-way code check, the inviter-name API, cancel invite). **#48**,
-**#58** (flaky IV test) any time. **#46** = M1 E2E gate, last. Green: `pnpm test` (137) ·
+Next: **#52** joining (two-way code check, the inviter-name API, cancel invite). **#48**
+any time. **#46** = M1 E2E gate, last. Green: `pnpm test` (137) ·
 typecheck · check · build.
 
 ## Also open

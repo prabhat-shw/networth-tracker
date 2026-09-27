@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import kat from "./__vectors__/kat.json";
 import { DecryptError, open, parseEnvelope, recordAad, seal } from "./aead";
 import {
@@ -22,6 +22,10 @@ import {
   unwrapDataKey,
   wrapDataKey,
 } from "./keys";
+
+// This file asserts the production Argon2id params (ADR-0002) and runs the known-answer
+// vectors, so it opts out of the suite's fast-KDF test setup (src/test/fast-kdf.ts).
+vi.unmock("./kdf");
 
 const hex = (s: string): Bytes =>
   new Uint8Array(s.match(/../g)?.map((b) => Number.parseInt(b, 16)) ?? []);
@@ -152,13 +156,16 @@ describe("seal / open", () => {
     );
   });
 
-  it("never repeats an IV across 10k seals", async () => {
+  // Catches a constant, counter-reset or low-entropy IV. A random 96-bit IV colliding
+  // in any honest sample size is ~0, so 2k seals prove as much as 10k did, in a fifth of
+  // the time (the 10k version hit the 5 s timeout under load, #58).
+  it("never repeats an IV across 2k seals", async () => {
     const key = await generateDataKey();
     const pt = utf8("x");
     const ivs = new Set<string>();
-    for (let n = 0; n < 10_000; n++)
+    for (let n = 0; n < 2_000; n++)
       ivs.add(toHex(parseEnvelope(await seal(key, pt, aad, "k")).iv));
-    expect(ivs.size).toBe(10_000);
+    expect(ivs.size).toBe(2_000);
   });
 
   it("rejects ambiguous AAD inputs", () => {

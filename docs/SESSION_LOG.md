@@ -28,3 +28,4 @@ One line per session: date · issue · outcome.
 - 2026-09-27 · issue #56 · GET /api/households: own memberships + invited flag (split from #53)
 - 2026-09-27 · issue #53 · first run: passphrase, recovery kit (hand-written PDF, 2-word confirm), vault upload after confirm, silent household or wait-to-join, passkey offer; test projects sequenced; #58 filed (ADR-0027)
 - 2026-09-27 · issue #54 · restore with recovery kit in place on the unlock screen: word-level typo messages, other-account kit, upload retry, gate adopts the new vault
+- 2026-09-27 · issue #58 · tests use the Argon2id bounds floor except crypto.test (production params + KATs); IV test 2k seals; suite 35-38 s -> 26-33 s, no timeouts (ADR-0028). Also #61: vitest config as .mts
