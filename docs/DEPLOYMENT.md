@@ -255,8 +255,7 @@ message is deliberately the same for every address.
 1. Copy Neon's **unpooled** connection string exactly as in S4 steps 1–6.
 2. In PowerShell, one line at a time:
    ```powershell
-   cd D:\Work\claude-apps
-etworth-tracker
+   cd D:\Work\claude-apps\networth-tracker
    $env:DATABASE_URL = "postgresql://...neon.tech/neondb?sslmode=require"
    pnpm auth:invite you@example.com
    Remove-Item Env:DATABASE_URL
