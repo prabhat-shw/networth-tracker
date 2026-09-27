@@ -36,6 +36,13 @@
       "when": 1790447757068,
       "tag": "0004_member_user_fk",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790448789135,
+      "tag": "0005_identity_vaults",
+      "breakpoints": true
     }
   ]
 }

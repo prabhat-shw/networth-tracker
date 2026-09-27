@@ -177,3 +177,18 @@ export const invites = pgTable("invites", {
   expiresAt: ts("expires_at").notNull(),
   consumedAt: ts("consumed_at"),
 });
+
+/**
+ * A member's identity vault in wire form (ADR-0018, ADR-0022): public key, KDF params and
+ * the private key wrapped under passphrase and recovery code. Nothing here is readable
+ * without those secrets. `publicKey` is copied out because it may never change: every HDK
+ * wrap is bound to it, and a swapped key would redirect future wraps.
+ */
+export const identityVaults = pgTable("identity_vaults", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  publicKey: bytea("public_key").notNull(),
+  vault: text("vault").notNull(),
+  updatedAt: ts("updated_at").notNull().default(sql`now()`),
+});
