@@ -27,3 +27,4 @@ One line per session: date · issue · outcome.
 - 2026-09-27 · issue #45 · split (#53 first run, #54 restore); sign-in screen (auto-submitting code, 429 countdown, passkey hint), routing gate, Vitest browser mode on installed Chrome (ADR-0026)
 - 2026-09-27 · issue #56 · GET /api/households: own memberships + invited flag (split from #53)
 - 2026-09-27 · issue #53 · first run: passphrase, recovery kit (hand-written PDF, 2-word confirm), vault upload after confirm, silent household or wait-to-join, passkey offer; test projects sequenced; #58 filed (ADR-0027)
+- 2026-09-27 · issue #54 · restore with recovery kit in place on the unlock screen: word-level typo messages, other-account kit, upload retry, gate adopts the new vault

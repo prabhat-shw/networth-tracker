@@ -309,11 +309,14 @@ just starts over.
 **D. Returning on a new device**
 - Sign in (A) → vault fetched → §3.1 Unlock. Under the passphrase field a text link **"Use
   recovery kit instead"** expands in place: 24-word entry (paste accepted; case, spacing and
-  line breaks forgiven) → **[Restore]** → choose a new passphrase (B1) → Home. Copy after
-  restore: *"Your recovery kit still works. If you think someone else has seen it, make a new
-  one in Settings."*
-- Wrong word / checksum: *"Word 14 isn't in the recovery list"* (safe to say, ADR-0018). A
-  valid kit for someone else: *"This kit doesn't match your account."*
+  line breaks forgiven) → **[Restore]** → choose a new passphrase (B1) → **[Save and unlock]**
+  → Home. The "kit still works" copy sits on the passphrase step, not on an extra screen
+  after it (built in #54): *"Your recovery kit still works afterwards. If you think someone
+  else has seen it, make a new one in Settings."*
+- Wrong word: *"Word 14 isn't in the recovery list."* Wrong count: *"Your kit has 24 words;
+  this has 23."* Bad checksum: *"One of the words is wrong. Check them against your kit."*
+  (All safe to say, ADR-0018.) A valid kit for someone else: *"This kit doesn't match your
+  account."*
 
 **Tap budgets** (additions to principle 8; typing and biometrics don't count):
 

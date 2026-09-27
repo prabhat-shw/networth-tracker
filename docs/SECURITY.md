@@ -41,6 +41,8 @@ what type, with which institutions).
 - First run (browser tests): nothing is sent before the recovery kit is confirmed; no
   request, storage or IndexedDB holds the passphrase or recovery words
   ([ADR-0027](decisions/0027-first-run-implementation.md))
+- Restore with the kit (browser tests): only the re-wrapped vault is sent; the words and
+  new passphrase appear in no request or storage; the old passphrase stops working
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
 ## Explicitly accepted risks

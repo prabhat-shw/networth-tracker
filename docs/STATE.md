@@ -1,42 +1,24 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 12, #53 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 13, #54 in review) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M1 — Identity & crypto core. M0 complete (PRs #18-#22).
 
-- Merged: #3 primitives (ADR-0013), #4 identity vault (ADR-0018), #5 household + HDK
-  ([ADR-0019](decisions/0019-household-key-wrapping.md)).
-- **#6 auth core** merged (PR #39, [ADR-0020](decisions/0020-auth-invite-only-otp-passkeys.md)):
-  `src/server/auth.ts` (`createAuth` + lazy `getAuth`), `invites.ts`, `pnpm auth:invite`,
-  `/api/auth/[...all]`, `0002_auth` (+ `0003` uuid defaults, #40). Staging has SMTP vars set.
-- **#37 authorisation** merged (PR #42, [ADR-0021](decisions/0021-household-authorisation.md)):
-  `guardHousehold` (401 / identical 404), `GET /api/households/:id/records`, member_id→user FK
-  (`0004`, applied on Neon). `migratedDb()` in `src/server/db/test-db.ts`. Node pinned `24.x`.
-- **#38 vault relay** merged (PR #44, [ADR-0022](decisions/0022-identity-vault-relay.md)):
-  `src/crypto/wire.ts` (codec + `KDF_BOUNDS`), `identity_vaults` (`0005`), `GET/PUT /api/identity/vault`.
-- **#43 member relay** merged (PR #47, [ADR-0023](decisions/0023-household-member-relay.md)):
-  `src/server/members.ts`, `household_invites` (`0006`, applied on Neon), `POST /api/households`,
-  `…/:id/members`, `…/:id/invites`. Public keys always come from the vault.
-- **#7 lock/unlock** merged (PR #49, [ADR-0024](decisions/0024-lock-unlock-session.md)):
-  `src/features/lock/key-session.ts` (keys only in a closure, 5-min auto-lock, `pagehide`
-  lock) and `unlock-screen.tsx`. UX.md §3.1 approved; passkey unlock split to **#48**.
-- **#50 UX.md §3.0** (sign-in, first run, joining with a code check) approved and merged
-  (PR #51, [ADR-0025](decisions/0025-onboarding-flow.md)). #45 unblocked and split (see below).
-
-- **#45 sign-in + routing gate** merged (PR #55, [ADR-0026](decisions/0026-component-tests-browser-mode.md)):
-  `src/features/auth/` (auth client, `SignIn`, `AppGate` wrapping `/`). Component tests now
-  run in Vitest browser mode on the **installed Chrome**. #45 was split: #53 first run, #54 restore.
-- **#56** `GET /api/households` (my households + `invited`), split from #53: `src/server/households.ts`, merged (PR #57).
-- **#53 first run** on `feat/first-run`, PR #59 ([ADR-0027](decisions/0027-first-run-implementation.md)):
-  `src/features/onboarding/` (passphrase, kit + hand-written PDF, passkey offer), `KeySession.start`.
+- **Merged in M1** (details in the ADRs): crypto primitives (0013), identity vault (0018),
+  household key (0019), auth (0020, `src/server/auth.ts`), membership guard (0021), vault
+  relay (0022), member relay + invites (0023), key session + unlock (0024, `src/features/lock/`),
+  onboarding spec (0025, UX.md §3.0), sign-in + gate (0026, `src/features/auth/`), first run
+  (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0006`.
+- **#54 restore** on `feat/restore-kit`, PR open: `src/features/lock/restore-with-kit.tsx`
+  (typed-kit checks name the bad word), in place on the unlock screen; gate takes the new vault.
 
 ## Next session picks up
 
-Next: **#54**
-restore from the unlock screen, **#52** joining. **#48**, **#58** (flaky IV test) any time.
-**#46** = M1 E2E gate, last. Green: `pnpm test` (131) · typecheck · check · build.
+Next: **#52** joining (two-way code check, the inviter-name API, cancel invite). **#48**,
+**#58** (flaky IV test) any time. **#46** = M1 E2E gate, last. Green: `pnpm test` (137) ·
+typecheck · check · build.
 
 ## Also open
 
