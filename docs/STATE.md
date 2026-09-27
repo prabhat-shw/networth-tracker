@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 12, #56 + #53 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 12, #53 in review) · next session: start here_
 
 ## Where we are
 
@@ -28,13 +28,13 @@ _Last updated: 2026-09-27 (session 12, #56 + #53 in review) · next session: sta
 - **#45 sign-in + routing gate** merged (PR #55, [ADR-0026](decisions/0026-component-tests-browser-mode.md)):
   `src/features/auth/` (auth client, `SignIn`, `AppGate` wrapping `/`). Component tests now
   run in Vitest browser mode on the **installed Chrome**. #45 was split: #53 first run, #54 restore.
-- **#56** `GET /api/households` (my households + `invited`), split from #53: `src/server/households.ts`, PR #57.
-- **#53 first run** on `feat/first-run` (stacked on #57; [ADR-0027](decisions/0027-first-run-implementation.md)):
+- **#56** `GET /api/households` (my households + `invited`), split from #53: `src/server/households.ts`, merged (PR #57).
+- **#53 first run** on `feat/first-run`, PR #59 ([ADR-0027](decisions/0027-first-run-implementation.md)):
   `src/features/onboarding/` (passphrase, kit + hand-written PDF, passkey offer), `KeySession.start`.
 
 ## Next session picks up
 
-Merge #57 then #53 (rebase `feat/first-run` onto `main` after the squash). Next: **#54**
+Next: **#54**
 restore from the unlock screen, **#52** joining. **#48**, **#58** (flaky IV test) any time.
 **#46** = M1 E2E gate, last. Green: `pnpm test` (131) · typecheck · check · build.
 
