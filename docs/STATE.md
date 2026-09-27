@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 15, #63 in review) · next session: start here_
+_Last updated: 2026-09-28 (session 16, #64 in review) · next session: start here_
 
 ## Where we are
 
@@ -15,14 +15,17 @@ _Last updated: 2026-09-27 (session 15, #63 in review) · next session: start her
   tests use the Argon2id bounds floor except `crypto.test.ts`). Vitest config is `vitest.config.mts`.
 - **#52 join API** merged (PR #65, [ADR-0029](decisions/0029-ending-an-invite.md)): invites with
   the inviter's name in `GET /api/households`; cancel and decline endpoints.
-- **#63 household gate** on `feat/invitee-join`, PR open ([ADR-0030](decisions/0030-household-key-after-unlock.md)):
-  `src/features/household/`. Unwraps the household key after every unlock; waiting-to-join and
-  confirm-the-sender screens; confirmed senders in `localStorage` per device.
+- **#63 household gate** merged (PR #66, [ADR-0030](decisions/0030-household-key-after-unlock.md)):
+  `src/features/household/`. Household key unwrapped after every unlock; waiting and confirm screens.
+- **#64 Household panel** on `feat/household-panel`, PR open ([ADR-0031](decisions/0031-inviter-household-panel.md)):
+  `household-panel.tsx` + `panel-client.ts`, on the unlocked page. Invite, pending/ready rows, and
+  the inviter's code check (match → wrap + `POST …/members`; mismatch → cancel, nothing wrapped).
 
 ## Next session picks up
 
-Next: **#64** (inviter Household panel: invite, code check, add). Follow-ups from ADR-0030:
-leave-household / pre-add code check, self re-wrap after confirming. **#48** any time. **#46** = M1 E2E gate, last. Green: `pnpm test` (137) ·
+Next: **#48** (passkey PRF fast unlock), then **#46** = M1 E2E gate, last (two members, invite via
+the panel, decrypt, recovery). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
+after confirming; ADR-0031 member names in the members API. Green: `pnpm test` (152) ·
 typecheck · check · build.
 
 ## Also open
