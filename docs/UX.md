@@ -252,8 +252,8 @@ Visual detail (colour, spacing, exact type) is in §7; see it rendered with real
 ### 3.0 Sign-in, first run & joining a household
 
 **Purpose:** get a person from an email address to an unlocked app, once, without making
-security feel like paperwork, and without the server ever seeing a secret. Proposed for owner
-review (#50, [ADR-0025](decisions/0025-onboarding-flow.md)); builds #45. Screens share the §3.1 shell (centred column, the permanent
+security feel like paperwork, and without the server ever seeing a secret. Approved by the owner
+2026-09-27 (#50, [ADR-0025](decisions/0025-onboarding-flow.md)); iterate as it is built; builds #45. Screens share the §3.1 shell (centred column, the permanent
 "Encrypted on this device" line).
 
 **Routing after sign-in** — never a menu, the app decides:

@@ -1,6 +1,6 @@
 # ADR-0025 — Onboarding: sign-in, first run, joining with a code check
 
-**Status:** Proposed (owner review on #50) · 2026-09-27 · spec in [UX.md §3.0](../UX.md) · builds on [ADR-0017](0017-tap-budgets.md), [ADR-0018](0018-identity-vault-and-recovery-code.md), [ADR-0020](0020-auth-invite-only-otp-passkeys.md), [ADR-0023](0023-household-member-relay.md)
+**Status:** Accepted · 2026-09-27 (owner, #50; iterate as #45 is built) · spec in [UX.md §3.0](../UX.md) · builds on [ADR-0017](0017-tap-budgets.md), [ADR-0018](0018-identity-vault-and-recovery-code.md), [ADR-0020](0020-auth-invite-only-otp-passkeys.md), [ADR-0023](0023-household-member-relay.md)
 
 ## Context
 
@@ -8,7 +8,7 @@
 This is the one flow where the product's security depends on the user doing something
 right: saving a recovery kit and checking a key fingerprint with another person.
 
-## Decision (proposed)
+## Decision
 
 - **The app routes, the user doesn't choose.** After sign-in: a vault exists → Unlock;
   none → first run. After first run: an open household invite → *Waiting to join*;

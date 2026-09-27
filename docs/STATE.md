@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 10, #50 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 10, #50 merged) · next session: start here_
 
 ## Where we are
 
@@ -25,14 +25,14 @@ _Last updated: 2026-09-27 (session 10, #50 in review) · next session: start her
   `src/features/lock/key-session.ts` (keys only in a closure, 5-min auto-lock, `pagehide`
   lock) and `unlock-screen.tsx`. UX.md §3.1 approved; passkey unlock split to **#48**.
 
-- **#50 UX.md §3.0** (sign-in, first run, joining with a code check) on `docs/ux-onboarding`,
-  PR open, **awaiting owner review**; [ADR-0025](decisions/0025-onboarding-flow.md) is *Proposed*.
+- **#50 UX.md §3.0** (sign-in, first run, joining with a code check) approved and merged
+  (PR #51, [ADR-0025](decisions/0025-onboarding-flow.md)). #45 unblocked and split (see below).
 
 ## Next session picks up
 
-After §3.0 is approved: mark ADR-0025 Accepted, drop `blocked` from **#45** and split it
-(sign-in + first run; joining + the 3 API gaps in §3.0). **#48** passkey unlock can run in
-parallel. **#46** = M1 E2E gate, last.
+**#45** sign-in + first run (UX.md §3.0 A, B, D; mounts `UnlockScreen`), then **#52**
+joining a household (§3.0 C + the 3 API gaps). **#48** passkey unlock can run in parallel.
+**#46** = M1 E2E gate, last.
 
 ## Also open
 
