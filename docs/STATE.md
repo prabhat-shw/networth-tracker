@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-28 (session 16, #64 in review) · next session: start here_
+_Last updated: 2026-09-28 (session 16, #64 merged, #69 in review) · next session: start here_
 
 ## Where we are
 
@@ -17,13 +17,15 @@ _Last updated: 2026-09-28 (session 16, #64 in review) · next session: start her
   the inviter's name in `GET /api/households`; cancel and decline endpoints.
 - **#63 household gate** merged (PR #66, [ADR-0030](decisions/0030-household-key-after-unlock.md)):
   `src/features/household/`. Household key unwrapped after every unlock; waiting and confirm screens.
-- **#64 Household panel** on `feat/household-panel`, PR open ([ADR-0031](decisions/0031-inviter-household-panel.md)):
+- **#64 Household panel** merged (PR #68, [ADR-0031](decisions/0031-inviter-household-panel.md)):
   `household-panel.tsx` + `panel-client.ts`, on the unlocked page. Invite, pending/ready rows, and
   the inviter's code check (match → wrap + `POST …/members`; mismatch → cancel, nothing wrapped).
+- **#69 docs enforcement** on `chore/docs-enforcement`, PR #70 ([ADR-0032](decisions/0032-changelog-and-docs-impact.md)):
+  CI fails `src/` changes without `CHANGELOG.md` (label `no-changelog` opts out); `/handoff` docs-impact pass.
 
 ## Next session picks up
 
-Next: **#48** (passkey PRF fast unlock), then **#46** = M1 E2E gate, last (two members, invite via
+Next: **#71** (flaky first-run test: repeated recovery word, `size:S`), then **#48** (passkey PRF fast unlock), then **#46** = M1 E2E gate, last (two members, invite via
 the panel, decrypt, recovery). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API. Green: `pnpm test` (152) ·
 typecheck · check · build.
