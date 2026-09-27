@@ -23,7 +23,8 @@ export type Guarded =
   | { ok: true; userId: string }
   | { ok: false; response: Response };
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const deny = (status: 400 | 401 | 404) =>
   Response.json(

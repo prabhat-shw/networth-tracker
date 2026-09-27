@@ -33,6 +33,9 @@ what type, with which institutions).
   change / restore make no `fetch` or IndexedDB call ([ADR-0018](decisions/0018-identity-vault-and-recovery-code.md))
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
+- Member relay: a wrap goes only to an invitee of that household who has a vault, under
+  that vault's public key. The invitee decrypts the creator's record in a PGlite test
+  ([ADR-0023](decisions/0023-household-member-relay.md))
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
 ## Explicitly accepted risks

@@ -19,8 +19,9 @@ same contract. Every endpoint here is exercised by the shared contract test suit
 | GET/POST | `/api/auth/*` | Better Auth; see *Auth* below |
 | GET | `/api/households/:householdId/records?since=N` | Member only; see *Authorisation* below |
 | GET/PUT | `/api/identity/vault` | Own identity vault; see *Identity vault* below |
-| GET | `/api/household/keys` | Wrapped-key blobs for the current member |
-| POST | `/api/household/invite` | Store a wrapped HDK blob for an invitee |
+| POST | `/api/households` | Create a household with the caller's own wrapped HDK; see *Household members* |
+| GET/POST | `/api/households/:householdId/members` | Own wrap + members' public keys; relay a wrap to an invitee |
+| GET/POST | `/api/households/:householdId/invites` | List open invites; invite an email |
 | POST | `/api/sync/pull` | `{ sinceVersion }` → `{ records[], serverVersion }` |
 | POST | `/api/sync/push` | `{ records[] }` → `{ applied[], conflicts[] }` (409 on stale version) |
 | PUT | `/api/blobs/:id` | Encrypted attachment upload (statements, receipts) |
@@ -44,7 +45,7 @@ Better Auth under `/api/auth`, paths as Better Auth 1.7 defines them. Session co
 | POST | `/sign-out` | clears the session | 30 / min |
 
 Not available: `/sign-up/email` or any password or social route. Invites are created by
-`pnpm auth:invite <email>` (owner bootstrap); the in-app invite endpoint arrives with #38.
+`pnpm auth:invite <email>` (owner bootstrap) and by the in-app household invite below.
 
 ## Identity vault (ADR-0022)
 
@@ -60,6 +61,25 @@ Session required (`401`); always the caller's own vault. Body is the vault wire 
   params outside memory 19 MiB–1 GiB, iterations 2–10, parallelism 1–4, salt 16–64 B;
   `409` if `publicKey` differs from the stored one (immutable); `413`; `415`.
 - Clients decode every fetched vault with the same bounds before running Argon2id.
+
+## Household members (ADR-0023)
+
+Bytes are base64url. A wrap is the ADR-0019 blob (first byte `0x01`, 123–378 bytes). POST
+bodies: `content-type: application/json` (`415`), ≤ 4 KiB (`413`), exactly the keys
+listed (`400`). Member public keys always come from the member's stored vault.
+
+- `POST /api/households` `{ id: uuid, wrappedHdk }` → `201 { id }`. `401` no session;
+  `409` caller has no vault, or the id is taken; `400` bad id or wrap.
+- `GET …/:householdId/members` → `200 { wrappedHdk, members: [{ userId, publicKey,
+  joinedAt }] }`. `wrappedHdk` is the caller's own; `no-store`.
+- `POST …/:householdId/invites` `{ email }` → `204`. Creates or extends a 14-day household
+  invite and the sign-up invite for that address.
+- `GET …/:householdId/invites` → `200 { invites: [{ emailHash, expiresAt, invitee }] }`.
+  `invitee` is `{ userId, email, publicKey }` once that address has an account and a
+  vault, else `null`; `no-store`. Check the key's fingerprint out of band before wrapping.
+- `POST …/:householdId/members` `{ userId, wrappedHdk }` → `201`; consumes the invite.
+  `404` no open invite of this household for that user, or they have no vault; `409`
+  already a member.
 
 ## Authorisation (ADR-0021)
 
