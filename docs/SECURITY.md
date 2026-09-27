@@ -36,6 +36,8 @@ what type, with which institutions).
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under
   that vault's public key. The invitee decrypts the creator's record in a PGlite test
   ([ADR-0023](decisions/0023-household-member-relay.md))
+- Key session: lock (5-min auto-lock, `pagehide`) leaves no key reachable; an unlock that
+  finishes after a lock is discarded ([ADR-0024](decisions/0024-lock-unlock-session.md))
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
 ## Explicitly accepted risks
