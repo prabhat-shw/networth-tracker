@@ -246,6 +246,34 @@ In Neon, **Tables** (left sidebar) shows `records` with 6 columns: `id`, `househ
 3. Optional guard test: set `DEMO_MODE` to `false` → Redeploy → the build must fail with
    *"Refusing to build"*. Set it back to `true` → Redeploy.
 
+### S6a. Invite yourself (first owner, once)
+
+Registration is invite-only (ADR-0020), and nobody exists yet to invite you from the app.
+Without this step, sign-in says *"a code is on its way"* but **no code is ever sent**. That
+message is deliberately the same for every address.
+
+1. Copy Neon's **unpooled** connection string exactly as in S4 steps 1–6.
+2. In PowerShell, one line at a time:
+   ```powershell
+   cd D:\Work\claude-apps\networth-tracker
+   $env:DATABASE_URL = "postgresql://...neon.tech/neondb?sslmode=require"
+   pnpm auth:invite you@example.com
+   Remove-Item Env:DATABASE_URL
+   ```
+   The invite lasts 14 days. Only the SHA-256 of the address is stored.
+3. On `https://<domain>/`, sign in with that address. **On staging the code goes to
+   `SMTP_DEMO_TO`, not the address you typed** (check its spam folder too).
+
+Everyone after you (a spouse) is invited from the app's Household panel (#64), not here.
+
+**If no code arrives**, in this order:
+- Wrong inbox: it's `SMTP_DEMO_TO`.
+- `SMTP_DEMO_TO` missing: staging then sends nothing. Add it, then **Redeploy**.
+- Not invited, or the invite has expired: redo step 2.
+- Rate limit: 3 requests per 5 minutes per IP; wait and retry.
+- Mail server error: **Logs** → filter `/api/auth/email-otp/send-verification-otp` →
+  `Failed to run background task` (usually the Gmail app password, or `SMTP_PORT` 465 vs 587).
+
 ### S7. Leave these settings alone
 
 - **Settings → Deployment Protection → Vercel Authentication**: keep it on for previews.

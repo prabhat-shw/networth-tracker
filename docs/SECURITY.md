@@ -44,6 +44,8 @@ what type, with which institutions).
   ([ADR-0027](decisions/0027-first-run-implementation.md))
 - Restore with the kit (browser tests): only the re-wrapped vault is sent; the words and
   new passphrase appear in no request or storage; the old passphrase stops working
+- Household gate (browser tests): a wrap from someone else is used only after the member
+  confirms that sender's code; **No** installs nothing ([ADR-0030](decisions/0030-household-key-after-unlock.md))
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
 ## Explicitly accepted risks

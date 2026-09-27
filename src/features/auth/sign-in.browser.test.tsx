@@ -1,7 +1,11 @@
 // Sign-in and routing gate in a real browser (UX.md §3.0 A, ADR-0025, #45).
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "vitest-browser-react";
+import { createHousehold } from "@/crypto/household";
+import { generateIdentityKeyPair } from "@/crypto/keys";
 import type { IdentityVault } from "@/crypto/vault";
+import { toBase64url } from "@/crypto/wire";
+import type { HouseholdApi } from "@/features/household/household-client";
 import { createKeySession } from "@/features/lock/key-session";
 import { AppGateView } from "./app-gate";
 import {
@@ -169,8 +173,19 @@ describe("routing gate", () => {
     refetch: vi.fn(),
   });
 
-  it("signed out → sign-in; no vault → first run; vault → unlock; unlocked → app", async () => {
-    const keys = createKeySession({ unlockVault: async () => ({}) as never });
+  it("signed out → sign-in; no vault → first run; vault → unlock; unlocked → household → app", async () => {
+    // A real identity and a self-wrapped household, so the household gate (#63) opens.
+    const identity = await generateIdentityKeyPair();
+    const { household, selfWrap } = await createHousehold(identity);
+    const householdApi: HouseholdApi = {
+      myHouseholds: async () => ({
+        households: [{ id: household.householdId }],
+        invites: [],
+      }),
+      myWrap: async () => toBase64url(selfWrap),
+      decline: async () => {},
+    };
+    const keys = createKeySession({ unlockVault: async () => identity });
     const app = <p>the app</p>;
 
     const out = await render(
@@ -198,6 +213,7 @@ describe("routing gate", () => {
         session={session("asha@example.com")}
         loadVault={hasVault}
         keys={keys}
+        householdApi={householdApi}
       >
         {app}
       </AppGateView>,
@@ -207,6 +223,7 @@ describe("routing gate", () => {
     await gate.getByLabelText("Passphrase").fill("anything at all");
     await gate.getByRole("button", { name: "Unlock" }).click();
     await expect.element(gate.getByText("the app")).toBeVisible();
+    expect(keys.householdKey()?.householdId).toBe(household.householdId);
 
     keys.lock();
     await expect.element(gate.getByLabelText("Passphrase")).toBeVisible();
