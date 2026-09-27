@@ -106,7 +106,12 @@ export function AppGateView({
     );
   if (status !== "unlocked")
     return (
-      <UnlockScreen email={session.email} vault={vault.vault} session={keys} />
+      <UnlockScreen
+        email={session.email}
+        vault={vault.vault}
+        session={keys}
+        onVaultChanged={(next) => setVault({ status: "ready", vault: next })}
+      />
     );
   if (waitingToJoin)
     return (
