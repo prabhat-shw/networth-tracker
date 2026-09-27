@@ -12,6 +12,9 @@ export default defineConfig({
         test: {
           name: "unit",
           environment: "node",
+          // Projects run one after the other: CPU-heavy crypto tests (Argon2id, 10k seals)
+          // time out when they share the machine with the browser project's Argon2id.
+          sequence: { groupOrder: 0 },
           include: ["src/**/*.test.ts"],
         },
       },
@@ -21,6 +24,7 @@ export default defineConfig({
         resolve: { alias },
         test: {
           name: "browser",
+          sequence: { groupOrder: 1 },
           include: ["src/**/*.browser.test.tsx"],
           browser: {
             enabled: true,

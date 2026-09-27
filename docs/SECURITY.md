@@ -38,6 +38,9 @@ what type, with which institutions).
   ([ADR-0023](decisions/0023-household-member-relay.md))
 - Key session: lock (5-min auto-lock, `pagehide`) leaves no key reachable; an unlock that
   finishes after a lock is discarded ([ADR-0024](decisions/0024-lock-unlock-session.md))
+- First run (browser tests): nothing is sent before the recovery kit is confirmed; no
+  request, storage or IndexedDB holds the passphrase or recovery words
+  ([ADR-0027](decisions/0027-first-run-implementation.md))
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
 ## Explicitly accepted risks
