@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Agent worktrees are scratch space
 .claude/worktrees/
+
+# Vitest browser-mode failure screenshots
+.vitest/

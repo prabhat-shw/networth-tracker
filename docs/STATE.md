@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 10, #50 merged) · next session: start here_
+_Last updated: 2026-09-27 (session 11, #45 in review) · next session: start here_
 
 ## Where we are
 
@@ -11,8 +11,7 @@ _Last updated: 2026-09-27 (session 10, #50 merged) · next session: start here_
   migrated through `0001_households`.
 - **#6 auth core** merged (PR #39, [ADR-0020](decisions/0020-auth-invite-only-otp-passkeys.md)):
   `src/server/auth.ts` (`createAuth` + lazy `getAuth`), `invites.ts`, `pnpm auth:invite`,
-  `/api/auth/[...all]`, migration `0002_auth`. Staging has SMTP vars set.
-- **#40 fix** merged (PR #41): auth ids default to `gen_random_uuid()` (`0003_auth_id_defaults`).
+  `/api/auth/[...all]`, `0002_auth` (+ `0003` uuid defaults, #40). Staging has SMTP vars set.
 - **#37 authorisation** merged (PR #42, [ADR-0021](decisions/0021-household-authorisation.md)):
   `guardHousehold` (401 / identical 404), `GET /api/households/:id/records`, member_id→user FK
   (`0004`, applied on Neon). `migratedDb()` in `src/server/db/test-db.ts`. Node pinned `24.x`.
@@ -24,15 +23,18 @@ _Last updated: 2026-09-27 (session 10, #50 merged) · next session: start here_
 - **#7 lock/unlock** merged (PR #49, [ADR-0024](decisions/0024-lock-unlock-session.md)):
   `src/features/lock/key-session.ts` (keys only in a closure, 5-min auto-lock, `pagehide`
   lock) and `unlock-screen.tsx`. UX.md §3.1 approved; passkey unlock split to **#48**.
-
 - **#50 UX.md §3.0** (sign-in, first run, joining with a code check) approved and merged
   (PR #51, [ADR-0025](decisions/0025-onboarding-flow.md)). #45 unblocked and split (see below).
 
+- **#45 sign-in + routing gate** on `feat/sign-in`, PR open ([ADR-0026](decisions/0026-component-tests-browser-mode.md)):
+  `src/features/auth/` (auth client, `SignIn`, `AppGate` wrapping `/`). Component tests now
+  run in Vitest browser mode on the **installed Chrome**. #45 was split: #53 first run, #54 restore.
+
 ## Next session picks up
 
-**#45** sign-in + first run (UX.md §3.0 A, B, D; mounts `UnlockScreen`), then **#52**
-joining a household (§3.0 C + the 3 API gaps). **#48** passkey unlock can run in parallel.
-**#46** = M1 E2E gate, last.
+**#53 first run** (passphrase, recovery kit + hand-written PDF, vault upload, `GET
+/api/households`, silent household). Then **#54** restore, **#52** joining. **#48** passkey
+unlock in parallel. **#46** = M1 E2E gate, last. Green: `pnpm test` (118) · typecheck · check.
 
 ## Also open
 

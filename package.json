@@ -39,10 +39,13 @@
     "@types/nodemailer": "^8.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/browser-playwright": "^5.0.2",
     "drizzle-kit": "^0.31.11",
+    "playwright": "^1.63.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.2",
+    "vitest-browser-react": "^2.3.0"
   },
   "packageManager": "pnpm@11.6.0",
   "license": "AGPL-3.0-only",
