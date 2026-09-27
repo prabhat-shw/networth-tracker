@@ -43,6 +43,12 @@ When you invite your spouse, your device takes the household key and locks it *i
 that only their key can open*, then hands that box to the server to pass along. The server
 carries the box; it cannot open it.
 
+One catch: the server tells your device *which* key to lock the box for. A dishonest server
+could hand over its own key instead of your spouse's. So before anything is shared, you each
+read out a short **security code** (like `3f2a 91c0 7d4e b812 0c6a`) over a call or in person.
+The inviter checks the spouse's code before sharing; the spouse checks the inviter's before
+opening. If a code doesn't match, the app shares nothing and cancels the invite.
+
 Remove someone later and they stop receiving new data. Anything they already downloaded, they
 already have — the same as with any shared file. Worth knowing rather than pretending
 otherwise.

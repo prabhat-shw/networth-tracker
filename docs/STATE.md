@@ -60,6 +60,8 @@ typecheck · check · build.
 - Money is integer **paise**; use `src/domain/money.ts`.
 - Crypto: never export a private key or HDK except via `wrapKey`; `open` failures are always
   `DecryptError` (no detail). `gh issue list -m` needs the full milestone title.
+- **Docs per PR:** `CHANGELOG.md` gets an Unreleased line for every user-visible change (it lagged
+  all of M1 until #64); new concepts go in `docs/kb/` + GLOSSARY. Map: `docs/kb/07-keeping-docs-current.md`.
 - **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).
 
 ## Resume command
