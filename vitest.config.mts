@@ -16,6 +16,7 @@ export default defineConfig({
           // time out when they share the machine with the browser project's Argon2id.
           sequence: { groupOrder: 0 },
           include: ["src/**/*.test.ts"],
+          setupFiles: ["src/test/fast-kdf.ts"],
         },
       },
       {
@@ -26,6 +27,7 @@ export default defineConfig({
           name: "browser",
           sequence: { groupOrder: 1 },
           include: ["src/**/*.browser.test.tsx"],
+          setupFiles: ["src/test/fast-kdf.ts"],
           browser: {
             enabled: true,
             headless: true,

@@ -28,7 +28,8 @@ what type, with which institutions).
 - gitleaks (secrets), CodeQL/semgrep (SAST), `osv-scanner` + dependency review, SBOM
 - Doc-size caps, typecheck, Biome, unit tests
 - `src/crypto` known-answer vectors (RFC/Wycheproof/PHC) and fail-closed tests on every PR
-  ([ADR-0013](decisions/0013-crypto-primitives-and-envelope.md))
+  ([ADR-0013](decisions/0013-crypto-primitives-and-envelope.md)); production Argon2id params
+  asserted there, while other tests use the bounds floor for speed ([ADR-0028](decisions/0028-fast-kdf-in-tests.md))
 - Identity vault tests: the private key is absent from the stored vault, and create /
   change / restore make no `fetch` or IndexedDB call ([ADR-0018](decisions/0018-identity-vault-and-recovery-code.md))
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
