@@ -70,7 +70,7 @@ const uuid = (x: unknown): x is string => typeof x === "string" && UUID.test(x);
  * `invites.emailHash` recomputed from a stored address, same normalisation as
  * `normaliseEmail` (NFKC, trim, lower-case), so an invite can be matched to an account.
  */
-const userEmailHash = sql`sha256(convert_to(lower(btrim(normalize(${user.email}, NFKC))), 'UTF8'))`;
+export const userEmailHash = sql`sha256(convert_to(lower(btrim(normalize(${user.email}, NFKC))), 'UTF8'))`;
 
 /** `POST /api/households` — `{ id, wrappedHdk }`: new household plus the caller's own wrap. */
 export async function createHousehold(

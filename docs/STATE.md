@@ -1,14 +1,13 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 11, #45 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 12, #56 in review) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M1 — Identity & crypto core. M0 complete (PRs #18-#22).
 
-- Merged: #3 primitives (PR #24, ADR-0013), #4 identity vault (PR #35, ADR-0018),
-  #5 household + HDK (PR #36, [ADR-0019](decisions/0019-household-key-wrapping.md)); staging
-  migrated through `0001_households`.
+- Merged: #3 primitives (ADR-0013), #4 identity vault (ADR-0018), #5 household + HDK
+  ([ADR-0019](decisions/0019-household-key-wrapping.md)).
 - **#6 auth core** merged (PR #39, [ADR-0020](decisions/0020-auth-invite-only-otp-passkeys.md)):
   `src/server/auth.ts` (`createAuth` + lazy `getAuth`), `invites.ts`, `pnpm auth:invite`,
   `/api/auth/[...all]`, `0002_auth` (+ `0003` uuid defaults, #40). Staging has SMTP vars set.
@@ -26,14 +25,15 @@ _Last updated: 2026-09-27 (session 11, #45 in review) · next session: start her
 - **#50 UX.md §3.0** (sign-in, first run, joining with a code check) approved and merged
   (PR #51, [ADR-0025](decisions/0025-onboarding-flow.md)). #45 unblocked and split (see below).
 
-- **#45 sign-in + routing gate** on `feat/sign-in`, PR open ([ADR-0026](decisions/0026-component-tests-browser-mode.md)):
+- **#45 sign-in + routing gate** merged (PR #55, [ADR-0026](decisions/0026-component-tests-browser-mode.md)):
   `src/features/auth/` (auth client, `SignIn`, `AppGate` wrapping `/`). Component tests now
   run in Vitest browser mode on the **installed Chrome**. #45 was split: #53 first run, #54 restore.
+- **#56** `GET /api/households` (my households + `invited`), split from #53: `src/server/households.ts`.
 
 ## Next session picks up
 
-**#53 first run** (passphrase, recovery kit + hand-written PDF, vault upload, `GET
-/api/households`, silent household). Then **#54** restore, **#52** joining. **#48** passkey
+**#53 first run** (passphrase, recovery kit + hand-written PDF, vault upload, silent
+household via #56). Then **#54** restore, **#52** joining. **#48** passkey
 unlock in parallel. **#46** = M1 E2E gate, last. Green: `pnpm test` (118) · typecheck · check.
 
 ## Also open
