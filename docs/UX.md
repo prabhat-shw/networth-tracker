@@ -155,7 +155,7 @@ mobile — there is no equivalent width constraint, so the rail simply grows wit
 ### 1.2 Sitemap
 
 ```
-Unlock (gate, not in nav)
+Sign in → First run / Unlock (gates, not in nav; §3.0, §3.1)
  └─ Home ──────────────┬─ Net Worth Detail (timeline, drill-down)
                         ├─ [Account group] → Account Detail → Edit
                         └─ [Nudge cards] → Goals / Accounts / Unallocated filter
@@ -248,6 +248,87 @@ never colour alone, and never a fabricated "live" figure in between fetches.
 Each screen below: purpose, layout, hierarchy, key components, and empty/loading/error states.
 Visual detail (colour, spacing, exact type) is in §7; see it rendered with real data in
 `docs/ux/prototype.html`.
+
+### 3.0 Sign-in, first run & joining a household
+
+**Purpose:** get a person from an email address to an unlocked app, once, without making
+security feel like paperwork, and without the server ever seeing a secret. Approved by the owner
+2026-09-27 (#50, [ADR-0025](decisions/0025-onboarding-flow.md)); iterate as it is built; builds #45. Screens share the §3.1 shell (centred column, the permanent
+"Encrypted on this device" line).
+
+**Routing after sign-in** — never a menu, the app decides:
+```
+signed in ─┬─ vault on this device or GET /api/identity/vault → 200 ─→ Unlock (§3.1)
+           └─ 404 (no identity yet) ─→ First run ─┬─ has an open household invite → Waiting to join
+                                                   └─ no invite → household created silently → Home
+```
+
+**A. Sign in** (one screen, fields expand in place)
+- If the browser offers a passkey for this site: **[Sign in with passkey]** primary, the email
+  field below it. Otherwise email first.
+- Email → **[Send code]** → the 6-digit code field appears under it (`autocomplete=one-time-code`,
+  numeric keypad). It **submits itself on the 6th digit**; no button tap.
+- Copy after sending, whatever the address: *"If this address can use NetWorth, a code is on
+  its way."* It never says whether an account or invite exists (ADR-0020).
+- **Resend** unlocks after 30 s. **Wrong code:** inline, field cleared. **Expired:** inline
+  "That code has expired — send a new one". **429:** "Too many tries. Try again in 5 minutes"
+  with a live countdown; the fields stay filled.
+
+**B. First run** — three steps, a progress line ("Step 2 of 3"), no back-and-forth wizard
+chrome. Nothing is saved to the server until step 2 is confirmed; closing the tab earlier
+just starts over.
+1. **Choose a passphrase.** One field with a show/hide toggle, no "repeat it" field (the
+   recovery kit is the safety net). Guidance, not rules: *"Four or more unrelated words is
+   strong and easy to type."* Refuse under 12 characters. Honest line: *"We can't reset
+   this. Forget it, and only your recovery kit or a household member gets you back in."*
+   **[Continue]** runs `createIdentity` (~1 s, "Creating your keys…" on the button).
+2. **Save your recovery kit.** The 24 words in a numbered 3×8 grid (2×12 on phones).
+   **[Download PDF]** and **[Print]**; no Copy button (clipboard managers sync to the cloud).
+   Confirm by typing **two words the app asks for** ("word 7", "word 19"), then **[Done]**.
+   Only then is the vault uploaded (`PUT /api/identity/vault`). Copy: *"Anyone with these
+   words can open your data. Keep them on paper, somewhere safe."*
+3. **Faster sign-in (optional).** *"Add a passkey to sign in with Face ID or your fingerprint.
+   You'll still unlock with your passphrase."* (Unlock by passkey is #48.) **[Add passkey]** ·
+   **[Not now]**. Shown once; later from Settings → Security.
+
+**C. Joining a household (invitee)** — the only step that needs two people at once.
+- **Waiting screen:** *"Asha needs to add you. Call Asha and read out your code:"* then the
+  invitee's `keyFingerprint` large, in five groups (`3f2a 91c0 7d4e b812 0c6a`). Polls
+  quietly; no spinner-forever — after 10 min it says *"Still waiting. Asha can add you from
+  Household."*
+- **Inviter's side:** a Home nudge card *"Bala is ready to join — check their code"* (also the
+  row in §3.8, chip `🔑 Ready to add`). Tap → sheet showing Bala's code and **Asha's own
+  code**: *"Ask Bala to read theirs. Does it match exactly?"* **[It matches — add Bala]** ·
+  **[It doesn't match]**. Match → the HDK is wrapped and relayed (ADR-0023).
+- **Invitee, once added:** *"Asha's code: 9b1e 04f7 … Does it match what Asha read you?"*
+  **[Yes — open household]** · **[No]**. Match → Home.
+- **Mismatch (either side):** nothing is wrapped or kept. Red, plain: *"Stop. Someone may be
+  intercepting this invite. Don't retry; tell the person who runs your server."* The invite is
+  cancelled; a new one is needed.
+
+**D. Returning on a new device**
+- Sign in (A) → vault fetched → §3.1 Unlock. Under the passphrase field a text link **"Use
+  recovery kit instead"** expands in place: 24-word entry (paste accepted; case, spacing and
+  line breaks forgiven) → **[Restore]** → choose a new passphrase (B1) → Home. Copy after
+  restore: *"Your recovery kit still works. If you think someone else has seen it, make a new
+  one in Settings."*
+- Wrong word / checksum: *"Word 14 isn't in the recovery list"* (safe to say, ADR-0018). A
+  valid kit for someone else: *"This kit doesn't match your account."*
+
+**Tap budgets** (additions to principle 8; typing and biometrics don't count):
+
+| Task | Budget |
+| --- | --- |
+| Returning, this device, with passkey → Home | 2 (passkey → Unlock) |
+| Sign in by email code | 1 (Send code; the code auto-submits) |
+| First run, code → Home (no invite) | 4 (Continue → Download → Done → Not now) |
+| Invitee joining, once added | 1 (Yes) |
+| Inviter adding a ready member from Home | 2 (nudge → It matches) |
+
+**API gaps for #45** (to add with it): `GET /api/households` (my households) and a way for a
+signed-in invitee to learn they have an open household invite, and from whom, to route to
+*Waiting* instead of silently creating a household; a cancel-invite endpoint for the mismatch
+path.
 
 ### 3.1 Unlock
 
@@ -475,7 +556,8 @@ in plain language ("At ₹9,000/mo you'll reach about ₹56.6L by 2040 — ₹1.
 either earned or lost.
 
 **Layout:** household name + member list, each member a row with avatar/initials, name, role
-(Owner/Member), and a **key status** chip (`🔑 Has access` / `⏳ Invite pending`); below that,
+(Owner/Member), and a **key status** chip (`🔑 Has access` / `🔑 Ready to add` / `⏳ Invite pending`;
+*Ready to add* opens the code check in §3.0 C); below that,
 an **ownership overview** — every joint record (any asset with >1 owner) listed with its split,
 editable inline (a slider or two linked percentage fields that always sum to 100, matching the
 control used in the add flow — one control, reused everywhere ownership appears); an **"Invite

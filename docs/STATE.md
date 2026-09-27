@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 9, #7 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 10, #50 merged) · next session: start here_
 
 ## Where we are
 
@@ -9,9 +9,6 @@ _Last updated: 2026-09-27 (session 9, #7 in review) · next session: start here_
 - Merged: #3 primitives (PR #24, ADR-0013), #4 identity vault (PR #35, ADR-0018),
   #5 household + HDK (PR #36, [ADR-0019](decisions/0019-household-key-wrapping.md)); staging
   migrated through `0001_households`.
-- #6 was too big and is split: **#6 auth core** (this PR), **#37 authorisation** (membership
-  guard, A-can't-read-B test, `member_id`→user FK), **#38 key relay** (member-row + vault
-  endpoints, wire encoding, KDF bounds).
 - **#6 auth core** merged (PR #39, [ADR-0020](decisions/0020-auth-invite-only-otp-passkeys.md)):
   `src/server/auth.ts` (`createAuth` + lazy `getAuth`), `invites.ts`, `pnpm auth:invite`,
   `/api/auth/[...all]`, migration `0002_auth`. Staging has SMTP vars set.
@@ -24,17 +21,18 @@ _Last updated: 2026-09-27 (session 9, #7 in review) · next session: start here_
 - **#43 member relay** merged (PR #47, [ADR-0023](decisions/0023-household-member-relay.md)):
   `src/server/members.ts`, `household_invites` (`0006`, applied on Neon), `POST /api/households`,
   `…/:id/members`, `…/:id/invites`. Public keys always come from the vault.
-- **#7 lock/unlock** on `feat/lock-unlock`, PR open ([ADR-0024](decisions/0024-lock-unlock-session.md)):
+- **#7 lock/unlock** merged (PR #49, [ADR-0024](decisions/0024-lock-unlock-session.md)):
   `src/features/lock/key-session.ts` (keys only in a closure, 5-min auto-lock, `pagehide`
   lock) and `unlock-screen.tsx`. UX.md §3.1 approved; passkey unlock split to **#48**.
 
-Green on the branch: `pnpm test` (109) · `typecheck` · `check`.
+- **#50 UX.md §3.0** (sign-in, first run, joining with a code check) approved and merged
+  (PR #51, [ADR-0025](decisions/0025-onboarding-flow.md)). #45 unblocked and split (see below).
 
 ## Next session picks up
 
-**§3.0 onboarding spec** for `docs/UX.md` (draft, then owner review); it unblocks **#45**,
-which mounts `UnlockScreen` and must show `keyFingerprint` for both sides of an invite
-(ADR-0023). **#48** passkey unlock can run in parallel. **#46** = M1 E2E gate, last.
+**#45** sign-in + first run (UX.md §3.0 A, B, D; mounts `UnlockScreen`), then **#52**
+joining a household (§3.0 C + the 3 API gaps). **#48** passkey unlock can run in parallel.
+**#46** = M1 E2E gate, last.
 
 ## Also open
 
