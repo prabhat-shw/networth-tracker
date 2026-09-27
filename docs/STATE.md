@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 12, #56 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 12, #53 in review) · next session: start here_
 
 ## Where we are
 
@@ -28,19 +28,20 @@ _Last updated: 2026-09-27 (session 12, #56 in review) · next session: start her
 - **#45 sign-in + routing gate** merged (PR #55, [ADR-0026](decisions/0026-component-tests-browser-mode.md)):
   `src/features/auth/` (auth client, `SignIn`, `AppGate` wrapping `/`). Component tests now
   run in Vitest browser mode on the **installed Chrome**. #45 was split: #53 first run, #54 restore.
-- **#56** `GET /api/households` (my households + `invited`), split from #53: `src/server/households.ts`.
+- **#56** `GET /api/households` (my households + `invited`), split from #53: `src/server/households.ts`, merged (PR #57).
+- **#53 first run** on `feat/first-run`, PR #59 ([ADR-0027](decisions/0027-first-run-implementation.md)):
+  `src/features/onboarding/` (passphrase, kit + hand-written PDF, passkey offer), `KeySession.start`.
 
 ## Next session picks up
 
-**#53 first run** (passphrase, recovery kit + hand-written PDF, vault upload, silent
-household via #56). Then **#54** restore, **#52** joining. **#48** passkey
-unlock in parallel. **#46** = M1 E2E gate, last. Green: `pnpm test` (118) · typecheck · check.
+Next: **#54**
+restore from the unlock screen, **#52** joining. **#48**, **#58** (flaky IV test) any time.
+**#46** = M1 E2E gate, last. Green: `pnpm test` (131) · typecheck · check · build.
 
 ## Also open
 
-- Insights + projections UX (PR #17) merged: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)),
-  UX principle 8 "fewest actions" with tap budgets ([ADR-0017](decisions/0017-tap-budgets.md)); the
-  prototype meets all 7 budgets. Leftovers in #34 (settle "Home fits one screen" before M3 forms).
+- Insights UX: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)), tap budgets
+  ([ADR-0017](decisions/0017-tap-budgets.md)). Leftovers in #34 (settle "Home fits one screen" before M3).
 - Issue #14 decided: all six ideas accepted as #25–#32 on M3/M5/M7/M8
   ([ADR-0016](decisions/0016-features-borrowed-from-other-apps.md)); licence AGPL-3.0-only
   ([ADR-0015](decisions/0015-agpl-licence.md)). New deps must be AGPL-compatible.
@@ -49,8 +50,7 @@ unlock in parallel. **#46** = M1 E2E gate, last. Green: `pnpm test` (118) · typ
 
 - **Staging migrations are manual**: after any new `drizzle/` migration, run `pnpm db:migrate`
   against Neon's unpooled URL (DEPLOYMENT.md step 4) *before* merging code that needs it.
-- Neon URLs may carry `channel_binding=require`; postgres.js forwards it as a startup param.
-  It works on Vercel today; if staging ever reports `db:"down"`, strip it in `client.ts`.
+- Neon URLs may carry `channel_binding=require`; if staging reports `db:"down"`, strip it in `client.ts`.
 - **Vercel:** import the repo only once (a re-import made a duplicate project, since deleted).
   Env vars need a **Redeploy** to take effect. `APP_ORIGIN` = the staging URL (used from M1 auth).
 - **Docker on Windows:** the image only builds because of the new `.dockerignore`; never

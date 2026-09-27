@@ -26,3 +26,4 @@ One line per session: date · issue · outcome.
 - 2026-09-27 · issue #50 · UX.md §3.0 draft: sign-in, first run, joining with two-way code check, tap budgets, API gaps for #45 (ADR-0025, proposed)
 - 2026-09-27 · issue #45 · split (#53 first run, #54 restore); sign-in screen (auto-submitting code, 429 countdown, passkey hint), routing gate, Vitest browser mode on installed Chrome (ADR-0026)
 - 2026-09-27 · issue #56 · GET /api/households: own memberships + invited flag (split from #53)
+- 2026-09-27 · issue #53 · first run: passphrase, recovery kit (hand-written PDF, 2-word confirm), vault upload after confirm, silent household or wait-to-join, passkey offer; test projects sequenced; #58 filed (ADR-0027)

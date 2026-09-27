@@ -190,7 +190,7 @@ describe("routing gate", () => {
         {app}
       </AppGateView>,
     );
-    await expect.element(first.getByText(/First-time setup/)).toBeVisible();
+    await expect.element(first.getByText("Choose a passphrase")).toBeVisible();
     await cleanup();
 
     const gate = await render(
@@ -223,6 +223,6 @@ describe("routing gate", () => {
       </AppGateView>,
     );
     await screen.getByRole("button", { name: "Try again" }).click();
-    await expect.element(screen.getByText(/First-time setup/)).toBeVisible();
+    await expect.element(screen.getByText("Choose a passphrase")).toBeVisible();
   });
 });

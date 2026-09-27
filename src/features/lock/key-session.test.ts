@@ -92,6 +92,14 @@ describe("key session", () => {
     expect(session.identity()).toBeNull();
   });
 
+  it("starts unlocked with a new identity and still auto-locks", () => {
+    session.start(identity);
+    expect(session.state().status).toBe("unlocked");
+    expect(session.identity()).toBe(identity);
+    advance(5 * MIN);
+    expect(session.identity()).toBeNull();
+  });
+
   it("auto-locks after the default 5 minutes without activity", async () => {
     expect(DEFAULT_AUTO_LOCK_MS).toBe(5 * MIN);
     await session.unlock(vault, "right");

@@ -21,6 +21,8 @@ export interface KeySession {
   subscribe(listener: () => void): () => void;
   /** Resolves true on success; a wrong passphrase leaves the session locked ("failed"). */
   unlock(vault: IdentityVault, passphrase: string): Promise<boolean>;
+  /** Starts unlocked with an identity just created or restored on this device (#53, #54). */
+  start(identity: UnlockedIdentity): void;
   lock(): void;
   /** User activity: restarts the inactivity window, or locks if it already ran out. */
   touch(): void;
@@ -104,6 +106,13 @@ export function createKeySession({
       schedule();
       set("unlocked");
       return true;
+    },
+    start(unlocked) {
+      generation++;
+      identity = unlocked;
+      household = null;
+      schedule();
+      set("unlocked");
     },
     lock,
     touch() {

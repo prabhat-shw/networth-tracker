@@ -10,6 +10,7 @@ import type { IdentityVault } from "@/crypto/vault";
 import { decodeVault } from "@/crypto/wire";
 import { type KeySession, keySession } from "@/features/lock/key-session";
 import { UnlockScreen, useAutoLock } from "@/features/lock/unlock-screen";
+import { FirstRun, type FirstRunApi } from "@/features/onboarding/first-run";
 import { authClient } from "./auth-client";
 import { SignIn } from "./sign-in";
 
@@ -34,18 +35,21 @@ type VaultState =
 
 /**
  * The app decides where a person goes (UX.md §3.0, ADR-0025): signed out → sign-in; no
- * vault → first run (#53); vault → unlock (§3.1); unlocked → the app. Re-locking returns
- * here, to the unlock screen, without signing out.
+ * vault → first run (#53); vault → unlock (§3.1); unlocked → the app, or a wait for the
+ * invite to be completed (#52). Re-locking returns here, to the unlock screen, without
+ * signing out.
  */
 export function AppGateView({
   session,
   loadVault = fetchVault,
   keys = keySession,
+  firstRunApi,
   children,
 }: {
   session: GateSession;
   loadVault?: () => Promise<IdentityVault | null>;
   keys?: KeySession;
+  firstRunApi?: FirstRunApi;
   children: ReactNode;
 }) {
   const { status } = useSyncExternalStore(
@@ -55,6 +59,7 @@ export function AppGateView({
   );
   const [vault, setVault] = useState<VaultState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
+  const [waitingToJoin, setWaitingToJoin] = useState(false);
   useAutoLock(keys);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` re-runs the load on "Try again".
@@ -88,10 +93,27 @@ export function AppGateView({
       </Centered>
     );
   if (!vault.vault)
-    return <Centered>First-time setup is coming in the next update.</Centered>;
+    return (
+      <FirstRun
+        email={session.email}
+        api={firstRunApi}
+        keys={keys}
+        onDone={(done) => {
+          setVault({ status: "ready", vault: done.vault });
+          setWaitingToJoin(done.waitingToJoin);
+        }}
+      />
+    );
   if (status !== "unlocked")
     return (
       <UnlockScreen email={session.email} vault={vault.vault} session={keys} />
+    );
+  if (waitingToJoin)
+    return (
+      <Centered>
+        You're set up. The person who invited you now needs to add you to their
+        household.
+      </Centered>
     );
   return children;
 }
