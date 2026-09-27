@@ -57,6 +57,7 @@ Finance and engineering terms in one place. Fuller explanations:
 | **Postgres** | The server's database, storing ciphertext only |
 | **PWA** | Progressive Web App — a website installable to a home screen, works offline |
 | **Ruleset / branch protection** | GitHub rules stopping direct pushes to `main` |
+| **Security code** | A short fingerprint of a member's public key, read aloud to check nobody swapped keys when joining |
 | **SHA** | The short commit id stamped into each build, so you know which build you are running |
 | **Tailscale** | Private network making the home server reachable without exposing it publicly |
 | **Tombstone** | A "this was deleted" marker, so deletions propagate between devices |

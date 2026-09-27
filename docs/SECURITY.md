@@ -46,6 +46,8 @@ what type, with which institutions).
   new passphrase appear in no request or storage; the old passphrase stops working
 - Household gate (browser tests): a wrap from someone else is used only after the member
   confirms that sender's code; **No** installs nothing ([ADR-0030](decisions/0030-household-key-after-unlock.md))
+- Household panel (browser tests): the inviter wraps the HDK only after *It matches*, to the
+  exact key whose code was shown; *It doesn't match* cancels the invite and wraps nothing ([ADR-0031](decisions/0031-inviter-household-panel.md))
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
 ## Explicitly accepted risks

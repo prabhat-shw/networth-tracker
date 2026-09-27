@@ -558,6 +558,10 @@ in plain language ("At ₹9,000/mo you'll reach about ₹56.6L by 2040 — ₹1.
 **Purpose:** make ownership and E2EE sharing legible and low-anxiety — this is where trust is
 either earned or lost.
 
+*Built so far (#64, [ADR-0031](decisions/0031-inviter-household-panel.md)):* a minimal panel on
+the unlocked page with member rows (*You* / *Member*, no names yet), open invites with their key-status
+chip, the Invite field, and the §3.0 C code check with a **Not now** close.
+
 **Layout:** household name + member list, each member a row with avatar/initials, name, role
 (Owner/Member), and a **key status** chip (`🔑 Has access` / `🔑 Ready to add` / `⏳ Invite pending`;
 *Ready to add* opens the code check in §3.0 C); below that,
