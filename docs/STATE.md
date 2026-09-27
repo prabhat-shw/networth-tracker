@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-27 (session 8, #43 in review) · next session: start here_
+_Last updated: 2026-09-27 (session 9, #7 in review) · next session: start here_
 
 ## Where we are
 
@@ -21,18 +21,20 @@ _Last updated: 2026-09-27 (session 8, #43 in review) · next session: start here
   (`0004`, applied on Neon). `migratedDb()` in `src/server/db/test-db.ts`. Node pinned `24.x`.
 - **#38 vault relay** merged (PR #44, [ADR-0022](decisions/0022-identity-vault-relay.md)):
   `src/crypto/wire.ts` (codec + `KDF_BOUNDS`), `identity_vaults` (`0005`), `GET/PUT /api/identity/vault`.
-- **#43 member relay** on `feat/household-member-relay`, PR open, **needs owner approval**
-  (area:crypto; [ADR-0023](decisions/0023-household-member-relay.md)): `src/server/members.ts`,
-  `household_invites` (`0006`), `POST /api/households`, `…/:id/members` GET/POST,
-  `…/:id/invites` GET/POST. Public keys always come from the vault. `members.pg.test.ts`
-  covers the M1 acceptance case: the invitee decrypts the creator's record.
+- **#43 member relay** merged (PR #47, [ADR-0023](decisions/0023-household-member-relay.md)):
+  `src/server/members.ts`, `household_invites` (`0006`, applied on Neon), `POST /api/households`,
+  `…/:id/members`, `…/:id/invites`. Public keys always come from the vault.
+- **#7 lock/unlock** on `feat/lock-unlock`, PR open ([ADR-0024](decisions/0024-lock-unlock-session.md)):
+  `src/features/lock/key-session.ts` (keys only in a closure, 5-min auto-lock, `pagehide`
+  lock) and `unlock-screen.tsx`. UX.md §3.1 approved; passkey unlock split to **#48**.
 
-Green on the branch: `pnpm test` (100) · `typecheck` · `check`.
+Green on the branch: `pnpm test` (109) · `typecheck` · `check`.
 
 ## Next session picks up
 
-**#7 lock UX** (blocked on owner review of `docs/UX.md`) and **#45** (needs UX.md §3.0), then
-**#46** = the M1 E2E gate. The invite UI must show `keyFingerprint` for both sides (ADR-0023).
+**§3.0 onboarding spec** for `docs/UX.md` (draft, then owner review); it unblocks **#45**,
+which mounts `UnlockScreen` and must show `keyFingerprint` for both sides of an invite
+(ADR-0023). **#48** passkey unlock can run in parallel. **#46** = M1 E2E gate, last.
 
 ## Also open
 
@@ -56,8 +58,7 @@ Green on the branch: `pnpm test` (100) · `typecheck` · `check`.
 - For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`,
   `SMTP_HOST`, `SMTP_FROM` (dummies are fine)
   and use `docker compose -p nwt-e2e …` then `down -v`, so the real volume is never touched.
-- **Before merging #43:** run `pnpm db:migrate` on Neon for `0006_household_invites`, then Redeploy.
-  The "…already exists, skipping" lines it prints are harmless Postgres NOTICEs.
+- Neon `db:migrate` prints "…already exists, skipping" NOTICEs; they are harmless.
 - New household-scoped routes: call `guardHousehold` first; never answer 403 (ADR-0021).
 - Server tests that touch SQL: use PGlite with the real migrations (`migratedDb()` from `db/test-db.ts`), not
   the Better Auth memory adapter, which hides schema bugs.

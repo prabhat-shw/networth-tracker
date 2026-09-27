@@ -261,7 +261,7 @@ visible.
 │           (mark)           │
 │      NetWorth Tracker      │
 │                           │
-│   Sharma Household         │
+│   asha@example.com         │
 │                           │
 │   [ 🫆  Unlock with Face ID ]  ← primary, biometric/passkey
 │                           │
@@ -273,6 +273,10 @@ visible.
 │  data.                     │
 └───────────────────────────┘
 ```
+- **Owner decisions 2026-09-27 ([ADR-0024](decisions/0024-lock-unlock-session.md)):** the
+  screen shows the signed-in **email**, not the household name (the name is encrypted and
+  unreadable before unlock). Until passkey unlock ships (#48), the passphrase field is the
+  primary path. **Auto-lock** after 5 min without activity (adjustable later in Settings).
 - Passphrase fallback expands **in place** into a password field + "Unlock" button — never a
   separate screen; losing the biometric prompt shouldn't cost navigation.
 - Reassurance line is permanent chrome, not a dismissible tooltip — privacy is asserted every
