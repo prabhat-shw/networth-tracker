@@ -38,8 +38,10 @@ goal · allocation · valuationOverride · document · snapshot`
 Every asset/liability record carries `owners[] {memberId, sharePercent}` (sums to 100),
 `allocations[] {goalId, mode, value}`, `includeInNetWorth`, `tags[]`, `asOf`.
 
-Server side there are only three tables: `records` (ADR-0003), `households` (id) and
-`household_members` (public key + HDK wrapped to it, ADR-0019). All opaque.
+Server-side data tables: `records` (ADR-0003), `households` (id), `household_members`
+(public key + HDK wrapped to it, ADR-0019), `identity_vaults` (ADR-0022) and
+`household_invites` (email hash per household, ADR-0023). All opaque. Better Auth's tables
+(ADR-0020) hold account data only.
 
 Money is **integer paise** everywhere. Dates are ISO strings in IST.
 

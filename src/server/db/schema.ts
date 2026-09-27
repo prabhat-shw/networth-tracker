@@ -179,6 +179,27 @@ export const invites = pgTable("invites", {
 });
 
 /**
+ * An in-app invite to one household (ADR-0023). Binds the email hash to the household, so a
+ * member can only look up — and write a member row for — people their household invited.
+ * The row is deleted once the invitee's member row exists.
+ */
+export const householdInvites = pgTable(
+  "household_invites",
+  {
+    householdId: uuid("household_id")
+      .notNull()
+      .references(() => households.id, { onDelete: "cascade" }),
+    emailHash: bytea("email_hash").notNull(),
+    invitedBy: uuid("invited_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: created(),
+    expiresAt: ts("expires_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.householdId, t.emailHash] })],
+);
+
+/**
  * A member's identity vault in wire form (ADR-0018, ADR-0022): public key, KDF params and
  * the private key wrapped under passphrase and recovery code. Nothing here is readable
  * without those secrets. `publicKey` is copied out because it may never change: every HDK
