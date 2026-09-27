@@ -2,6 +2,8 @@ name: CI
 
 on:
   pull_request:
+    # labeled/unlabeled re-run the CHANGELOG check when `no-changelog` is toggled.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [main]
 
@@ -33,6 +35,14 @@ jobs:
           changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
           if echo "$changed" | grep -q '^src/' && ! echo "$changed" | grep -q '^docs/STATE.md$'; then
             echo "::error::src/ changed but docs/STATE.md did not. Rewrite the handoff note (docs/CONTEXT.md)."
+            exit 1
+          fi
+      - name: CHANGELOG.md must move with the code (ADR-0032)
+        if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'no-changelog')
+        run: |
+          changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          if echo "$changed" | grep -q '^src/' && ! echo "$changed" | grep -q '^CHANGELOG.md$'; then
+            echo "::error::src/ changed but CHANGELOG.md did not. Add an Unreleased line, or label the PR no-changelog if nothing user-visible changed."
             exit 1
           fi
       - run: pnpm typecheck

@@ -14,6 +14,7 @@ Documentation rots when nothing breaks as it goes stale. This project makes stal
 | **ADR hygiene** | Filenames are `NNNN-kebab-slug.md`, numbers are unique, each ADR has a `**Status:**` line |
 | **Generated README block** | The status table in `README.md` is generated from `package.json` and `docs/STATE.md`. If it drifts, CI fails and `pnpm docs:sync` fixes it |
 | **State freshness** | A PR that changes `src/**` must also change `docs/STATE.md`. Code moved; the handoff note has to move with it |
+| **Changelog freshness** | A PR that changes `src/**` must also change `CHANGELOG.md`, unless labelled `no-changelog` (internal-only work). See [ADR-0032](../decisions/0032-changelog-and-docs-impact.md) |
 
 ## Layer 2 — process (the checklist)
 
@@ -25,7 +26,10 @@ done in [`CLAUDE.md`](../../CLAUDE.md) both require, for every issue:
 - one line appended to **`docs/SESSION_LOG.md`**
 - **`docs/PLAN.md`** updated when scope changes
 
-The `/handoff` command walks through this so it does not depend on memory.
+- the **docs-impact pass**: every row of the Layer 3 table checked, affected docs updated
+
+The `/handoff` command walks through this so it does not depend on memory, and PR bodies
+are always the filled-in template.
 
 ## Layer 3 — ownership (which doc answers which question)
 

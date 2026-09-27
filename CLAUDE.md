@@ -75,9 +75,10 @@ Nothing else unless the issue needs it. [`docs/PLAN.md`](docs/PLAN.md) is the fu
 - [ ] `pnpm typecheck` and `pnpm check` clean
 - [ ] ADR added/updated if a decision was made
 - [ ] `docs/STATE.md` rewritten for the next session (CI enforces this when `src/` changes)
-- [ ] Docs invalidated by the change updated (`docs/kb/07-keeping-docs-current.md` says which)
+- [ ] Docs invalidated by the change updated — walk the table in `docs/kb/07-keeping-docs-current.md`
+- [ ] `CHANGELOG.md` line for a user-visible change (CI enforces; `no-changelog` label otherwise)
 - [ ] One line appended to `docs/SESSION_LOG.md`
-- [ ] PR opened with `Closes #N`, card moved to *In review*
+- [ ] PR opened from `.github/pull_request_template.md` with `Closes #N`, card moved to *In review*
 
 <!-- BEGIN:nextjs-agent-rules -->
 
