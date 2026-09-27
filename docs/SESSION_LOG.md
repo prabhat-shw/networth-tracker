@@ -31,3 +31,4 @@ One line per session: date · issue · outcome.
 - 2026-09-27 · issue #58 · tests use the Argon2id bounds floor except crypto.test (production params + KATs); IV test 2k seals; suite 35-38 s -> 26-33 s, no timeouts (ADR-0028). Also #61: vitest config as .mts
 - 2026-09-27 · issue #52 · split (#63 invitee, #64 inviter); GET /api/households lists invites with inviter name; cancel and decline endpoints, hashes in bodies only (ADR-0029)
 - 2026-09-27 · issue #63 · household gate: household key unwrapped after every unlock, waiting-to-join and confirm-the-sender screens, per-device trusted senders (ADR-0030)
+- 2026-09-28 · issue #64 · minimal Household panel: members, invite, pending/ready rows, inviter code check (match wraps to the shown key and adds; mismatch cancels, wraps nothing) (ADR-0031)
