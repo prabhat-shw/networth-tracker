@@ -23,3 +23,4 @@ One line per session: date · issue · outcome.
 - 2026-09-27 · issue #38 · split (#43 member relay); vault wire codec with KDF bounds, identity_vaults table, GET/PUT /api/identity/vault, immutable public key (ADR-0022)
 - 2026-09-27 · issue #43 · household member relay: POST /api/households, household-bound invites (0006), member rows keyed to vault public keys, invitee decrypts creator's record (ADR-0023)
 - 2026-09-27 · issue #7 · key session (closure-held keys, 5-min auto-lock, pagehide lock), unlock screen; UX §3.1 owner decisions; passkey PRF split to #48 (ADR-0024)
+- 2026-09-27 · issue #50 · UX.md §3.0 draft: sign-in, first run, joining with two-way code check, tap budgets, API gaps for #45 (ADR-0025, proposed)
