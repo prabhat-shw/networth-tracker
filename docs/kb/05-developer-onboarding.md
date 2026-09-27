@@ -30,7 +30,7 @@ Generate a secret with `openssl rand -base64 32`. Never commit `.env`.
 | Command | What it does |
 | --- | --- |
 | `pnpm dev` | Run the app locally with hot reload |
-| `pnpm test` | Unit tests — the gate for every PR |
+| `pnpm test` | Unit + component tests — the gate for every PR. Component tests drive your installed Google Chrome, headless |
 | `pnpm test:watch` | Tests re-running as you type |
 | `pnpm typecheck` | TypeScript, no emit |
 | `pnpm check` | Biome lint + format check (CI runs this exact command) |
@@ -88,7 +88,8 @@ the owner's explicit approval — never self-merge those.
 
 1. **Unit (Vitest)** — pure logic: crypto, valuation, goals, parsers. Required; this is the
    PR gate.
-2. **Component (browser mode)** — a single component's real-DOM behaviour.
+2. **Component (Vitest browser mode)** — a single component's real-DOM behaviour, in the
+   installed Chrome (`*.browser.test.tsx`; [ADR-0026](../decisions/0026-component-tests-browser-mode.md)).
 3. **End-to-end (Playwright)** — assembled flows, plus two security specs that must never be
    deleted: *one household cannot read another's records*, and *the database contains no
    plaintext*.
