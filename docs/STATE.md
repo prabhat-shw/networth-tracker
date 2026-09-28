@@ -22,8 +22,7 @@ _Last updated: 2026-09-28 (session 17: #71 fix in PR) · next session: start her
   the inviter's code check (match → wrap + `POST …/members`; mismatch → cancel, nothing wrapped).
 - **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)):
   CI fails `src/` changes without `CHANGELOG.md` (label `no-changelog` opts out); `/handoff` docs-impact pass.
-- **#71 flaky first-run test** in PR (branch `fix/first-run-repeated-word`): the upload-failure test
-  checks list cell 1 (`1.<word>`) instead of `getByText(word)`, so a repeated kit word no longer trips strict mode.
+- **#71 flaky first-run test** in PR #73: the test checks word cell 1 by position, not by unique text.
 
 ## Next session picks up
 
