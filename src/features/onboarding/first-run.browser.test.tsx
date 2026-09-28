@@ -166,8 +166,13 @@ describe("first run", () => {
       .element(screen.getByRole("alert"))
       .toMatchTextContent("Couldn't save");
     await expect
-      .element(screen.getByText(words[0], { exact: true }))
-      .toBeVisible();
+      .element(
+        screen
+          .getByRole("list", { name: "Recovery words" })
+          .getByRole("listitem")
+          .first(),
+      )
+      .toHaveTextContent(`1.${words[0]}`);
     await screen.getByRole("button", { name: "Done" }).click();
     await screen.getByRole("button", { name: "Not now" }).click();
     await vi.waitFor(() => expect(onDone).toHaveBeenCalledOnce());

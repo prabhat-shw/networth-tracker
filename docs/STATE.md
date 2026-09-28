@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-28 (session 16 closed: #64, #69 merged) · next session: start here_
+_Last updated: 2026-09-28 (session 17: #71 fix in PR) · next session: start here_
 
 ## Where we are
 
@@ -22,10 +22,11 @@ _Last updated: 2026-09-28 (session 16 closed: #64, #69 merged) · next session: 
   the inviter's code check (match → wrap + `POST …/members`; mismatch → cancel, nothing wrapped).
 - **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)):
   CI fails `src/` changes without `CHANGELOG.md` (label `no-changelog` opts out); `/handoff` docs-impact pass.
+- **#71 flaky first-run test** in PR #73: the test checks word cell 1 by position, not by unique text.
 
 ## Next session picks up
 
-Next: **#71** (flaky first-run test: repeated recovery word, `size:S`), then **#48** (passkey PRF fast unlock), then **#46** = M1 E2E gate, last (two members, invite via
+Next: merge the #71 PR, then **#48** (passkey PRF fast unlock), then **#46** = M1 E2E gate, last (two members, invite via
 the panel, decrypt, recovery). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
 (cd8950e): `pnpm test` (152) · typecheck · check · build.

@@ -33,3 +33,4 @@ One line per session: date · issue · outcome.
 - 2026-09-27 · issue #63 · household gate: household key unwrapped after every unlock, waiting-to-join and confirm-the-sender screens, per-device trusted senders (ADR-0030)
 - 2026-09-28 · issue #64 · minimal Household panel: members, invite, pending/ready rows, inviter code check (match wraps to the shown key and adds; mismatch cancels, wraps nothing) (ADR-0031)
 - 2026-09-28 · issue #69 · CI requires CHANGELOG.md with src/ changes (no-changelog label opts out); /handoff docs-impact pass; PR bodies from the template (ADR-0032)
+- 2026-09-28 · issue #71 · first-run upload-failure test asserts recovery-word cell 1 by position, not by unique text (no more strict-mode flake on repeated words)
