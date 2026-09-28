@@ -7,6 +7,7 @@ import type { IdentityVault } from "@/crypto/vault";
 import { toBase64url } from "@/crypto/wire";
 import type { HouseholdApi } from "@/features/household/household-client";
 import { createKeySession } from "@/features/lock/key-session";
+import type { PrfApi } from "@/features/lock/passkey-prf";
 import { AppGateView } from "./app-gate";
 import {
   betterAuthSignIn,
@@ -164,7 +165,12 @@ describe("sign in over the real Better Auth client", () => {
 });
 
 describe("routing gate", () => {
-  const vault = {} as IdentityVault;
+  const vault = { passkeys: [] } as unknown as IdentityVault;
+  const prf = (available: boolean): PrfApi => ({
+    available: async () => available,
+    unlock: async () => null,
+    enrol: async () => null,
+  });
   const noVault = async () => null;
   const hasVault = async () => vault;
   const session = (email: string | null, pending = false) => ({
@@ -214,6 +220,7 @@ describe("routing gate", () => {
         loadVault={hasVault}
         keys={keys}
         householdApi={householdApi}
+        prf={prf(false)}
       >
         {app}
       </AppGateView>,
@@ -227,6 +234,45 @@ describe("routing gate", () => {
 
     keys.lock();
     await expect.element(gate.getByLabelText("Passphrase")).toBeVisible();
+  });
+
+  it("offers fast unlock once after a passphrase unlock; Not now goes to the app", async () => {
+    const identity = await generateIdentityKeyPair();
+    const { household, selfWrap } = await createHousehold(identity);
+    const householdApi: HouseholdApi = {
+      myHouseholds: async () => ({
+        households: [{ id: household.householdId }],
+        invites: [],
+      }),
+      myWrap: async () => toBase64url(selfWrap),
+      decline: async () => {},
+    };
+    const keys = createKeySession({ unlockVault: async () => identity });
+    const gate = await render(
+      <AppGateView
+        session={session("asha@example.com")}
+        loadVault={hasVault}
+        keys={keys}
+        householdApi={householdApi}
+        prf={prf(true)}
+      >
+        <p>the app</p>
+      </AppGateView>,
+    );
+    await gate.getByLabelText("Passphrase").fill("anything at all");
+    await gate.getByRole("button", { name: "Unlock" }).click();
+    await expect
+      .element(gate.getByText("Unlock faster next time"))
+      .toBeVisible();
+    await gate.getByRole("button", { name: "Not now" }).click();
+    await expect.element(gate.getByText("the app")).toBeVisible();
+    expect(keys.canEnrolPasskey()).toBe(false);
+
+    // Declined on this device: the next unlock goes straight to the app.
+    keys.lock();
+    await gate.getByLabelText("Passphrase").fill("anything at all");
+    await gate.getByRole("button", { name: "Unlock" }).click();
+    await expect.element(gate.getByText("the app")).toBeVisible();
   });
 
   it("offers a retry when the vault can't be loaded", async () => {

@@ -3,15 +3,22 @@
  * state, storage or a request: `state()` is a plain status snapshot the UI can render.
  * Locking drops every key reference. JS cannot zero a CryptoKey, but once nothing refers
  * to it the key is unreachable, and the private key was non-extractable to begin with.
+ *
+ * Right after a passphrase unlock the session can add one passkey slot (ADR-0034): the
+ * passphrase stays in this closure for at most `ENROL_WINDOW_MS`, and is dropped on lock,
+ * on use or on dismissal. It is never in React state, storage or a request.
  */
 import type { HouseholdKey } from "@/crypto/household";
 import {
+  addPasskeySlot,
   type IdentityVault,
   type UnlockedIdentity,
   unlockWithPassphrase,
 } from "@/crypto/vault";
+import { type PasskeyPrf, unlockWithPasskey } from "@/crypto/vault-passkey";
 
 export const DEFAULT_AUTO_LOCK_MS = 5 * 60_000;
+export const ENROL_WINDOW_MS = 2 * 60_000;
 
 export type LockStatus = "locked" | "unlocking" | "failed" | "unlocked";
 
@@ -21,6 +28,13 @@ export interface KeySession {
   subscribe(listener: () => void): () => void;
   /** Resolves true on success; a wrong passphrase leaves the session locked ("failed"). */
   unlock(vault: IdentityVault, passphrase: string): Promise<boolean>;
+  /** Same, with a passkey's PRF output (ADR-0033). */
+  unlockWithPasskey(vault: IdentityVault, prf: PasskeyPrf): Promise<boolean>;
+  /** True for a short while after a passphrase unlock (ADR-0034). */
+  canEnrolPasskey(): boolean;
+  /** Adds a passkey slot to the vault just unlocked; the capability is then used up. */
+  enrolPasskey(prf: PasskeyPrf): Promise<IdentityVault>;
+  dismissEnrol(): void;
   /** Starts unlocked with an identity just created or restored on this device (#53, #54). */
   start(identity: UnlockedIdentity): void;
   lock(): void;
@@ -37,17 +51,26 @@ export interface KeySessionOptions {
   autoLockMs?: number;
   now?: () => number;
   unlockVault?: typeof unlockWithPassphrase;
+  unlockPasskey?: typeof unlockWithPasskey;
+  addSlot?: typeof addPasskeySlot;
 }
 
 export function createKeySession({
   autoLockMs = DEFAULT_AUTO_LOCK_MS,
   now = Date.now,
   unlockVault = unlockWithPassphrase,
+  unlockPasskey = unlockWithPasskey,
+  addSlot = addPasskeySlot,
 }: KeySessionOptions = {}): KeySession {
   let snapshot: { status: LockStatus } = { status: "locked" };
   let identity: UnlockedIdentity | null = null;
   let household: HouseholdKey | null = null;
   let lastActivity = 0;
+  let enrol: {
+    vault: IdentityVault;
+    passphrase: string;
+    until: number;
+  } | null = null;
   let timer: ReturnType<typeof setTimeout> | undefined;
   // Bumped on every lock, so an unlock still deriving when the session locks is discarded.
   let generation = 0;
@@ -71,7 +94,33 @@ export function createKeySession({
     timer = undefined;
     identity = null;
     household = null;
+    enrol = null;
     set("locked");
+  }
+
+  /** `opened` runs before listeners hear "unlocked", so they see its effects. */
+  async function open(
+    opener: () => Promise<UnlockedIdentity>,
+    opened?: () => void,
+  ) {
+    const mine = ++generation;
+    identity = null;
+    household = null;
+    enrol = null;
+    set("unlocking");
+    let unlocked: UnlockedIdentity;
+    try {
+      unlocked = await opener();
+    } catch {
+      if (mine === generation) set("failed");
+      return false;
+    }
+    if (mine !== generation) return false;
+    identity = unlocked;
+    opened?.();
+    schedule();
+    set("unlocked");
+    return true;
   }
 
   function check() {
@@ -89,28 +138,32 @@ export function createKeySession({
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
-    async unlock(vault, passphrase) {
-      const mine = ++generation;
-      identity = null;
-      household = null;
-      set("unlocking");
-      let unlocked: UnlockedIdentity;
-      try {
-        unlocked = await unlockVault(vault, passphrase);
-      } catch {
-        if (mine === generation) set("failed");
-        return false;
-      }
-      if (mine !== generation) return false;
-      identity = unlocked;
-      schedule();
-      set("unlocked");
-      return true;
+    unlock: (vault, passphrase) =>
+      open(
+        () => unlockVault(vault, passphrase),
+        () => {
+          enrol = { vault, passphrase, until: now() + ENROL_WINDOW_MS };
+        },
+      ),
+    unlockWithPasskey: (vault, prf) => open(() => unlockPasskey(vault, prf)),
+    canEnrolPasskey: () =>
+      enrol !== null && snapshot.status === "unlocked" && now() < enrol.until,
+    async enrolPasskey(prf) {
+      const pending = enrol;
+      if (!pending || snapshot.status !== "unlocked" || now() >= pending.until)
+        throw new Error("passkey enrolment is not available");
+      const next = await addSlot(pending.vault, pending.passphrase, prf);
+      if (enrol === pending) enrol = null;
+      return next;
+    },
+    dismissEnrol() {
+      enrol = null;
     },
     start(unlocked) {
       generation++;
       identity = unlocked;
       household = null;
+      enrol = null;
       schedule();
       set("unlocked");
     },

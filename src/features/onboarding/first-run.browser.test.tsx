@@ -4,9 +4,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { unwrapHouseholdKey } from "@/crypto/household";
+import { randomBytes } from "@/crypto/kdf";
+import { newPrfSalt } from "@/crypto/vault-passkey";
 import { decodeVault, fromBase64url } from "@/crypto/wire";
 import { PASSKEY_HINT_KEY } from "@/features/auth/auth-client";
 import { createKeySession } from "@/features/lock/key-session";
+import { FAST_UNLOCK_KEY, type PrfApi } from "@/features/lock/passkey-prf";
 import { FirstRun, type FirstRunApi, httpFirstRunApi } from "./first-run";
 import { recoveryKitPdf } from "./recovery-kit-pdf";
 
@@ -43,7 +46,21 @@ const api: FirstRunApi = {
   addPasskey: vi.fn(async () => true),
 };
 
-async function start(over: Partial<FirstRunApi> = {}) {
+/** A passkey that gives no PRF output unless `withPrf`. No real WebAuthn in headless Chrome. */
+const fakePrf = (withPrf = false): PrfApi => ({
+  available: async () => true,
+  unlock: async () => null,
+  enrol: async () =>
+    withPrf
+      ? {
+          credentialId: randomBytes(32),
+          prfSalt: newPrfSalt(),
+          prfOutput: randomBytes(32),
+        }
+      : null,
+});
+
+async function start(over: Partial<FirstRunApi> = {}, prf = fakePrf()) {
   const keys = createKeySession();
   const onDone = vi.fn();
   const screen = await render(
@@ -51,6 +68,7 @@ async function start(over: Partial<FirstRunApi> = {}) {
       email="asha@example.com"
       api={{ ...api, ...over }}
       keys={keys}
+      prf={prf}
       onDone={onDone}
     />,
   );
@@ -186,6 +204,24 @@ describe("first run", () => {
     await screen.getByRole("button", { name: "Add passkey" }).click();
     await vi.waitFor(() => expect(onDone).toHaveBeenCalledOnce());
     expect(localStorage.getItem(PASSKEY_HINT_KEY)).toBe("1");
+    // No PRF from this passkey: sign-in only; the vault stays v1 and the offer stays open.
+    expect(onDone.mock.calls[0][0].vault.passkeys).toEqual([]);
+    expect(localStorage.getItem(FAST_UNLOCK_KEY)).toBeNull();
+  }, 30_000);
+
+  it("turns a PRF passkey into a fast-unlock slot and uploads the vault", async () => {
+    const sent = fakeServer();
+    const { screen, onDone, words } = await start({}, fakePrf(true));
+    await confirmKit(screen, words);
+    await screen.getByRole("button", { name: "Done" }).click();
+    await screen.getByRole("button", { name: "Add passkey" }).click();
+    await vi.waitFor(() => expect(onDone).toHaveBeenCalledOnce());
+    const puts = sent.filter((r) => r.method === "PUT");
+    expect(puts).toHaveLength(2);
+    const uploaded = decodeVault(JSON.parse(puts[1].body ?? ""));
+    expect(uploaded.passkeys).toHaveLength(1);
+    expect(onDone.mock.calls[0][0].vault).toEqual(uploaded);
+    expect(localStorage.getItem(FAST_UNLOCK_KEY)).toBe("enrolled");
   }, 30_000);
 });
 

@@ -57,8 +57,10 @@ otherwise.
 
 When you open the app you enter your passphrase. It is put through **Argon2id**, a
 deliberately slow calculation, to produce your key. The slowness is the point: it makes
-guessing passphrases in bulk impractical. Your device may also offer fingerprint or face
-unlock through a **passkey**, which is a convenience layer over the same key.
+guessing passphrases in bulk impractical. You can also turn on **fast unlock** with a
+**passkey** (fingerprint or face). The passkey produces a secret that never leaves your device,
+and that secret unlocks a separate copy of the same key. Your passphrase keeps working, and
+without the passkey that copy is useless.
 
 Because the key never reaches the server, **nobody can reset your password and hand your data
 back.** That is the flip side of the guarantee. So there are two independent ways back in:

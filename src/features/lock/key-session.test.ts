@@ -15,9 +15,11 @@ import {
   type IdentityVault,
   type UnlockedIdentity,
 } from "@/crypto/vault";
+import type { PasskeyPrf } from "@/crypto/vault-passkey";
 import {
   createKeySession,
   DEFAULT_AUTO_LOCK_MS,
+  ENROL_WINDOW_MS,
   installAutoLock,
   type KeySession,
 } from "./key-session";
@@ -133,6 +135,63 @@ describe("key session", () => {
     session.lock();
     off();
     expect(seen).toEqual(["unlocking", "unlocked", "locked"]);
+  });
+});
+
+describe("passkey enrolment window (ADR-0034)", () => {
+  const prf = {} as PasskeyPrf; // the fakes ignore it
+  const make = () => {
+    const addSlot = vi.fn(async (v: IdentityVault) => v);
+    const s = createKeySession({
+      now: () => clock,
+      unlockVault: async (_v, p) => {
+        if (p !== "right") throw new DecryptError();
+        return identity;
+      },
+      unlockPasskey: async () => identity,
+      addSlot,
+    });
+    return { s, addSlot };
+  };
+
+  it("opens only after a passphrase unlock, and is used up once", async () => {
+    const { s, addSlot } = make();
+    expect(s.canEnrolPasskey()).toBe(false);
+    await s.unlock(vault, "right");
+    expect(s.canEnrolPasskey()).toBe(true);
+    await s.enrolPasskey(prf);
+    expect(addSlot).toHaveBeenCalledWith(vault, "right", prf);
+    expect(s.canEnrolPasskey()).toBe(false);
+    await expect(s.enrolPasskey(prf)).rejects.toThrow();
+  });
+
+  it("closes on lock, on dismissal and after the window", async () => {
+    const { s } = make();
+    await s.unlock(vault, "right");
+    s.lock();
+    expect(s.canEnrolPasskey()).toBe(false);
+    await s.unlock(vault, "right");
+    s.dismissEnrol();
+    expect(s.canEnrolPasskey()).toBe(false);
+    await s.unlock(vault, "right");
+    clock += ENROL_WINDOW_MS; // no timers: the session stays unlocked
+    expect(s.canEnrolPasskey()).toBe(false);
+    await expect(s.enrolPasskey(prf)).rejects.toThrow();
+  });
+
+  it("never opens after a passkey unlock or a failed passphrase", async () => {
+    const { s } = make();
+    expect(await s.unlockWithPasskey(vault, prf)).toBe(true);
+    expect(s.canEnrolPasskey()).toBe(false);
+    s.lock();
+    expect(await s.unlock(vault, "wrong")).toBe(false);
+    expect(s.canEnrolPasskey()).toBe(false);
+  });
+
+  it("keeps the passphrase out of the status snapshot", async () => {
+    const { s } = make();
+    await s.unlock(vault, "right");
+    expect(JSON.stringify(s.state())).not.toContain("right");
   });
 });
 

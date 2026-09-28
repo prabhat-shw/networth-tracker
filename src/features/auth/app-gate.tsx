@@ -10,7 +10,9 @@ import type { IdentityVault } from "@/crypto/vault";
 import { decodeVault } from "@/crypto/wire";
 import type { HouseholdApi } from "@/features/household/household-client";
 import { HouseholdGate } from "@/features/household/household-gate";
+import { EnrolOffer } from "@/features/lock/enrol-offer";
 import { type KeySession, keySession } from "@/features/lock/key-session";
+import type { PrfApi } from "@/features/lock/passkey-prf";
 import { UnlockScreen, useAutoLock } from "@/features/lock/unlock-screen";
 import { FirstRun, type FirstRunApi } from "@/features/onboarding/first-run";
 import { authClient } from "./auth-client";
@@ -39,7 +41,7 @@ type VaultState =
  * The app decides where a person goes (UX.md §3.0, ADR-0025): signed out → sign-in; no
  * vault → first run (#53); vault → unlock (§3.1); unlocked → the household gate (#63),
  * which loads the household key or shows the waiting / confirm screens, then the app. Re-locking returns here, to the unlock screen, without
- * signing out.
+ * signing out. Right after a passphrase unlock, the one-time passkey offer comes first (#75).
  */
 export function AppGateView({
   session,
@@ -47,6 +49,7 @@ export function AppGateView({
   keys = keySession,
   firstRunApi,
   householdApi,
+  prf,
   children,
 }: {
   session: GateSession;
@@ -54,6 +57,7 @@ export function AppGateView({
   keys?: KeySession;
   firstRunApi?: FirstRunApi;
   householdApi?: HouseholdApi;
+  prf?: PrfApi;
   children: ReactNode;
 }) {
   const { status } = useSyncExternalStore(
@@ -63,7 +67,12 @@ export function AppGateView({
   );
   const [vault, setVault] = useState<VaultState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
+  const [offerOpen, setOfferOpen] = useState(true);
   useAutoLock(keys);
+
+  useEffect(() => {
+    if (status === "locked") setOfferOpen(true);
+  }, [status]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` re-runs the load on "Try again".
   useEffect(() => {
@@ -110,7 +119,19 @@ export function AppGateView({
         email={session.email}
         vault={vault.vault}
         session={keys}
+        prf={prf}
         onVaultChanged={(next) => setVault({ status: "ready", vault: next })}
+      />
+    );
+  if (offerOpen && keys.canEnrolPasskey())
+    return (
+      <EnrolOffer
+        vault={vault.vault}
+        keys={keys}
+        prf={prf}
+        putVault={firstRunApi?.putVault}
+        onEnrolled={(next) => setVault({ status: "ready", vault: next })}
+        onClose={() => setOfferOpen(false)}
       />
     );
   // Household key: loaded after every unlock, or the waiting / confirm screens (#63).

@@ -33,7 +33,9 @@ what type, with which institutions).
 - Identity vault tests: the private key is absent from the stored vault, and create /
   change / restore make no `fetch` or IndexedDB call ([ADR-0018](decisions/0018-identity-vault-and-recovery-code.md))
 - Passkey slots ([ADR-0033](decisions/0033-vault-passkey-slots.md)): a wrong PRF output, salt or credential, or a wrap moved to
-  another credential or vault, fails closed; the PRF output is never in the vault or a request
+  another credential or vault, fails closed; the PRF output is never in the vault or a request.
+  Fast unlock (#75, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md)): the post-unlock enrol
+  window closes on lock, use, dismissal and after 2 min, and never opens after a passkey unlock
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under

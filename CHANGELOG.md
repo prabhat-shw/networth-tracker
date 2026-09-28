@@ -6,6 +6,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 ## [Unreleased]
 
 ### Added
+- Passkey fast unlock (M1, #74, #75): unlock with Face ID, a fingerprint or a passkey on
+  browsers that support it; the passphrase opens in place as the fallback, and by itself after
+  two failed tries. Set up at first run or from a one-time offer after a passphrase unlock.
 - Household panel (M1, #64): invite a member by email, see pending and ready invites, and
   add a member only after comparing security codes; a mismatch cancels the invite.
 - Joining a household (M1, #52, #63): the invitee waits with their code shown, then confirms
