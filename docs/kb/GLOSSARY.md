@@ -53,6 +53,7 @@ Finance and engineering terms in one place. Fuller explanations:
 | **IndexedDB** | The browser's built-in database; how the app works offline |
 | **Next.js** | The framework hosting the app shell and the small API |
 | **Passkey** | Fingerprint/face login replacing a password, tied to the device |
+| **Fast unlock (PRF)** | Unlocking with a passkey: its PRF output (a per-passkey secret only that device can produce) opens a vault slot. See ADR-0033/0034 |
 | **Playwright** | Runs the app in a real browser for end-to-end tests |
 | **Postgres** | The server's database, storing ciphertext only |
 | **PWA** | Progressive Web App — a website installable to a home screen, works offline |

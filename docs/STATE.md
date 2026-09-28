@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-28 (session 17: #71 merged, #74 in PR) · next session: start here_
+_Last updated: 2026-09-28 (session 17: #71, #74 merged; #75 in PR) · next session: start here_
 
 ## Where we are
 
@@ -15,21 +15,20 @@ _Last updated: 2026-09-28 (session 17: #71 merged, #74 in PR) · next session: s
   tests use the Argon2id bounds floor except `crypto.test.ts`). Vitest config is `vitest.config.mts`.
 - **#52 join API** merged (PR #65, [ADR-0029](decisions/0029-ending-an-invite.md)): invites with
   the inviter's name in `GET /api/households`; cancel and decline endpoints.
-- **#63 household gate** merged (PR #66, [ADR-0030](decisions/0030-household-key-after-unlock.md)):
-  `src/features/household/`. Household key unwrapped after every unlock; waiting and confirm screens.
-- **#64 Household panel** merged (PR #68, [ADR-0031](decisions/0031-inviter-household-panel.md)):
-  `household-panel.tsx` + `panel-client.ts`, on the unlocked page. Invite, pending/ready rows, and
-  the inviter's code check (match → wrap + `POST …/members`; mismatch → cancel, nothing wrapped).
+- **#63 household gate** merged (PR #66, [ADR-0030](decisions/0030-household-key-after-unlock.md)): `src/features/household/`.
+- **#64 Household panel** merged (PR #68, [ADR-0031](decisions/0031-inviter-household-panel.md)): invite + inviter's code check.
 - **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)); see Gotchas.
-- **#71** flaky test merged (PR #73). **#48 split** into #74 + #75. **#74 vault passkey slots** in PR ([ADR-0033](decisions/0033-vault-passkey-slots.md)): `vault-passkey.ts`,
-  `identity-wrap.ts`; wire v2 (v1 while no passkeys), 12 KiB limit, bounds in `wire.ts`.
+- **#71** merged (PR #73). **#48 split** into #74 + #75. **#74** vault passkey slots merged (PR #76,
+  [ADR-0033](decisions/0033-vault-passkey-slots.md)): wire v2 only with slots, 12 KiB limit.
+- **#75 fast unlock** in PR ([ADR-0034](decisions/0034-passkey-fast-unlock-ux.md)): `passkey-prf.ts`,
+  `enrol-offer.tsx`; passkey-first unlock, fallback after 2, enrol at first run + one-time offer.
 
 ## Next session picks up
 
-Next: owner approves + merges the #74 PR (`area:crypto`), then **#75** (passkey unlock screen + enrolment), then **#46** = M1 E2E gate, last (two members, invite via
+Next: owner approves + merges the #75 PR (`area:crypto`; closes #48 too), then **#46** = M1 E2E gate, last (two members, invite via
 the panel, decrypt, recovery). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
-(56eecae): `pnpm test` (152; 177 on the #74 branch) · typecheck · check · build.
+(c8f20f9): `pnpm test` (177; 190 on the #75 branch) · typecheck · check · build.
 
 ## Also open
 
@@ -41,6 +40,7 @@ after confirming; ADR-0031 member names in the members API (needed by UX.md §3.
 
 ## Gotchas / open threads
 
+- **Passkey PRF** can't run in headless Chrome (tests fake `PrfApi`): verify fast unlock on a real phone.
 - **Staging migrations are manual**: after any new `drizzle/` migration, run `pnpm db:migrate`
   against Neon's unpooled URL (DEPLOYMENT.md step 4) *before* merging code that needs it.
 - Neon URLs may carry `channel_binding=require`; if staging reports `db:"down"`, strip it in `client.ts`.

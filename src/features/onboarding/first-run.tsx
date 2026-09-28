@@ -10,6 +10,11 @@ import {
 import { encodeVault, toBase64url } from "@/crypto/wire";
 import { authClient, PASSKEY_HINT_KEY } from "@/features/auth/auth-client";
 import { type KeySession, keySession } from "@/features/lock/key-session";
+import {
+  markFastUnlock,
+  type PrfApi,
+  webAuthnPrf,
+} from "@/features/lock/passkey-prf";
 import { RecoveryKit } from "./recovery-kit";
 
 const MIN_PASSPHRASE = 12;
@@ -72,17 +77,20 @@ const passkeysSupported = () => typeof PublicKeyCredential !== "undefined";
  * First run (UX.md §3.0 B, ADR-0025): choose a passphrase → save the recovery kit → optional
  * sign-in passkey. Keys are made on this device. Nothing reaches the server until the kit is
  * confirmed; then the vault is uploaded and, if nobody has invited this person, a household
- * is created silently. The session then starts unlocked with the new identity.
+ * is created silently. The session then starts unlocked with the new identity. A step-3
+ * passkey with PRF also becomes a fast-unlock slot (ADR-0034); `enrol` is dropped at `finish`.
  */
 export function FirstRun({
   email,
   api = httpFirstRunApi,
   keys = keySession,
+  prf = webAuthnPrf,
   onDone,
 }: {
   email: string;
   api?: FirstRunApi;
   keys?: KeySession;
+  prf?: PrfApi;
   onDone: (outcome: FirstRunOutcome) => void;
 }) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -94,6 +102,8 @@ export function FirstRun({
     null,
   );
   const outcome = useRef<FirstRunOutcome>(null);
+  const enrol =
+    useRef<Awaited<ReturnType<typeof createIdentity>>["enrolPasskey"]>(null);
 
   async function choosePassphrase(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -105,9 +115,10 @@ export function FirstRun({
     setError(null);
     setBusy(true);
     try {
-      const { vault, identity, recoveryCode } =
+      const { vault, identity, recoveryCode, enrolPasskey } =
         await createIdentity(passphrase);
       made.current = { vault, identity };
+      enrol.current = enrolPasskey;
       setWords(recoveryCode.split(" "));
       setStep(2);
     } catch {
@@ -163,10 +174,34 @@ export function FirstRun({
     } catch {
       // Storage off: the passkey still works, the button just isn't offered first.
     }
+    await enrolFastUnlock();
     finish();
   }
 
-  const finish = () => outcome.current && onDone(outcome.current);
+  /** Best effort: any failure leaves passphrase unlock, and the offer after a later unlock. */
+  async function enrolFastUnlock() {
+    const current = outcome.current;
+    const add = enrol.current;
+    if (!current || !add) return;
+    setBusy(true);
+    try {
+      const result = await prf.enrol();
+      if (!result) return;
+      const vault = await add(current.vault, result);
+      await api.putVault(vault);
+      outcome.current = { ...current, vault };
+      markFastUnlock("enrolled");
+    } catch {
+      // The offer after the next passphrase unlock covers it.
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const finish = () => {
+    enrol.current = null;
+    if (outcome.current) onDone(outcome.current);
+  };
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-6 p-8">
@@ -230,8 +265,8 @@ export function FirstRun({
         <section className="flex w-full max-w-xs flex-col gap-3">
           <h2 className="text-lg font-semibold">Faster sign-in</h2>
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Add a passkey to sign in with Face ID or your fingerprint. You'll
-            still unlock with your passphrase.
+            Add a passkey to sign in and unlock with Face ID or your
+            fingerprint. Your passphrase keeps working.
           </p>
           <button
             type="button"
