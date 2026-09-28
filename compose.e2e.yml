@@ -1,0 +1,28 @@
+# Throwaway E2E services (ADR-0035): Postgres + Mailpit only; Playwright runs the app on
+# the host. Data lives in tmpfs, so `down` leaves nothing behind. Never the real stack.
+#   docker compose -f compose.e2e.yml -p nwt-e2e up -d --wait
+#   pnpm e2e
+#   docker compose -f compose.e2e.yml -p nwt-e2e down -v
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: nwt
+      POSTGRES_PASSWORD: nwt
+      POSTGRES_DB: nwt
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nwt"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  # SMTP sink: catches sign-in codes; the specs read them from its HTTP API.
+  mail:
+    image: axllent/mailpit:v1.31.3
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"

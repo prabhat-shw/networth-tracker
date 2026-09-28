@@ -32,6 +32,7 @@ Generate a secret with `openssl rand -base64 32`. Never commit `.env`.
 | `pnpm dev` | Run the app locally with hot reload |
 | `pnpm test` | Unit + component tests — the gate for every PR. Component tests drive your installed Google Chrome, headless |
 | `pnpm test:watch` | Tests re-running as you type |
+| `pnpm e2e` | Playwright end-to-end specs in `e2e/`. First start the throwaway services: `docker compose -f compose.e2e.yml -p nwt-e2e up -d --wait` (and `down -v` after) |
 | `pnpm typecheck` | TypeScript, no emit |
 | `pnpm check` | Biome lint + format check (CI runs this exact command) |
 | `pnpm format` | Fix formatting and safe lint issues |
@@ -92,7 +93,9 @@ the owner's explicit approval — never self-merge those.
    installed Chrome (`*.browser.test.tsx`; [ADR-0026](../decisions/0026-component-tests-browser-mode.md)).
 3. **End-to-end (Playwright)** — assembled flows, plus two security specs that must never be
    deleted: *one household cannot read another's records*, and *the database contains no
-   plaintext*.
+   plaintext*. A production build against throwaway Postgres + Mailpit, which catches the
+   sign-in codes ([ADR-0035](../decisions/0035-e2e-harness.md)); CI runs it on PRs touching
+   the server, crypto or auth.
 4. **Contract tests** — run against the API; they are what will make the future Rust backend
    a swap rather than a rewrite.
 
