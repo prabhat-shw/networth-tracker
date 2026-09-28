@@ -1,0 +1,60 @@
+name: E2E
+
+# Playwright against a production build, Postgres and Mailpit (ADR-0035). Runs where M1's
+# trust boundary lives; the unit + browser suites in ci.yml still gate every PR.
+on:
+  pull_request:
+    paths:
+      - "src/server/**"
+      - "src/crypto/**"
+      - "src/features/auth/**"
+      - "e2e/**"
+      - "playwright.config.ts"
+      - "drizzle/**"
+      - ".github/workflows/e2e.yml"
+  push:
+    branches: [main]
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      db:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: nwt
+          POSTGRES_PASSWORD: nwt
+          POSTGRES_DB: nwt
+        ports: ["55432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U nwt" --health-interval 2s
+          --health-timeout 2s --health-retries 20
+      mail:
+        image: axllent/mailpit:v1.31.3
+        ports: ["1025:1025", "8025:8025"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Uses the runner's installed Chrome (channel: chrome); nothing is downloaded.
+      - run: pnpm e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

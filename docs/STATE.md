@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-28 (session 17: #71, #74 merged; #75 in PR) · next session: start here_
+_Last updated: 2026-09-28 (session 17: #71, #74, #75 merged; #78 in PR) · next session: start here_
 
 ## Where we are
 
@@ -20,15 +20,15 @@ _Last updated: 2026-09-28 (session 17: #71, #74 merged; #75 in PR) · next sessi
 - **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)); see Gotchas.
 - **#71** merged (PR #73). **#48 split** into #74 + #75. **#74** vault passkey slots merged (PR #76,
   [ADR-0033](decisions/0033-vault-passkey-slots.md)): wire v2 only with slots, 12 KiB limit.
-- **#75 fast unlock** in PR ([ADR-0034](decisions/0034-passkey-fast-unlock-ux.md)): `passkey-prf.ts`,
-  `enrol-offer.tsx`; passkey-first unlock, fallback after 2, enrol at first run + one-time offer.
+- **#75 fast unlock** merged (PR #77, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md); closed #48). Owner tests on a device after M1.
+- **#46 split** into #78 (E2E harness, in PR, [ADR-0035](decisions/0035-e2e-harness.md)) + #79 (M1 acceptance spec).
 
 ## Next session picks up
 
-Next: owner approves + merges the #75 PR (`area:crypto`; closes #48 too), then **#46** = M1 E2E gate, last (two members, invite via
-the panel, decrypt, recovery). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
+Next: merge the #78 PR, then **#79** = M1 acceptance spec on `e2e/support.ts`, with the owner-chosen
+record probe built in only when `NEXT_PUBLIC_E2E=1`. Last M1 issue; closes #46. Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
-(c8f20f9): `pnpm test` (177; 190 on the #75 branch) · typecheck · check · build.
+(d0272fa): `pnpm test` (190) · `pnpm e2e` (smoke, #78 branch) · typecheck · check · build.
 
 ## Also open
 
@@ -48,9 +48,8 @@ after confirming; ADR-0031 member names in the members API (needed by UX.md §3.
   Env vars need a **Redeploy** to take effect. `APP_ORIGIN` = the staging URL (used from M1 auth).
 - **Docker on Windows:** the image only builds because of the new `.dockerignore`; never
   remove `node_modules` from it. Docker Desktop must be running (`docker info`).
-- For a throwaway local stack, export `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `APP_ORIGIN`,
-  `SMTP_HOST`, `SMTP_FROM` (dummies are fine)
-  and use `docker compose -p nwt-e2e …` then `down -v`, so the real volume is never touched.
+- **E2E (ADR-0035):** `docker compose -f compose.e2e.yml -p nwt-e2e up -d --wait`, `pnpm e2e`, then `down -v`
+  (Docker Desktop running). CI: `.github/workflows/e2e.yml`, path-filtered.
 - Neon `db:migrate` prints "…already exists, skipping" NOTICEs; they are harmless.
 - New household-scoped routes: call `guardHousehold` first; never answer 403 (ADR-0021).
 - Server tests that touch SQL: use PGlite with the real migrations (`migratedDb()` from `db/test-db.ts`), not

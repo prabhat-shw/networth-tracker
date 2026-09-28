@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Vitest browser-mode failure screenshots
 .vitest/
+# Playwright E2E output (ADR-0035)
+/test-results/
+/playwright-report/
