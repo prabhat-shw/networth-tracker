@@ -275,6 +275,34 @@ describe("routing gate", () => {
     await expect.element(gate.getByText("the app")).toBeVisible();
   });
 
+  it("keeps the code step when the session is re-checked on returning to the tab (#82)", async () => {
+    const api = fakeApi();
+    const view = (s: ReturnType<typeof session>) => (
+      <AppGateView session={s} signInApi={api}>
+        <p>the app</p>
+      </AppGateView>
+    );
+    const screen = await render(view(session(null, true)));
+    await expect.element(screen.getByText("Loading…")).toBeVisible();
+    await screen.rerender(view(session(null)));
+    await screen.getByLabelText("Email").fill("asha@example.com");
+    await screen.getByRole("button", { name: "Send code" }).click();
+    await expect.element(screen.getByLabelText("6-digit code")).toBeVisible();
+
+    // Better Auth's focus refetch: pending again while signed out, then settled.
+    await screen.rerender(view(session(null, true)));
+    await expect.element(screen.getByLabelText("6-digit code")).toBeVisible();
+    await screen.rerender(view(session(null)));
+    await expect.element(screen.getByLabelText("6-digit code")).toBeVisible();
+    await expect
+      .element(
+        screen.getByText(
+          "If this address can use NetWorth, a code is on its way.",
+        ),
+      )
+      .toBeVisible();
+  });
+
   it("offers a retry when the vault can't be loaded", async () => {
     const load = vi
       .fn<() => Promise<IdentityVault | null>>()
