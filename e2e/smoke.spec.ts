@@ -20,6 +20,7 @@ test("sign in → first run → unlocked → reload → unlock", async ({ page }
   await signIn(page, email);
   await expect(page.getByText("Choose a passphrase")).toBeVisible();
   await firstRun(page, PASSPHRASE);
+  await expect(appHeading(page)).toBeVisible();
 
   // A reload drops the in-memory keys: the vault comes back from the server.
   await page.reload();

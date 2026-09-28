@@ -8,6 +8,9 @@ on:
       - "src/server/**"
       - "src/crypto/**"
       - "src/features/auth/**"
+      - "src/features/e2e/**"
+      - "src/app/page.tsx"
+      - "next.config.ts"
       - "e2e/**"
       - "playwright.config.ts"
       - "drizzle/**"
@@ -49,7 +52,16 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Uses the runner's installed Chrome (channel: chrome); nothing is downloaded.
+      # The E2E build includes the record probe (NEXT_PUBLIC_E2E=1, e2e/env.ts).
       - run: pnpm e2e
+      - name: The record probe is absent from a normal build (ADR-0036)
+        run: |
+          rm -rf .next
+          NEXT_TELEMETRY_DISABLED=1 pnpm build
+          if grep -rq "nwt-e2e-record-probe" .next --exclude-dir=cache; then
+            echo "::error::the E2E record probe was bundled into a build without NEXT_PUBLIC_E2E=1"
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

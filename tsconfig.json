@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "nwt-e2e-probe": ["./src/features/e2e/probe-stub.tsx"]
     }
   },
   "include": [
