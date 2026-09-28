@@ -36,6 +36,10 @@ what type, with which institutions).
   another credential or vault, fails closed; the PRF output is never in the vault or a request.
   Fast unlock (#75, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md)): the post-unlock enrol
   window closes on lock, use, dismissal and after 2 min, and never opens after a passkey unlock
+- M1 E2E (`e2e/m1-acceptance.spec.ts`, [ADR-0036](decisions/0036-e2e-record-probe.md)): B decrypts A's
+  record, restore on a fresh profile, cross-household 404, and no passphrase, recovery phrase or
+  record plaintext in any request, browser storage or server table; the E2E-only record probe is
+  asserted absent from a normal build
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under

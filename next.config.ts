@@ -31,7 +31,18 @@ function resolveGitSha(): string {
   }
 }
 
+/**
+ * `nwt-e2e-probe` is the E2E record probe only in builds made with NEXT_PUBLIC_E2E=1
+ * (ADR-0036); every other build resolves it to a stub, so the probe is never bundled.
+ * tsconfig maps the name to the stub for type-checking.
+ */
+const e2eProbe =
+  process.env.NEXT_PUBLIC_E2E === "1"
+    ? "./src/features/e2e/record-probe.tsx"
+    : "./src/features/e2e/probe-stub.tsx";
+
 const nextConfig: NextConfig = {
+  turbopack: { resolveAlias: { "nwt-e2e-probe": e2eProbe } },
   // Required by the Docker runner stage (ADR-0006). Not on Vercel: Next 16.3 standalone
   // skips next-server.js.nft.json, which Vercel's builder needs (vercel/next.js#96646).
   output: isStaging(process.env) ? undefined : "standalone",
