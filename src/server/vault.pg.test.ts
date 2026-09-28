@@ -5,6 +5,7 @@ import { createIdentity } from "@/crypto/vault";
 import {
   decodeVault,
   encodeVault,
+  MAX_VAULT_JSON_BYTES,
   toBase64url,
   type VaultWire,
 } from "@/crypto/wire";
@@ -103,7 +104,9 @@ describe("identity vault relay", () => {
       kdf: { ...wire.kdf, memoryKiB: 64 * 1024 * 1024 },
     };
     expect((await put(BALA, greedy)).status).toBe(400);
-    expect((await put(BALA, "x".repeat(5000))).status).toBe(413);
+    expect((await put(BALA, "x".repeat(MAX_VAULT_JSON_BYTES + 1))).status).toBe(
+      413,
+    );
     expect((await put(BALA, wire, "text/plain")).status).toBe(415);
     expect((await get(BALA)).status).toBe(404);
   });

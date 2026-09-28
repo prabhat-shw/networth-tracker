@@ -48,9 +48,11 @@ Better Auth under `/api/auth`, paths as Better Auth 1.7 defines them. Session co
 Not available: `/sign-up/email` or any password or social route. Invites are created by
 `pnpm auth:invite <email>` (owner bootstrap) and by the in-app household invite below.
 
-## Identity vault (ADR-0022)
+## Identity vault (ADR-0022, ADR-0033)
 
-Session required (`401`); always the caller's own vault. Body is the vault wire form:
+Session required (`401`); always the caller's own vault. Body is the vault wire form (v1;
+v2 adds `"passkeys": [{ "credentialId", "prfSalt", "wrap" }]`, 1–5 slots, only when the user
+has enrolled a passkey):
 
 ```json
 { "v": 1, "publicKey": "<b64url 65 B>", "byPassphrase": "<b64url>", "byRecovery": "<b64url>",
@@ -58,8 +60,9 @@ Session required (`401`); always the caller's own vault. Body is the vault wire 
 ```
 
 - `GET` → `200` vault (`cache-control: no-store`), or `404` before the first upload.
-- `PUT` (`content-type: application/json`, ≤ 4 KiB) → `204`. `400` wrong shape or KDF
-  params outside memory 19 MiB–1 GiB, iterations 2–10, parallelism 1–4, salt 16–64 B;
+- `PUT` (`content-type: application/json`, ≤ 12 KiB) → `204`. `400` wrong shape or KDF
+  params outside memory 19 MiB–1 GiB, iterations 2–10, parallelism 1–4, salt 16–64 B, or a
+  passkey slot outside credential id 16–1023 B, PRF salt 32 B, wrap ≤ 512 B, no duplicates;
   `409` if `publicKey` differs from the stored one (immutable); `413`; `415`.
 - Clients decode every fetched vault with the same bounds before running Argon2id.
 

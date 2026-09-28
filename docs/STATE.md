@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-28 (session 17: #71 fix in PR) · next session: start here_
+_Last updated: 2026-09-28 (session 17: #71 merged, #74 in PR) · next session: start here_
 
 ## Where we are
 
@@ -20,16 +20,16 @@ _Last updated: 2026-09-28 (session 17: #71 fix in PR) · next session: start her
 - **#64 Household panel** merged (PR #68, [ADR-0031](decisions/0031-inviter-household-panel.md)):
   `household-panel.tsx` + `panel-client.ts`, on the unlocked page. Invite, pending/ready rows, and
   the inviter's code check (match → wrap + `POST …/members`; mismatch → cancel, nothing wrapped).
-- **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)):
-  CI fails `src/` changes without `CHANGELOG.md` (label `no-changelog` opts out); `/handoff` docs-impact pass.
-- **#71 flaky first-run test** in PR #73: the test checks word cell 1 by position, not by unique text.
+- **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)); see Gotchas.
+- **#71** flaky test merged (PR #73). **#48 split** into #74 + #75. **#74 vault passkey slots** in PR ([ADR-0033](decisions/0033-vault-passkey-slots.md)): `vault-passkey.ts`,
+  `identity-wrap.ts`; wire v2 (v1 while no passkeys), 12 KiB limit, bounds in `wire.ts`.
 
 ## Next session picks up
 
-Next: merge the #71 PR, then **#48** (passkey PRF fast unlock), then **#46** = M1 E2E gate, last (two members, invite via
+Next: owner approves + merges the #74 PR (`area:crypto`), then **#75** (passkey unlock screen + enrolment), then **#46** = M1 E2E gate, last (two members, invite via
 the panel, decrypt, recovery). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
-(cd8950e): `pnpm test` (152) · typecheck · check · build.
+(56eecae): `pnpm test` (152; 177 on the #74 branch) · typecheck · check · build.
 
 ## Also open
 
