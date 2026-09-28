@@ -46,6 +46,14 @@ export async function signInCode(email: string, before = 0): Promise<string> {
 }
 
 export async function signIn(page: Page, email: string) {
+  // Every browser here shares one IP, and code sends are limited to 3 per 5 min per IP
+  // (RATE_LIMITS, ADR-0020). Reset the throwaway counters rather than weaken the limit.
+  const sql = database();
+  try {
+    await sql`delete from rate_limit`;
+  } finally {
+    await sql.end();
+  }
   const before = (await mailTo(email)).length;
   await page.goto("/");
   await page.getByLabel("Email").fill(email);

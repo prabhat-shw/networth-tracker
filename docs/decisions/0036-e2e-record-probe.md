@@ -31,6 +31,10 @@ deferring the check to M2.
   hold no databases. Private keys and the HDK are non-extractable, so they have no raw
   form to search for; the unit suites keep asserting they never leave.
 
+- **Sign-in rate limits stay as they are.** All browsers in a run share one IP, and code sends
+  are limited to 3 per 5 min per IP, so `signIn` empties the throwaway `rate_limit` table
+  first. No test switch exists in the auth config.
+
 ## Consequences
 
 - The probe goes away (or becomes a real record screen's test) once M2 has push.
