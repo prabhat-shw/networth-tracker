@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-28 (session 17: #71, #74, #75, #78 merged; #79 in PR) · next session: start here_
+_Last updated: 2026-09-28 (session 17: #71, #74, #75, #78, #79 merged; #82 in PR) · next session: start here_
 
 ## Where we are
 
@@ -21,15 +21,15 @@ _Last updated: 2026-09-28 (session 17: #71, #74, #75, #78 merged; #79 in PR) · 
 - **#71** merged (PR #73). **#48 split** into #74 + #75. **#74** vault passkey slots merged (PR #76,
   [ADR-0033](decisions/0033-vault-passkey-slots.md)): wire v2 only with slots, 12 KiB limit.
 - **#75 fast unlock** merged (PR #77, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md); closed #48). Owner tests on a device after M1.
-- **#46 split:** #78 E2E harness merged (PR #80, [ADR-0035](decisions/0035-e2e-harness.md)); **#79 M1 acceptance**
-  in PR ([ADR-0036](decisions/0036-e2e-record-probe.md)): `e2e/m1-acceptance.spec.ts`, record probe aliased in only for E2E.
+- **#46 split:** #78 E2E harness merged (PR #80, [ADR-0035](decisions/0035-e2e-harness.md)); #79 M1 acceptance
+  merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). **#82** (sign-in lost the code step on tab return) in PR.
 
 ## Next session picks up
 
-Next: owner approves + merges the #79 PR (`area:security`; closes #46), then the owner's real-device
-passkey check (#75), then close M1 and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
+Next: merge the #82 PR; the owner is running the real-device passkey check (#75) on staging; then
+close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
-(9a580d5): `pnpm test` (190) · `pnpm e2e` (smoke; + M1 acceptance on the #79 branch) · typecheck · check · build.
+(8952155): `pnpm test` (190; 191 on #82) · `pnpm e2e` (smoke + M1 acceptance) · typecheck · check · build.
 
 ## Also open
 

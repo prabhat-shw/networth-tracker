@@ -8,6 +8,7 @@ import {
 } from "react";
 import type { IdentityVault } from "@/crypto/vault";
 import { decodeVault } from "@/crypto/wire";
+import type { SignInApi } from "@/features/auth/auth-client";
 import type { HouseholdApi } from "@/features/household/household-client";
 import { HouseholdGate } from "@/features/household/household-gate";
 import { EnrolOffer } from "@/features/lock/enrol-offer";
@@ -50,6 +51,7 @@ export function AppGateView({
   firstRunApi,
   householdApi,
   prf,
+  signInApi,
   children,
 }: {
   session: GateSession;
@@ -58,6 +60,7 @@ export function AppGateView({
   firstRunApi?: FirstRunApi;
   householdApi?: HouseholdApi;
   prf?: PrfApi;
+  signInApi?: SignInApi;
   children: ReactNode;
 }) {
   const { status } = useSyncExternalStore(
@@ -68,7 +71,15 @@ export function AppGateView({
   const [vault, setVault] = useState<VaultState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const [offerOpen, setOfferOpen] = useState(true);
+  // Better Auth refetches the session on window focus and, while signed out, reports it
+  // pending again. Only the first check may replace the screen; otherwise coming back from
+  // the mail app unmounts sign-in and loses the code step (#82).
+  const [settled, setSettled] = useState(!session.pending);
   useAutoLock(keys);
+
+  useEffect(() => {
+    if (!session.pending) setSettled(true);
+  }, [session.pending]);
 
   useEffect(() => {
     if (status === "locked") setOfferOpen(true);
@@ -88,8 +99,9 @@ export function AppGateView({
     };
   }, [session.email, loadVault, attempt]);
 
-  if (session.pending) return <Centered>Loading…</Centered>;
-  if (!session.email) return <SignIn onSignedIn={session.refetch} />;
+  if (session.pending && !settled) return <Centered>Loading…</Centered>;
+  if (!session.email)
+    return <SignIn api={signInApi} onSignedIn={session.refetch} />;
   if (vault.status === "loading") return <Centered>Loading…</Centered>;
   if (vault.status === "error")
     return (
