@@ -10,6 +10,8 @@ import {
   encodeVault,
   fromBase64url,
   KDF_BOUNDS,
+  MAX_VAULT_JSON_BYTES,
+  PASSKEY_BOUNDS,
   toBase64url,
   VaultFormatError,
   type VaultWire,
@@ -122,9 +124,21 @@ describe("vault wire codec", () => {
 
   it.each([
     [
-      "wrong version",
+      "unknown version",
+      (w: Record<string, unknown>) => {
+        w.v = 3;
+      },
+    ],
+    [
+      "v2 without passkeys",
       (w: Record<string, unknown>) => {
         w.v = 2;
+      },
+    ],
+    [
+      "passkeys on v1",
+      (w: Record<string, unknown>) => {
+        w.passkeys = [];
       },
     ],
     [
@@ -165,6 +179,74 @@ describe("vault wire codec", () => {
     ],
   ])("rejects %s", (_, patch) => {
     expect(tamper(patch)).toThrow(VaultFormatError);
+  });
+
+  it("keeps a vault without passkeys as v1", () => {
+    expect(wire.v).toBe(1);
+    expect("passkeys" in wire).toBe(false);
+    expect(decodeVault(wire).passkeys).toEqual([]);
+  });
+
+  it("round-trips v2 passkey slots, including the largest allowed vault", () => {
+    const { maxSlots, credentialIdBytes } = PASSKEY_BOUNDS;
+    const big: IdentityVault = {
+      ...vault,
+      passkeys: Array.from({ length: maxSlots }, (_, i) => ({
+        credentialId: new Uint8Array(credentialIdBytes.max).fill(i),
+        prfSalt: new Uint8Array(32).fill(i),
+        wrap: new Uint8Array(512).fill(i),
+      })),
+    };
+    const json = JSON.stringify(encodeVault(big));
+    expect(new TextEncoder().encode(json).length).toBeLessThanOrEqual(
+      MAX_VAULT_JSON_BYTES,
+    );
+    expect(decodeVault(JSON.parse(json))).toEqual(big);
+  });
+
+  const slot = {
+    credentialId: toBase64url(new Uint8Array(32).fill(1)),
+    prfSalt: toBase64url(new Uint8Array(32)),
+    wrap: toBase64url(new Uint8Array(100)),
+  };
+  const v2 = (passkeys: unknown) => () =>
+    decodeVault({ ...wire, v: 2, passkeys });
+
+  it("accepts a well-formed v2 slot", () => {
+    expect(v2([slot])().passkeys).toHaveLength(1);
+  });
+
+  it.each([
+    ["an empty list", []],
+    [
+      "too many slots",
+      Array.from({ length: 6 }, (_, i) => ({
+        ...slot,
+        credentialId: toBase64url(new Uint8Array(32).fill(i)),
+      })),
+    ],
+    ["duplicate credentials", [slot, { ...slot }]],
+    [
+      "a short credential id",
+      [{ ...slot, credentialId: toBase64url(new Uint8Array(8)) }],
+    ],
+    [
+      "an oversized credential id",
+      [{ ...slot, credentialId: toBase64url(new Uint8Array(1024)) }],
+    ],
+    [
+      "a wrong-size PRF salt",
+      [{ ...slot, prfSalt: toBase64url(new Uint8Array(16)) }],
+    ],
+    [
+      "an oversized wrap",
+      [{ ...slot, wrap: toBase64url(new Uint8Array(513)) }],
+    ],
+    ["an extra slot field", [{ ...slot, prfOutput: slot.prfSalt }]],
+    ["a non-object slot", ["slot"]],
+    ["a non-array", { 0: slot }],
+  ])("rejects v2 with %s", (_, passkeys) => {
+    expect(v2(passkeys)).toThrow(VaultFormatError);
   });
 
   it("rejects non-objects", () => {

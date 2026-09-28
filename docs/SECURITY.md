@@ -32,6 +32,8 @@ what type, with which institutions).
   asserted there, while other tests use the bounds floor for speed ([ADR-0028](decisions/0028-fast-kdf-in-tests.md))
 - Identity vault tests: the private key is absent from the stored vault, and create /
   change / restore make no `fetch` or IndexedDB call ([ADR-0018](decisions/0018-identity-vault-and-recovery-code.md))
+- Passkey slots ([ADR-0033](decisions/0033-vault-passkey-slots.md)): a wrong PRF output, salt or credential, or a wrap moved to
+  another credential or vault, fails closed; the PRF output is never in the vault or a request
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under

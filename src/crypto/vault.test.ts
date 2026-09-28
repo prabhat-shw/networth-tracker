@@ -201,7 +201,14 @@ describe("the private key never leaves the device", () => {
 
     for (const v of [vault, changed, restored.vault]) {
       expect(Object.keys(v).sort()).toEqual(
-        ["byPassphrase", "byRecovery", "kdf", "publicKey", "v"].sort(),
+        [
+          "byPassphrase",
+          "byRecovery",
+          "kdf",
+          "passkeys",
+          "publicKey",
+          "v",
+        ].sort(),
       );
       for (const field of [v.publicKey, v.byPassphrase, v.byRecovery]) {
         expect(field).toBeInstanceOf(Uint8Array);

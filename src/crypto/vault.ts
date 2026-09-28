@@ -1,38 +1,37 @@
 /**
- * Identity vault (ADR-0002, ADR-0018): the member's P-256 private key, AES-GCM wrapped twice —
- * under the passphrase unlock key and under the recovery-code key. The vault holds only the
- * public key and ciphertext, so it may be stored in IndexedDB and uploaded as-is.
+ * Identity vault (ADR-0002, ADR-0018): the member's P-256 private key, AES-GCM wrapped
+ * under the passphrase unlock key, the recovery-code key and, optionally, one key per
+ * passkey (ADR-0033, `vault-passkey.ts`). The vault holds only the public key, public slot
+ * metadata and ciphertext, so it may be stored in IndexedDB and uploaded as-is.
  */
-import { DecryptError, encodeEnvelope, IV_BYTES, parseEnvelope } from "./aead";
 import {
-  type Bytes,
-  deriveUnlockKey,
-  type KdfParams,
-  randomBytes,
-} from "./kdf";
-import {
-  exportPublicKey,
-  generateIdentityKeyPair,
-  importPublicKey,
-  P256,
-} from "./keys";
+  type UnlockedIdentity,
+  unlockedIdentity,
+  unwrapPrivateKey as unwrap,
+  wrapPrivateKey as wrap,
+} from "./identity-wrap";
+import { type Bytes, deriveUnlockKey, type KdfParams } from "./kdf";
+import { exportPublicKey, generateIdentityKeyPair } from "./keys";
 import { deriveRecoveryKey, generateRecoveryCode } from "./recovery";
+import {
+  type PasskeyPrf,
+  type PasskeySlot,
+  withPasskeySlot,
+} from "./vault-passkey";
+
+export type { UnlockedIdentity } from "./identity-wrap";
 
 type Slot = "passphrase" | "recovery";
 
 export interface IdentityVault {
-  v: 1;
+  /** In-memory model version; the wire form stays v1 while `passkeys` is empty. */
+  v: 2;
   /** Raw SEC1 public key; the HDK is wrapped to this, so it never changes. */
   publicKey: Bytes;
   kdf: KdfParams;
   byPassphrase: Bytes;
   byRecovery: Bytes;
-}
-
-/** In-memory only. `privateKey` is non-extractable: it cannot be exported or re-wrapped. */
-export interface UnlockedIdentity {
-  publicKey: CryptoKey;
-  privateKey: CryptoKey;
+  passkeys: PasskeySlot[];
 }
 
 /** AAD binds each wrap to its slot and to the public key it belongs to. */
@@ -44,53 +43,31 @@ function slotAad(slot: Slot, publicKey: Bytes): Bytes {
   return aad;
 }
 
-async function wrapPrivateKey(
+function wrapPrivateKey(
   key: CryptoKey,
   privateKey: CryptoKey,
   slot: Slot,
   publicKey: Bytes,
 ): Promise<Bytes> {
-  const iv = randomBytes(IV_BYTES);
-  const ct = new Uint8Array(
-    await crypto.subtle.wrapKey("pkcs8", privateKey, key, {
-      name: "AES-GCM",
-      iv,
-      additionalData: slotAad(slot, publicKey),
-    }),
-  );
-  return encodeEnvelope(slot, iv, ct);
+  return wrap(key, privateKey, slot, slotAad(slot, publicKey));
 }
 
 /** Throws `DecryptError` for a wrong key, a swapped slot or any tampering. */
-async function unwrapPrivateKey(
+function unwrapPrivateKey(
   key: CryptoKey,
   sealed: Bytes,
   slot: Slot,
   publicKey: Bytes,
   extractable: boolean,
 ): Promise<CryptoKey> {
-  const { kid, iv, ct } = parseEnvelope(sealed);
-  if (kid !== slot) throw new DecryptError();
-  try {
-    return await crypto.subtle.unwrapKey(
-      "pkcs8",
-      ct,
-      key,
-      { name: "AES-GCM", iv, additionalData: slotAad(slot, publicKey) },
-      P256,
-      extractable,
-      ["deriveBits"],
-    );
-  } catch {
-    throw new DecryptError();
-  }
+  return unwrap(key, sealed, slot, slotAad(slot, publicKey), extractable);
 }
 
-async function unlocked(
+function unlocked(
   vault: IdentityVault,
   privateKey: CryptoKey,
 ): Promise<UnlockedIdentity> {
-  return { publicKey: await importPublicKey(vault.publicKey), privateKey };
+  return unlockedIdentity(vault.publicKey, privateKey);
 }
 
 /** Re-imports an extractable private key as a non-extractable one for the session. */
@@ -109,12 +86,18 @@ async function sessionKey(
 
 /**
  * New identity. The recovery code is returned once for the user to print; it is not kept
- * anywhere. Runs entirely offline.
+ * anywhere. Runs entirely offline. `enrolPasskey` adds a passkey slot during first run
+ * without asking for the passphrase again; drop it when first run ends, since it keeps the
+ * extractable private key reachable.
  */
 export async function createIdentity(passphrase: string): Promise<{
   vault: IdentityVault;
   recoveryCode: string;
   identity: UnlockedIdentity;
+  enrolPasskey: (
+    vault: IdentityVault,
+    prf: PasskeyPrf,
+  ) => Promise<IdentityVault>;
 }> {
   const pair = await generateIdentityKeyPair();
   const publicKey = await exportPublicKey(pair.publicKey);
@@ -122,7 +105,7 @@ export async function createIdentity(passphrase: string): Promise<{
   const recoveryCode = generateRecoveryCode();
   const recoveryKey = await deriveRecoveryKey(recoveryCode);
   const vault: IdentityVault = {
-    v: 1,
+    v: 2,
     publicKey,
     kdf: params,
     byPassphrase: await wrapPrivateKey(
@@ -137,12 +120,39 @@ export async function createIdentity(passphrase: string): Promise<{
       "recovery",
       publicKey,
     ),
+    passkeys: [],
   };
+  const privateKey = pair.privateKey;
   return {
     vault,
     recoveryCode,
     identity: await unlocked(vault, await sessionKey(vault, key)),
+    enrolPasskey: (current, prf) => {
+      if (current.publicKey.join() !== publicKey.join())
+        return Promise.reject(new Error("not this identity's vault"));
+      return withPasskeySlot(current, privateKey, prf);
+    },
   };
+}
+
+/**
+ * Adds a passkey slot (ADR-0033). The session key is non-extractable, so this needs the
+ * passphrase: call it right after a passphrase unlock. Throws `DecryptError` on a wrong one.
+ */
+export async function addPasskeySlot(
+  vault: IdentityVault,
+  passphrase: string,
+  prf: PasskeyPrf,
+): Promise<IdentityVault> {
+  const { key } = await deriveUnlockKey(passphrase, vault.kdf);
+  const privateKey = await unwrapPrivateKey(
+    key,
+    vault.byPassphrase,
+    "passphrase",
+    vault.publicKey,
+    true,
+  );
+  return withPasskeySlot(vault, privateKey, prf);
 }
 
 /** Throws `DecryptError` on a wrong passphrase; never yields a usable key. */
