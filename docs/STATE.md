@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-28 (session 16, #64 merged, #69 in review) · next session: start here_
+_Last updated: 2026-09-28 (session 16 closed: #64, #69 merged) · next session: start here_
 
 ## Where we are
 
@@ -20,15 +20,15 @@ _Last updated: 2026-09-28 (session 16, #64 merged, #69 in review) · next sessio
 - **#64 Household panel** merged (PR #68, [ADR-0031](decisions/0031-inviter-household-panel.md)):
   `household-panel.tsx` + `panel-client.ts`, on the unlocked page. Invite, pending/ready rows, and
   the inviter's code check (match → wrap + `POST …/members`; mismatch → cancel, nothing wrapped).
-- **#69 docs enforcement** on `chore/docs-enforcement`, PR #70 ([ADR-0032](decisions/0032-changelog-and-docs-impact.md)):
+- **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)):
   CI fails `src/` changes without `CHANGELOG.md` (label `no-changelog` opts out); `/handoff` docs-impact pass.
 
 ## Next session picks up
 
 Next: **#71** (flaky first-run test: repeated recovery word, `size:S`), then **#48** (passkey PRF fast unlock), then **#46** = M1 E2E gate, last (two members, invite via
 the panel, decrypt, recovery). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
-after confirming; ADR-0031 member names in the members API. Green: `pnpm test` (152) ·
-typecheck · check · build.
+after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
+(cd8950e): `pnpm test` (152) · typecheck · check · build.
 
 ## Also open
 
@@ -62,8 +62,13 @@ typecheck · check · build.
 - Money is integer **paise**; use `src/domain/money.ts`.
 - Crypto: never export a private key or HDK except via `wrapKey`; `open` failures are always
   `DecryptError` (no detail). `gh issue list -m` needs the full milestone title.
-- **Docs per PR:** `CHANGELOG.md` gets an Unreleased line for every user-visible change (it lagged
-  all of M1 until #64); new concepts go in `docs/kb/` + GLOSSARY. Map: `docs/kb/07-keeping-docs-current.md`.
+- **Docs per PR (ADR-0032):** CI fails `src/` changes without `CHANGELOG.md` (label `no-changelog` for
+  internal work); `/handoff` walks the kb/07 table; PR body = filled-in `.github/pull_request_template.md`.
+- Two PRs in flight both append `SESSION_LOG.md` and regenerate the README block: after the first
+  merges, merge `main` into the second, keep both log lines, `pnpm docs:sync`.
+- New issues are not auto-added to the Kanban: `gh project item-add 2 --owner prabhat-shw --url …`.
+- Browser tests: `render()` from vitest-browser-react is async; await it. Python edits on Windows:
+  open with `newline=''` or files turn CRLF.
 - **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).
 
 ## Resume command
