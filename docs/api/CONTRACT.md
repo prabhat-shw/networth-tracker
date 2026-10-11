@@ -90,7 +90,9 @@ listed (`400`). Member public keys always come from the member's stored vault.
 - `GET …/:householdId/members` → `200 { wrappedHdk, members: [{ userId, publicKey,
   joinedAt }] }`. `wrappedHdk` is the caller's own; `no-store`.
 - `POST …/:householdId/invites` `{ email }` → `204`. Creates or extends a 14-day household
-  invite and the sign-up invite for that address.
+  invite and the sign-up invite for that address. `409 { "error": "recovery-required" }`
+  while the caller's vault has no passphrase, recovery-kit or passkey slot (nothing is
+  written; [ADR-0040](../decisions/0040-recovery-method-before-first-data.md)). The M2 record push will answer the same.
 - `GET …/:householdId/invites` → `200 { invites: [{ emailHash, expiresAt, invitee }] }`.
   `invitee` is `{ userId, email, publicKey }` once that address has an account and a
   vault, else `null`; `no-store`. Check the key's fingerprint out of band before wrapping.

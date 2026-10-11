@@ -330,6 +330,19 @@ just starts over.
   (All safe to say, ADR-0018.) A valid kit for someone else: *"This kit doesn't match your
   account."*
 
+**E. Protect your account first** ([ADR-0040](decisions/0040-recovery-method-before-first-data.md), #90) — shown in place when the server refuses the
+first invite (later: first data) because the vault has no recovery method. Heading
+*"Protect your account first"*; copy: *"Your key is only on this device. Before anyone else
+joins, choose a way back in if this device is lost. We can't reset it for you."*
+- **[Use Face ID / passkey]** (only when the browser may do PRF), with *"Recommended. Also
+  turns on app lock: you unlock with Face ID each time."* Registers a passkey, then asks for
+  it once more for its PRF secret. No PRF output: *"This passkey can sign you in but can't
+  unlock your data. Choose a passphrase or recovery kit."*
+- **[Choose a passphrase]** → one field (≥ 12 characters) → **[Save passphrase]**; **Back**.
+- **[Save a recovery kit]** → the B2 kit screen (download/print, type two words, **Done**).
+- **Not now** closes it; the invite isn't sent. Once saved, the refused invite is sent
+  again without another tap.
+
 **Tap budgets** (additions to principle 8; typing and biometrics don't count):
 
 | Task | Budget |
@@ -340,6 +353,7 @@ just starts over.
 | First run, code → Home (no invite) | 4 (Continue → Download → Done → Not now) |
 | Invitee joining, once added | 1 (Yes) |
 | Inviter adding a ready member from Home | 2 (nudge → It matches) |
+| First invite, protecting with a passphrase | 2 (Choose a passphrase → Save; the invite resends itself) |
 
 **API gaps for #45** (to add with it): `GET /api/households` (my households) and a way for a
 signed-in invitee to learn they have an open household invite, and from whom, to route to

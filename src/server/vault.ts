@@ -8,6 +8,7 @@ import { eq, sql } from "drizzle-orm";
 import {
   decodeVault,
   encodeVault,
+  hasRecoveryMethod,
   MAX_VAULT_JSON_BYTES,
   VaultFormatError,
   type VaultSlots,
@@ -92,4 +93,18 @@ export async function storedVaultSlots(
     .where(eq(identityVaults.userId, userId))
     .limit(1);
   return row ? vaultSlots(decodeVault(JSON.parse(row.vault))) : null;
+}
+
+/**
+ * Protect before the first data (ADR-0037, ADR-0040): an invite, and from M2 a record push,
+ * needs at least one recovery slot in the caller's vault, so nothing exists that only this
+ * device could open. `null` = go ahead; otherwise the 409 to return. No vault counts as none.
+ */
+export async function requireRecoveryMethod(
+  db: Db,
+  userId: string,
+): Promise<Response | null> {
+  const slots = await storedVaultSlots(db, userId);
+  if (slots && hasRecoveryMethod(slots)) return null;
+  return Response.json({ error: "recovery-required" }, { status: 409 });
 }

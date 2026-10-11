@@ -13,6 +13,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   GHSA-vcvr-r3jv-pc5j); `sharp` ≥ 0.35.5 and `source-map-js` ≥ 1.2.2 via pnpm overrides.
 
 ### Added
+- Protect before sharing (M1, #90): inviting someone needs a way back in first, either Face
+  ID / passkey, a passphrase or a recovery kit; the server refuses otherwise. Choosing Face ID
+  also turns on app lock.
 - Magic-link sign-in (M1, #96): "Email me a link instead" beside the email code. The link
   works once, for 15 minutes, and signs in only when you tap Continue.
 - Passkey fast unlock (M1, #74, #75): unlock with Face ID, a fingerprint or a passkey on
