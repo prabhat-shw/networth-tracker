@@ -50,7 +50,7 @@ Better Auth under `/api/auth`, paths as Better Auth 1.7 defines them. Session co
 Not available: `/sign-up/email` or any password or social route. Invites are created by
 `pnpm auth:invite <email>` (owner bootstrap) and by the in-app household invite below.
 
-## Identity vault (ADR-0022, ADR-0033, ADR-0038)
+## Identity vault (ADR-0022, ADR-0033, ADR-0038, ADR-0043)
 
 Session required (`401`); always the caller's own vault. Body is the vault wire form (v1;
 v2 adds `"passkeys": [{ "credentialId", "prfSalt", "wrap" }]`, 1–5 slots, only when the user
@@ -66,7 +66,10 @@ then every slot is optional, e.g. `{ "v": 3, "publicKey": "…" }` right after f
 - `PUT` (`content-type: application/json`, ≤ 12 KiB) → `204`. `400` wrong shape or KDF
   params outside memory 19 MiB–1 GiB, iterations 2–10, parallelism 1–4, salt 16–64 B, or a
   passkey slot outside credential id 16–1023 B, PRF salt 32 B, wrap ≤ 512 B, no duplicates;
-  `409` if `publicKey` differs from the stored one (immutable); `413`; `415`. v3 also
+  `409 { "error": "public key cannot change" }` if `publicKey` differs from the stored one
+  (immutable); `409 { "error": "recovery-required" }` if the stored vault has a recovery slot
+  (passphrase, recovery or passkey) and the upload has none (ADR-0043, #108; checked
+  atomically with the write, nothing changes); `413`; `415`. v3 also
   `400`s `kdf` without `byPassphrase` (or the reverse), an empty `passkeys`, or both
   passphrase and recovery slots (that vault has a v1/v2 form).
 - The server reads only which slots exist (`storedVaultSlots`), never their contents; the

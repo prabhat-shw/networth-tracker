@@ -37,7 +37,7 @@ what type, with which institutions).
   identity, an extractable key or tampering fails closed. Missing vault slots fail closed.
 - App lock and slot removal ([ADR-0043](decisions/0043-app-lock-and-slot-removal.md)): a slot rebuilt from the passphrase or a passkey
   opens the same key, a wrong one fails closed; app lock on leaves IndexedDB empty; removing
-  the last recovery method throws.
+  the last recovery method throws, and the server refuses such a vault upload (PGlite, #108).
 - Recovery before first data ([ADR-0040](decisions/0040-recovery-method-before-first-data.md)): the server refuses an invite (409) while the caller's
   vault has no recovery slot (PGlite test); each chooser option's saved vault really opens
   with that option, and Face ID drops the device slot only after the upload (browser tests).

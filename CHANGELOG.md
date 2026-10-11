@@ -6,6 +6,8 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 ## [Unreleased]
 
 ### Security
+- The server refuses a sign-in-methods update that would leave no way back in (M1, #108),
+  so a faulty app version can't strand your data on one device.
 - Identity vault v3 (M1, #88): groundwork for "email and done" sign-in. The key can live on
   this device under a key no script can read, and a recovery method can be added later
   without re-entering anything; the server still sees only which methods exist.
