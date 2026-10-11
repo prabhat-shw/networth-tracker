@@ -12,6 +12,11 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 - Dependencies (#86): Next.js 16.3.4 → 16.3.8 (critical `next/og` RCE advisory
   GHSA-vcvr-r3jv-pc5j); `sharp` ≥ 0.35.5 and `source-map-js` ≥ 1.2.2 via pnpm overrides.
 
+### Changed
+- First run asks nothing (M1, #97): after the email code or link, the app sets itself up
+  on this device and opens; coming back on the same device opens it without unlocking. A
+  way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
+
 ### Added
 - Protect before sharing (M1, #90): inviting someone needs a way back in first, either Face
   ID / passkey, a passphrase or a recovery kit; the server refuses otherwise. Choosing Face ID

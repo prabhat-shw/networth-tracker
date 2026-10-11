@@ -4,11 +4,24 @@ import { cleanup, render } from "vitest-browser-react";
 import { createHousehold } from "@/crypto/household";
 import { generateIdentityKeyPair } from "@/crypto/keys";
 import type { IdentityVault } from "@/crypto/vault";
+import {
+  createDeviceIdentity,
+  type DeviceSlot,
+  type DeviceSlotStore,
+} from "@/crypto/vault-device";
 import { toBase64url } from "@/crypto/wire";
 import type { HouseholdApi } from "@/features/household/household-client";
 import { createKeySession } from "@/features/lock/key-session";
 import type { PrfApi } from "@/features/lock/passkey-prf";
+import type { FirstRunApi } from "@/features/onboarding/first-run";
+import type { StorageEnv } from "@/features/onboarding/install-hint";
 import { AppGateView } from "./app-gate";
+
+const persistedEnv: StorageEnv = {
+  iosBrowserTab: () => false,
+  persisted: async () => true,
+};
+
 import {
   betterAuthSignIn,
   PASSKEY_HINT_KEY,
@@ -264,9 +277,27 @@ describe("routing gate", () => {
   const hasVault = async () => vault;
   const session = (email: string | null, pending = false) => ({
     pending,
+    userId: email ? "0a000000-0000-4000-8000-0000000000a1" : null,
     email,
     refetch: vi.fn(),
   });
+  /** No device slot unless one is given; never touches IndexedDB. */
+  const devices =
+    (slot: DeviceSlot | null = null) =>
+    (): DeviceSlotStore => ({
+      load: async () => slot,
+      save: async (s) => {
+        slot = s;
+      },
+      clear: async () => {
+        slot = null;
+      },
+    });
+  const firstRunApi: FirstRunApi = {
+    putVault: async () => {},
+    myHouseholds: async () => ({ households: [], invited: false }),
+    createHousehold: async () => {},
+  };
 
   it("signed out → sign-in; no vault → first run; vault → unlock; unlocked → household → app", async () => {
     // A real identity and a self-wrapped household, so the household gate (#63) opens.
@@ -291,22 +322,31 @@ describe("routing gate", () => {
     await expect.element(out.getByLabelText("Email")).toBeVisible();
     await cleanup();
 
+    // First run asks nothing: straight to the app with a new household.
+    const firstKeys = createKeySession();
     const first = await render(
       <AppGateView
         session={session("asha@example.com")}
         loadVault={noVault}
-        keys={keys}
+        devices={devices()}
+        firstRunApi={firstRunApi}
+        keys={firstKeys}
+        storageEnv={persistedEnv}
       >
         {app}
       </AppGateView>,
     );
-    await expect.element(first.getByText("Choose a passphrase")).toBeVisible();
+    await expect
+      .element(first.getByText("the app"), { timeout: 15_000 })
+      .toBeVisible();
+    expect(firstKeys.householdKey()).not.toBeNull();
     await cleanup();
 
     const gate = await render(
       <AppGateView
         session={session("asha@example.com")}
         loadVault={hasVault}
+        devices={devices()}
         keys={keys}
         householdApi={householdApi}
         prf={prf(false)}
@@ -341,6 +381,7 @@ describe("routing gate", () => {
       <AppGateView
         session={session("asha@example.com")}
         loadVault={hasVault}
+        devices={devices()}
         keys={keys}
         householdApi={householdApi}
         prf={prf(true)}
@@ -398,11 +439,70 @@ describe("routing gate", () => {
       .mockRejectedValueOnce(new Error("offline"))
       .mockResolvedValue(null);
     const screen = await render(
-      <AppGateView session={session("asha@example.com")} loadVault={load}>
+      <AppGateView
+        session={session("asha@example.com")}
+        loadVault={load}
+        devices={devices()}
+        firstRunApi={{ ...firstRunApi, putVault: () => new Promise(() => {}) }}
+      >
         <p>the app</p>
       </AppGateView>,
     );
     await screen.getByRole("button", { name: "Try again" }).click();
-    await expect.element(screen.getByText("Choose a passphrase")).toBeVisible();
+    await expect
+      .element(screen.getByText("Setting up on this device…"))
+      .toBeVisible();
+  });
+
+  it("returning with this device's slot opens the app with no unlock, and again after auto-lock", async () => {
+    const { vault, device, identity } = await createDeviceIdentity();
+    const { household, selfWrap } = await createHousehold(identity);
+    const householdApi: HouseholdApi = {
+      myHouseholds: async () => ({
+        households: [{ id: household.householdId }],
+        invites: [],
+      }),
+      myWrap: async () => toBase64url(selfWrap),
+      decline: async () => {},
+    };
+    const keys = createKeySession();
+    const screen = await render(
+      <AppGateView
+        session={session("asha@example.com")}
+        loadVault={async () => vault}
+        devices={devices(device)}
+        keys={keys}
+        householdApi={householdApi}
+        storageEnv={persistedEnv}
+      >
+        <p>the app</p>
+      </AppGateView>,
+    );
+    await expect.element(screen.getByText("the app")).toBeVisible();
+    await expect
+      .element(screen.getByLabelText("Passphrase"))
+      .not.toBeInTheDocument();
+    keys.lock();
+    await expect.element(screen.getByText("the app")).toBeVisible();
+    expect(keys.state().status).toBe("unlocked");
+  });
+
+  it("another identity's slot is ignored; a slotless vault elsewhere explains where the key is", async () => {
+    const mine = await createDeviceIdentity();
+    const other = await createDeviceIdentity();
+    const screen = await render(
+      <AppGateView
+        session={session("asha@example.com")}
+        loadVault={async () => mine.vault}
+        devices={devices(other.device)}
+        keys={createKeySession()}
+      >
+        <p>the app</p>
+      </AppGateView>,
+    );
+    await expect
+      .element(screen.getByText(/Your key is only on the device/))
+      .toBeVisible();
+    await expect.element(screen.getByText("the app")).not.toBeInTheDocument();
   });
 });
