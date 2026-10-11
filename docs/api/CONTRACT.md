@@ -38,6 +38,8 @@ Better Auth under `/api/auth`, paths as Better Auth 1.7 defines them. Session co
 | --- | --- | --- | --- |
 | POST | `/email-otp/send-verification-otp` | `{ email, type: "sign-in" }` → `200` always; a code is mailed only to a registered or invited address | 3 / 5 min |
 | POST | `/sign-in/email-otp` | `{ email, otp }` → `200` + session cookie; creates the account on first sign-in **only with an open invite** (else `403`) | 5 / 5 min |
+| POST | `/sign-in/magic-link` | `{ email }` → `200 { status: true }` always; a one-time link (`APP_ORIGIN/#link=<token>`, 15 min, stored hashed) is mailed only to a registered or invited address ([ADR-0039](../decisions/0039-magic-link-sign-in.md)) | 3 / 5 min |
+| GET | `/magic-link/verify?token=` | no `callbackURL` → `200 { token, user, session }` + session cookie; the token works once; creates the account **only with an open invite** (else `403`); a spent/unknown token → `302` with `error=INVALID_TOKEN` | 5 / 5 min |
 | GET | `/passkey/generate-register-options` | session required → WebAuthn creation options | 30 / min |
 | POST | `/passkey/verify-registration` | session required; `{ response, name? }` → passkey stored | 30 / min |
 | GET/POST | `/passkey/generate-authenticate-options` | → WebAuthn request options | 30 / min |

@@ -13,6 +13,8 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   GHSA-vcvr-r3jv-pc5j); `sharp` ≥ 0.35.5 and `source-map-js` ≥ 1.2.2 via pnpm overrides.
 
 ### Added
+- Magic-link sign-in (M1, #96): "Email me a link instead" beside the email code. The link
+  works once, for 15 minutes, and signs in only when you tap Continue.
 - Passkey fast unlock (M1, #74, #75): unlock with Face ID, a fingerprint or a passkey on
   browsers that support it; the passphrase opens in place as the fallback, and by itself after
   two failed tries. Set up at first run or from a one-time offer after a passphrase unlock.

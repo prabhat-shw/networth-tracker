@@ -253,8 +253,8 @@ Visual detail (colour, spacing, exact type) is in §7; see it rendered with real
 
 > **Being replaced by onboarding v2** ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), owner 2026-10-11):
 > email code or magic link → straight into the app; a recovery method (Face ID / passkey,
-> passphrase or kit) is chosen before the first data or invite. #89 rewrites this section;
-> until then it describes what is built.
+> passphrase or kit) is chosen before the first data or invite. **A. Sign in** is current
+> (magic link added, #96); #97 rewrites B (first run) and the routing; until then they describe what is built.
 
 **Purpose:** get a person from an email address to an unlocked app, once, without making
 security feel like paperwork, and without the server ever seeing a secret. Approved by the owner
@@ -275,6 +275,13 @@ signed in ─┬─ vault on this device or GET /api/identity/vault → 200 ─�
   numeric keypad). It **submits itself on the 6th digit**; no button tap.
 - Copy after sending, whatever the address: *"If this address can use NetWorth, a code is on
   its way."* It never says whether an account or invite exists (ADR-0020).
+- **Magic link** ([ADR-0039](decisions/0039-magic-link-sign-in.md)): under [Send code], a text button **Email me a link
+  instead**. After sending: *"If this address can use NetWorth, a sign-in link is on its way.
+  Open it on this device."*, with **Resend link** (30 s) and **Send a code instead**. The link
+  opens the app with `#link=…`; the screen clears it from the address bar and shows *"You
+  opened a sign-in link."* + **[Continue]**: only that tap spends the link (mail scanners
+  that pre-open links can't). Spent or expired (15 min): *"That link has expired or was
+  already used. Send a new one."* and the email form.
 - **Resend** unlocks after 30 s. **Wrong code:** inline, field cleared. **Expired:** inline
   "That code has expired — send a new one". **429:** "Too many tries. Try again in 5 minutes"
   with a live countdown; the fields stay filled.
@@ -329,6 +336,7 @@ just starts over.
 | --- | --- |
 | Returning, this device, with passkey → Home | 2 (passkey → Unlock) |
 | Sign in by email code | 1 (Send code; the code auto-submits) |
+| Sign in by magic link | 2 (Email me a link → Continue; the mail tap doesn't count) |
 | First run, code → Home (no invite) | 4 (Continue → Download → Done → Not now) |
 | Invitee joining, once added | 1 (Yes) |
 | Inviter adding a ready member from Home | 2 (nudge → It matches) |

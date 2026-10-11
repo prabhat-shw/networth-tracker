@@ -4,11 +4,11 @@
  * answers "code sent" identically for every address, so there is no outcome for "unknown".
  */
 import { passkeyClient } from "@better-auth/passkey/client";
-import { emailOTPClient } from "better-auth/client/plugins";
+import { emailOTPClient, magicLinkClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  plugins: [emailOTPClient(), passkeyClient()],
+  plugins: [emailOTPClient(), magicLinkClient(), passkeyClient()],
   // Looks `fetch` up per call rather than capturing it at startup, so the global that
   // browser tests intercept is the one every auth request goes through.
   fetchOptions: { customFetchImpl: (input, init) => fetch(input, init) },
@@ -17,6 +17,7 @@ export const authClient = createAuthClient({
 export type SignInError =
   | { kind: "wrong-code" }
   | { kind: "stale-code" } // expired, or too many wrong tries: a new code is needed
+  | { kind: "stale-link" } // expired, already used, or not valid: a new link is needed
   | { kind: "rate-limited"; retryAfterS: number }
   | { kind: "failed" };
 
@@ -25,6 +26,10 @@ export type SignInResult = { ok: true } | { ok: false; error: SignInError };
 export interface SignInApi {
   sendCode(email: string): Promise<SignInResult>;
   verifyCode(email: string, code: string): Promise<SignInResult>;
+  /** Mails a one-time sign-in link (ADR-0039); same answer for every address. */
+  sendLink(email: string): Promise<SignInResult>;
+  /** Spends the token from the link's `#link=` fragment. */
+  verifyLink(token: string): Promise<SignInResult>;
   signInWithPasskey(): Promise<SignInResult>;
 }
 
@@ -84,6 +89,28 @@ export function betterAuthSignIn(client = authClient): SignInApi {
       call((onResponse) =>
         client.signIn.emailOtp({ email, otp }, { onResponse }),
       ),
+    sendLink: (email) =>
+      call((onResponse) => client.signIn.magicLink({ email }, { onResponse })),
+    verifyLink: async (token) => {
+      let session = false;
+      const result = await call((onResponse) =>
+        client.magicLink.verify(
+          { query: { token } },
+          {
+            onResponse,
+            // Without a callbackURL a good token answers JSON with the session; a bad one
+            // redirects, so only that JSON counts as signed in.
+            onSuccess: ({ data }) => {
+              session =
+                typeof data === "object" && data !== null && "session" in data;
+            },
+          },
+        ),
+      );
+      if (result.ok && !session)
+        return { ok: false, error: { kind: "stale-link" } };
+      return result;
+    },
     signInWithPasskey: () =>
       call((onResponse) =>
         client.signIn.passkey({ fetchOptions: { onResponse } }),

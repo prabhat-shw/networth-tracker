@@ -13,6 +13,7 @@ const RESEND_AFTER_S = 30;
 const MESSAGES: Record<Exclude<SignInError["kind"], "rate-limited">, string> = {
   "wrong-code": "That code isn't right. Check the email and try again.",
   "stale-code": "That code has expired. Send a new one.",
+  "stale-link": "That link has expired or was already used. Send a new one.",
   failed: "Something went wrong. Check your connection and try again.",
 };
 
@@ -27,9 +28,26 @@ function useCountdown(): [number, (s: number) => void] {
   return [left, setLeft];
 }
 
+/** Takes the token from a `#link=` sign-in link and clears it from the address bar. */
+function takeLinkToken(): string | null {
+  const match = /^#link=([^&]+)$/.exec(window.location.hash);
+  if (!match) return null;
+  history.replaceState(
+    null,
+    "",
+    window.location.pathname + window.location.search,
+  );
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Sign in (UX.md §3.0 A, ADR-0025). Email, then a 6-digit code that submits itself; a
- * passkey button when this browser registered one. Nothing typed here is stored.
+ * Sign in (UX.md §3.0 A, ADR-0025, ADR-0039). Email, then a 6-digit code that submits itself
+ * or, instead, a one-time link; a passkey button when this browser registered one. A link
+ * opens here and signs in only on "Continue". Nothing typed here is stored.
  */
 export function SignIn({
   api = betterAuthSignIn(),
@@ -39,7 +57,8 @@ export function SignIn({
   onSignedIn: () => void;
 }) {
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<"code" | "link" | null>(null);
+  const [linkToken, setLinkToken] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resendIn, setResendIn] = useCountdown();
@@ -47,9 +66,12 @@ export function SignIn({
   const [passkey, setPasskey] = useState(false);
   const codeRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => setPasskey(hasPasskeyHint()), []);
   useEffect(() => {
-    if (sent) codeRef.current?.focus();
+    setPasskey(hasPasskeyHint());
+    setLinkToken(takeLinkToken());
+  }, []);
+  useEffect(() => {
+    if (sent === "code") codeRef.current?.focus();
   }, [sent]);
 
   const fail = (e: SignInError) => {
@@ -59,17 +81,30 @@ export function SignIn({
     } else setError(MESSAGES[e.kind]);
   };
 
-  async function send(event?: FormEvent) {
+  async function send(event?: FormEvent, what: "code" | "link" = "code") {
     event?.preventDefault();
     if (busy || blockedFor > 0) return;
     setBusy(true);
     setError(null);
-    const res = await api.sendCode(email.trim());
+    const address = email.trim();
+    const res = await (what === "code"
+      ? api.sendCode(address)
+      : api.sendLink(address));
     setBusy(false);
     if (!res.ok) return fail(res.error);
-    setSent(true);
+    setSent(what);
     setResendIn(RESEND_AFTER_S);
     if (codeRef.current) codeRef.current.value = "";
+  }
+
+  async function continueWithLink(token: string) {
+    setBusy(true);
+    setError(null);
+    const res = await api.verifyLink(token);
+    setBusy(false);
+    setLinkToken(null);
+    if (res.ok) return onSignedIn();
+    fail(res.error);
   }
 
   async function verify(code: string) {
@@ -97,7 +132,21 @@ export function SignIn({
       <h1 className="text-2xl font-semibold">NetWorth Tracker</h1>
 
       <div className="flex w-full max-w-xs flex-col gap-3">
-        {passkey && (
+        {linkToken !== null && (
+          <>
+            <p className="text-sm">You opened a sign-in link.</p>
+            <button
+              type="button"
+              onClick={() => continueWithLink(linkToken)}
+              disabled={busy || blockedFor > 0}
+              className="rounded-md bg-neutral-900 px-3 py-2 font-medium text-white disabled:opacity-60 dark:bg-white dark:text-neutral-900"
+            >
+              {busy ? "Signing in…" : "Continue"}
+            </button>
+          </>
+        )}
+
+        {linkToken === null && passkey && (
           <button
             type="button"
             onClick={withPasskey}
@@ -108,32 +157,72 @@ export function SignIn({
           </button>
         )}
 
-        <form onSubmit={send} className="flex flex-col gap-3">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={busy && !sent}
-            className="rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700"
-          />
-          {!sent && (
-            <button
-              type="submit"
-              disabled={busy || blockedFor > 0}
-              className="rounded-md border border-neutral-300 px-3 py-2 font-medium disabled:opacity-60 dark:border-neutral-700"
-            >
-              {busy ? "Sending…" : "Send code"}
-            </button>
-          )}
-        </form>
+        {linkToken === null && (
+          <form onSubmit={send} className="flex flex-col gap-3">
+            <label htmlFor="email" className="text-sm font-medium">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={busy && sent === null}
+              className="rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700"
+            />
+            {sent === null && (
+              <>
+                <button
+                  type="submit"
+                  disabled={busy || blockedFor > 0}
+                  className="rounded-md border border-neutral-300 px-3 py-2 font-medium disabled:opacity-60 dark:border-neutral-700"
+                >
+                  {busy ? "Sending…" : "Send code"}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    if (e.currentTarget.form?.reportValidity())
+                      send(undefined, "link");
+                  }}
+                  disabled={busy || blockedFor > 0}
+                  className="text-sm text-neutral-600 underline disabled:no-underline disabled:opacity-60 dark:text-neutral-400"
+                >
+                  Email me a link instead
+                </button>
+              </>
+            )}
+          </form>
+        )}
 
-        {sent && (
+        {sent === "link" && (
+          <>
+            <p className="text-sm text-neutral-500">
+              If this address can use NetWorth, a sign-in link is on its way.
+              Open it on this device.
+            </p>
+            <button
+              type="button"
+              onClick={() => send(undefined, "link")}
+              disabled={busy || resendIn > 0 || blockedFor > 0}
+              className="text-sm text-neutral-600 underline disabled:no-underline disabled:opacity-60 dark:text-neutral-400"
+            >
+              {resendIn > 0 ? `Resend link in ${resendIn}s` : "Resend link"}
+            </button>
+            <button
+              type="button"
+              onClick={() => send(undefined, "code")}
+              disabled={busy || blockedFor > 0}
+              className="text-sm text-neutral-600 underline disabled:no-underline disabled:opacity-60 dark:text-neutral-400"
+            >
+              Send a code instead
+            </button>
+          </>
+        )}
+
+        {sent === "code" && (
           <>
             <p className="text-sm text-neutral-500">
               If this address can use NetWorth, a code is on its way.
