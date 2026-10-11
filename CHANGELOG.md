@@ -32,6 +32,8 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 - Docs: plan, architecture, threat model, session/context framework, ADRs 0001–0009.
 
 ### Fixed
+- Dark mode (#84): the page now follows the system theme, so inputs and buttons no longer
+  turn black or invisible on a white page.
 - Sign-in (#82): switching to the mail app for the code and coming back no longer empties the
   email field and hides the code field.
 - Vercel builds: skip standalone output there (Next 16.3 `next-server.js.nft.json` ENOENT).
