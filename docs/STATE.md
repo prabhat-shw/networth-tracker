@@ -1,8 +1,8 @@
-_Last updated: 2026-10-11 (session 20: #103 merged; #92 onboarding v2 E2E in review) · next session: start here_
+_Last updated: 2026-10-11 (session 21: #92 merged, M1 closed, M2 planned) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M1 — Identity & crypto core. M0 complete (PRs #18-#22).
+**Milestone:** M2 — Encrypted sync engine (brief: `docs/phases/M2.md`, issues #113–#118). M0 and M1 are closed.
 
 - **Merged in M1** (details in the ADRs): crypto primitives (0013), identity vault (0018),
   household key (0019), auth (0020, `src/server/auth.ts`), membership guard (0021), vault
@@ -18,15 +18,15 @@ _Last updated: 2026-10-11 (session 20: #103 merged; #92 onboarding v2 E2E in rev
   merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 merged (PR #87). #84 dark mode merged (PR #85). Onboarding-v2 plan merged (PR #94).
 - Merged: **#88** vault v3 + device slot (PR #95, [ADR-0038](decisions/0038-vault-v3-device-slot.md), `vault-device.ts`, `device-store.ts`); **#96** magic link (PR #98, [ADR-0039](decisions/0039-magic-link-sign-in.md)); **#90** recovery before first invite (PR #99, [ADR-0040](decisions/0040-recovery-method-before-first-data.md); **M2 push must call `requireRecoveryMethod`**).
   **#97** silent first run (PR #100, [ADR-0041](decisions/0041-silent-first-run.md)). **#91 split** into #101/#102/#103.
-  **#101** banner merged (PR #104, [ADR-0042](decisions/0042-protection-banner.md)). **#105** empty Home merged (PR #106). **#102** merged (PR #107, [ADR-0043](decisions/0043-app-lock-and-slot-removal.md): app lock = device slot; `deviceSlotBy*`, `remove*Slot`); **#108** merged (PR #109, vault PUT 409). **#103** merged (PR #110, [ADR-0044](decisions/0044-security-settings.md), `/settings`). **#92** in review: `e2e/onboarding-v2.spec.ts` (link sign-in, chooser passphrase, app lock on/off, new device), device-slot IndexedDB checks, shared `profiles`/`expectNoLeaks` in `e2e/support.ts`.
+  **#101** banner merged (PR #104, [ADR-0042](decisions/0042-protection-banner.md)). **#105** empty Home merged (PR #106). **#102** merged (PR #107, [ADR-0043](decisions/0043-app-lock-and-slot-removal.md): app lock = device slot; `deviceSlotBy*`, `remove*Slot`); **#108** merged (PR #109, vault PUT 409). **#103** merged (PR #110, [ADR-0044](decisions/0044-security-settings.md), `/settings`). **#92** merged (PR #111): `e2e/onboarding-v2.spec.ts`, device-slot IndexedDB checks, shared `profiles`/`expectNoLeaks` in `e2e/support.ts`.
 
 ## Next session picks up
 
-Next: **owner redeploys the home server** (H4; not this machine: no `.env`/Docker here). Then onboarding v2 ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md)):
-merge **#92** (`area:security`: owner approval). Google sign-in later (#93, M8).
-Inviter's Home nudge (UX.md §3.0 "ready to join") is still unbuilt: the panel is collapsed now. Then close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
-after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
-(d7bf279): `pnpm test` (258) · CI e2e (smoke + M1 acceptance) · typecheck · check.
+Next: **#113** (ADR-0045: version vs pull cursor, LWW clock in plaintext, routes, limits, padding;
+the recommendations are in the M2 brief, and the owner decides). Then #114 and #115 (independent) → #116 → #117 → #118.
+The owner still has to redeploy the home server (H4; not possible from this machine). Open items: #112 social recovery (size:L, ADR first,
+no milestone yet), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household,
+ADR-0031 member names in the members API. Green on `main` (9e13e7f): CI e2e (smoke, M1 and onboarding v2).
 
 ## Also open
 
@@ -75,5 +75,5 @@ after confirming; ADR-0031 member names in the members API (needed by UX.md §3.
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue list -m "M1 Identity & crypto core" -s open
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue list -m "M2 Encrypted sync engine" -s open
 ```
