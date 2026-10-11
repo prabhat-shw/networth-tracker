@@ -43,3 +43,4 @@ One line per session: date · issue · outcome.
 - 2026-10-11 · issue #86 · Next 16.3.4 → 16.3.8 (critical next/og RCE), sharp/source-map-js override floors; audit gate clean (1 moderate: esbuild dev server via drizzle-kit)
 - 2026-10-11 · onboarding v2 plan · owner decision: email/magic link → in, key on device (device slot), recovery method before first data/invite, app lock on with Face ID, Google later (ADR-0037); issues #88–#93
 - 2026-10-11 · issue #88 · vault v3 (optional slots, v1/v2 unchanged on the wire), device slot (non-extractable key in IndexedDB, add passphrase/kit/passkey from it), server slot presence (ADR-0038)
+- 2026-10-11 · issue #89 split → #96 + #97 · #96 magic-link sign-in: fragment link `/#link=`, Continue spends it, same invite gate + rate limits (ADR-0039)

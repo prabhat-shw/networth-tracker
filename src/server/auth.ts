@@ -1,6 +1,6 @@
 /**
- * Sync-access authentication (ADR-0001, ADR-0020). Better Auth with passkeys and an email
- * OTP fallback; no passwords, no social logins, no open sign-up. Auth only gates *access*
+ * Sync-access authentication (ADR-0001, ADR-0020). Better Auth with passkeys, an email
+ * OTP and a magic link (ADR-0039); no passwords, no social logins, no open sign-up. Auth only gates *access*
  * to ciphertext: it never sees or derives a data key.
  */
 import { passkey } from "@better-auth/passkey";
@@ -9,6 +9,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP } from "better-auth/plugins/email-otp";
+import { magicLink } from "better-auth/plugins/magic-link";
 import { createTransport } from "nodemailer";
 import { getDb } from "./db/client";
 import * as schema from "./db/schema";
@@ -31,13 +32,46 @@ export interface AuthDeps {
   rateLimitStorage: "memory" | "database";
 }
 
-/** Per 60 s window. OTP routes are the brute-force and mail-bombing targets. */
+/** Per window (s). The mail-sending and code/link routes are the brute-force and mail-bombing targets. */
 export const RATE_LIMITS = {
   default: { window: 60, max: 30 },
   "/email-otp/send-verification-otp": { window: 300, max: 3 },
   "/sign-in/email-otp": { window: 300, max: 5 },
+  "/sign-in/magic-link": { window: 300, max: 3 },
+  "/magic-link/verify": { window: 300, max: 5 },
   "/passkey/verify-authentication": { window: 60, max: 10 },
 } as const;
+
+export const LINK_TTL_S = 900;
+
+/**
+ * The emailed link opens the app with the token in the fragment (ADR-0039): it never reaches
+ * a server log or a Referer, and only the user's tap on "Continue" spends it, so a mail
+ * scanner that pre-opens links cannot.
+ */
+export function signInLink(origin: string, token: string): string {
+  return `${new URL(origin).origin}/#link=${encodeURIComponent(token)}`;
+}
+
+/** The slice of Better Auth's endpoint context the mail gate reads. */
+type MailContext =
+  | {
+      context: {
+        internalAdapter: { findUserByEmail(email: string): Promise<unknown> };
+      };
+    }
+  | undefined;
+
+/** Only an existing account or an invited address is ever mailed; the answer is the same. */
+async function mayMail(
+  deps: AuthDeps,
+  email: string,
+  ctx: MailContext,
+): Promise<boolean> {
+  const known =
+    (await ctx?.context.internalAdapter.findUserByEmail(email)) ?? null;
+  return known !== null || (await deps.invites.isInvited(email));
+}
 
 export function createAuth(deps: AuthDeps) {
   const { hostname, protocol } = new URL(deps.origin);
@@ -85,14 +119,30 @@ export function createAuth(deps: AuthDeps) {
         storeOTP: "hashed",
         // Same response either way, so the endpoint does not reveal who is registered.
         async sendVerificationOTP({ email, otp, type }, ctx) {
-          if (type !== "sign-in") return;
-          const known =
-            (await ctx?.context.internalAdapter.findUserByEmail(email)) ?? null;
-          if (!known && !(await deps.invites.isInvited(email))) return;
+          if (type !== "sign-in" || !(await mayMail(deps, email, ctx))) return;
           await deps.sendMail(
             email,
             "Your NetWorth sign-in code",
             `Your sign-in code is ${otp}. It expires in 5 minutes.\n\n` +
+              "If you did not ask for it, ignore this email.",
+          );
+        },
+      }),
+      magicLink({
+        expiresIn: LINK_TTL_S,
+        storeToken: "hashed",
+        async sendMagicLink({ email, token }, ctx) {
+          if (!(await mayMail(deps, email, ctx))) return;
+          await deps.sendMail(
+            email,
+            "Sign in to NetWorth",
+            `Open this link on the device you are signing in on:
+
+` +
+              `${signInLink(deps.origin, token)}
+
+` +
+              `It works once and expires in ${LINK_TTL_S / 60} minutes. ` +
               "If you did not ask for it, ignore this email.",
           );
         },

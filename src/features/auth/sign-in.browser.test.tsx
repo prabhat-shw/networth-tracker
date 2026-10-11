@@ -21,6 +21,8 @@ const OK: SignInResult = { ok: true };
 const fakeApi = (over: Partial<SignInApi> = {}): SignInApi => ({
   sendCode: vi.fn(async () => OK),
   verifyCode: vi.fn(async () => OK),
+  sendLink: vi.fn(async () => OK),
+  verifyLink: vi.fn(async () => OK),
   signInWithPasskey: vi.fn(async () => OK),
   ...over,
 });
@@ -119,6 +121,63 @@ describe("sign in", () => {
   });
 });
 
+describe("sign in with a link (ADR-0039)", () => {
+  afterEach(() => history.replaceState(null, "", location.pathname));
+
+  it("emails a link instead of a code, and can switch back to a code", async () => {
+    const api = fakeApi();
+    const screen = await render(<SignIn api={api} onSignedIn={vi.fn()} />);
+    const link = screen.getByRole("button", {
+      name: "Email me a link instead",
+    });
+    await link.click();
+    expect(api.sendLink).not.toHaveBeenCalled(); // the address is required first
+
+    await screen.getByLabelText("Email").fill("asha@example.com");
+    await link.click();
+    await expect
+      .element(screen.getByText(/a sign-in link is on its way/))
+      .toBeVisible();
+    expect(api.sendLink).toHaveBeenCalledWith("asha@example.com");
+    expect(api.sendCode).not.toHaveBeenCalled();
+
+    await screen.getByRole("button", { name: "Send a code instead" }).click();
+    await expect.element(screen.getByLabelText("6-digit code")).toBeVisible();
+    expect(api.sendCode).toHaveBeenCalledWith("asha@example.com");
+  });
+
+  it("an opened link clears itself from the address bar and signs in only on Continue", async () => {
+    history.replaceState(null, "", `${location.pathname}#link=tok%2Ben`);
+    const api = fakeApi();
+    const onSignedIn = vi.fn();
+    const screen = await render(<SignIn api={api} onSignedIn={onSignedIn} />);
+    const go = screen.getByRole("button", { name: "Continue" });
+    await expect.element(go).toBeVisible();
+    expect(location.hash).toBe("");
+    expect(api.verifyLink).not.toHaveBeenCalled();
+
+    await go.click();
+    await vi.waitFor(() => expect(onSignedIn).toHaveBeenCalledOnce());
+    expect(api.verifyLink).toHaveBeenCalledWith("tok+en");
+  });
+
+  it("a spent link explains and falls back to the email form", async () => {
+    history.replaceState(null, "", `${location.pathname}#link=old`);
+    const api = fakeApi({
+      verifyLink: vi.fn(async () => ({
+        ok: false as const,
+        error: { kind: "stale-link" as const },
+      })),
+    });
+    const screen = await render(<SignIn api={api} onSignedIn={vi.fn()} />);
+    await screen.getByRole("button", { name: "Continue" }).click();
+    await expect
+      .element(screen.getByRole("alert"))
+      .toMatchTextContent("That link has expired or was already used");
+    await expect.element(screen.getByLabelText("Email")).toBeVisible();
+  });
+});
+
 describe("sign in over the real Better Auth client", () => {
   it("sends only the email and code, and stores neither (#45 acceptance)", async () => {
     const bodies: unknown[] = [];
@@ -160,6 +219,36 @@ describe("sign in over the real Better Auth client", () => {
     expect(res).toEqual({
       ok: false,
       error: { kind: "rate-limited", retryAfterS: 120 },
+    });
+  });
+
+  it("asks for a link with the email only, and counts a link as spent unless a session comes back", async () => {
+    const calls: { url: string; body?: unknown }[] = [];
+    let verifyAnswer = Response.json({ token: "t", session: { id: "s" } });
+    vi.spyOn(window, "fetch").mockImplementation(async (input, init) => {
+      const url = String(input instanceof Request ? input.url : input);
+      calls.push({
+        url,
+        body: init?.body ? JSON.parse(String(init.body)) : undefined,
+      });
+      if (url.includes("/magic-link/verify")) return verifyAnswer;
+      return Response.json({ status: true });
+    });
+    const api = betterAuthSignIn();
+    expect(await api.sendLink("asha@example.com")).toEqual({ ok: true });
+    expect(calls[0].body).toEqual({ email: "asha@example.com" });
+
+    expect(await api.verifyLink("tok")).toEqual({ ok: true });
+    expect(new URL(calls[1].url).searchParams.get("token")).toBe("tok");
+    expect(new URL(calls[1].url).searchParams.has("callbackURL")).toBe(false);
+
+    // A bad token redirects to the app page: HTML, not a session.
+    verifyAnswer = new Response("<html></html>", {
+      headers: { "content-type": "text/html" },
+    });
+    expect(await api.verifyLink("bad")).toEqual({
+      ok: false,
+      error: { kind: "stale-link" },
     });
   });
 });

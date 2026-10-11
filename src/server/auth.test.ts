@@ -5,7 +5,7 @@ import { emailOTP } from "better-auth/plugins/email-otp";
 import { getTableColumns, type Table } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { emailHash as scriptEmailHash } from "../../scripts/invite.mjs";
-import { createAuth, RATE_LIMITS } from "./auth";
+import { createAuth, LINK_TTL_S, RATE_LIMITS, signInLink } from "./auth";
 import * as schema from "./db/schema";
 import { emailHash, type InviteStore, normaliseEmail } from "./invites";
 
@@ -22,7 +22,7 @@ function setup() {
       consumed.push(normaliseEmail(e));
     },
   };
-  const mail: { to: string; otp: string }[] = [];
+  const mail: { to: string; otp: string; link: string }[] = [];
   const db: Record<string, unknown[]> = {
     user: [],
     session: [],
@@ -35,7 +35,11 @@ function setup() {
     database: memoryAdapter(db),
     invites,
     sendMail: async (to, _s, text) => {
-      mail.push({ to, otp: /\b(\d{6})\b/.exec(text)?.[1] ?? "" });
+      mail.push({
+        to,
+        otp: /\b(\d{6})\b/.exec(text)?.[1] ?? "",
+        link: /#link=(\S+)/.exec(text)?.[1] ?? "",
+      });
     },
     origin: ORIGIN,
     secret: "test-secret-test-secret-test-secret-32",
@@ -58,7 +62,25 @@ function setup() {
     post("/email-otp/send-verification-otp", { email, type: "sign-in" }, from);
   const signIn = (email: string, otp: string) =>
     post("/sign-in/email-otp", { email, otp });
-  return { db, mail, invited, consumed, post, sendOtp, signIn };
+  const sendLink = (email: string, from?: string) =>
+    post("/sign-in/magic-link", { email }, from);
+  const openLink = (token: string, from = `10.1.0.${ip++}`) =>
+    auth.handler(
+      new Request(`${ORIGIN}/api/auth/magic-link/verify?token=${token}`, {
+        headers: { origin: ORIGIN, "x-forwarded-for": from },
+      }),
+    );
+  return {
+    db,
+    mail,
+    invited,
+    consumed,
+    post,
+    sendOtp,
+    signIn,
+    sendLink,
+    openLink,
+  };
 }
 
 describe("invite-only sign-in", () => {
@@ -141,5 +163,64 @@ describe("schema", () => {
     const a = await emailHash(" Asha@EXAMPLE.com ");
     expect(a).toEqual(await emailHash("asha@example.com"));
     expect(await scriptEmailHash(" Asha@EXAMPLE.com ")).toEqual(a);
+  });
+});
+
+describe("magic link (ADR-0039)", () => {
+  it("mails an invited address a fragment link that signs in once", async () => {
+    const t = setup();
+    expect((await t.sendLink(INVITED)).status).toBe(200);
+    expect(t.mail).toHaveLength(1);
+    const token = decodeURIComponent(t.mail[0].link);
+    expect(token.length).toBeGreaterThanOrEqual(32);
+    expect(signInLink(`${ORIGIN}/ignored`, "a b")).toBe(
+      `${ORIGIN}/#link=a%20b`,
+    );
+
+    const res = await t.openLink(t.mail[0].link);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toHaveProperty("session");
+    expect(res.headers.get("set-cookie") ?? "").toMatch(/HttpOnly/i);
+    expect(t.db.user).toHaveLength(1);
+    expect(t.consumed).toEqual([normaliseEmail(INVITED)]);
+
+    // One use only; the stored token is hashed, never the token itself.
+    const again = await t.openLink(t.mail[0].link);
+    expect(again.status).toBe(302);
+    expect(again.headers.get("location")).toMatch(/error=INVALID_TOKEN/);
+    expect(JSON.stringify(t.db.verification)).not.toContain(token);
+  });
+
+  it("an uninvited address gets the same answer, no mail and no account", async () => {
+    const t = setup();
+    const res = await t.sendLink("stranger@example.com");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ status: true });
+    expect(t.mail).toHaveLength(0);
+    expect(t.db.user).toHaveLength(0);
+  });
+
+  it("refuses the account if the invite is gone when the link is opened", async () => {
+    const t = setup();
+    expect((await t.sendLink(INVITED, "10.7.7.1")).status).toBe(200);
+    t.invited.clear();
+    const res = await t.openLink(t.mail[0].link);
+    expect(res.ok).toBe(false);
+    expect(res.headers.get("set-cookie") ?? "").not.toMatch(/session_token/);
+    expect(t.db.user).toHaveLength(0);
+  });
+
+  it("expires after LINK_TTL_S and throttles link requests per client", async () => {
+    const t = setup();
+    expect((await t.sendLink(INVITED, "10.7.7.2")).status).toBe(200);
+    const [row] = t.db.verification as { expiresAt: Date }[];
+    const ttl = (row.expiresAt.getTime() - Date.now()) / 1000;
+    expect(ttl).toBeGreaterThan(LINK_TTL_S - 5);
+    expect(ttl).toBeLessThanOrEqual(LINK_TTL_S);
+
+    const { max } = RATE_LIMITS["/sign-in/magic-link"];
+    for (let i = 0; i < max; i++)
+      expect((await t.sendLink(INVITED, "10.8.8.8")).status).toBe(200);
+    expect((await t.sendLink(INVITED, "10.8.8.8")).status).toBe(429);
   });
 });

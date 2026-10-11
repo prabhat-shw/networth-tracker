@@ -68,6 +68,9 @@ what type, with which institutions).
   manual override and a staleness indicator.
 - Auth tables (ADR-0020) hold account data in the clear: email, display name, session IP
   and user agent, passkey public keys. Needed to decide who may sync; none of it is financial.
+- Whoever controls a member's mailbox can sign in as them (email code or magic link,
+  [ADR-0039](decisions/0039-magic-link-sign-in.md)). Sign-in gates ciphertext only; it never yields a data key. Links carry the
+  token in the URL fragment (never in logs), work once, and need a tap on *Continue*.
 - Traffic *volume* (roughly how many records exist) is visible to the host. Accepted.
 
 ## Reporting
