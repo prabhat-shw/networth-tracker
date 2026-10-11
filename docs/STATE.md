@@ -26,7 +26,7 @@ Next: **redeploy the home server** for Next 16.3.8. Then onboarding v2 ([ADR-003
 merge #101 → **#102** app lock toggle + slot removal (area:crypto: device slot after a passphrase/passkey
 sign-in needs an extractable unwrap; remove passphrase/kit/passkey slots, ≥ 1 recovery) → **#103**
 Settings → Security (adds the banner's "Fix" link) → #92 E2E. Google sign-in later (#93, M8).
-Owner asked why sign-in "asks to invite": M1's Home *is* the Household panel (`page.tsx`); decide on a Home with invite secondary. Then close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
+**#105** (owner): empty Home after sign-in, invite as a secondary action (M1, `size:S`). Then close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
 (8952155): `pnpm test` (190; 191 on #82) · `pnpm e2e` (smoke + M1 acceptance) · typecheck · check · build.
 
