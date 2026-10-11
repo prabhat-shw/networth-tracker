@@ -482,6 +482,10 @@ describe("routing gate", () => {
     await expect
       .element(screen.getByLabelText("Passphrase"))
       .not.toBeInTheDocument();
+    // No recovery method yet, and the device slot means app lock is off (ADR-0042).
+    const banner = screen.getByLabelText("Account protection");
+    await expect.element(banner.getByText(/only on this device/)).toBeVisible();
+    await expect.element(banner.getByText(/Turn on app lock/)).toBeVisible();
     keys.lock();
     await expect.element(screen.getByText("the app")).toBeVisible();
     expect(keys.state().status).toBe("unlocked");

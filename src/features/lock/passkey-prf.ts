@@ -25,6 +25,7 @@ async function assert(
 ): Promise<{
   rawId: Uint8Array<ArrayBuffer>;
   prf: Uint8Array<ArrayBuffer> | null;
+  backedUp: boolean;
 }> {
   const credential = (await navigator.credentials.get({
     publicKey: {
@@ -38,8 +39,11 @@ async function assert(
     prf?: PrfResults;
   };
   const first = prf?.results?.first;
+  const { authenticatorData } =
+    credential.response as AuthenticatorAssertionResponse;
   return {
     rawId: new Uint8Array(credential.rawId),
+    backedUp: backupState(new Uint8Array(authenticatorData)),
     prf: first
       ? new Uint8Array(
           ArrayBuffer.isView(first) ? first.buffer.slice(0) : first.slice(0),
@@ -70,7 +74,7 @@ export const webAuthnPrf: PrfApi = {
       evalByCredential[toBase64url(slot.credentialId)] = {
         first: slot.prfSalt,
       };
-    const { rawId, prf } = await assert({
+    const { rawId, prf, backedUp } = await assert({
       allowCredentials: vault.passkeys.map((s) => ({
         type: "public-key",
         id: s.credentialId,
@@ -83,17 +87,20 @@ export const webAuthnPrf: PrfApi = {
       (s) => toBase64url(s.credentialId) === toBase64url(rawId),
     );
     if (!prf || !slot) return null;
+    markSynced(rawId, backedUp);
     return { credentialId: rawId, prfSalt: slot.prfSalt, prfOutput: prf };
   },
 
   async enrol() {
     const prfSalt = newPrfSalt();
-    const { rawId, prf } = await assert({
+    const { rawId, prf, backedUp } = await assert({
       extensions: {
         prf: { eval: { first: prfSalt } },
       } as AuthenticationExtensionsClientInputs,
     });
-    return prf ? { credentialId: rawId, prfSalt, prfOutput: prf } : null;
+    if (!prf) return null;
+    markSynced(rawId, backedUp);
+    return { credentialId: rawId, prfSalt, prfOutput: prf };
   },
 };
 
@@ -114,4 +121,45 @@ export function markFastUnlock(outcome: "enrolled" | "declined") {
   } catch {
     // Storage off: the offer may come back next time; harmless.
   }
+}
+
+/**
+ * The WebAuthn backup-state (BS) flag: bit 4 of the flags byte that follows the 32-byte RP
+ * id hash in authenticator data. Set when the passkey is synced (iCloud Keychain, Google
+ * Password Manager), so losing this device does not lose it (ADR-0042).
+ */
+export function backupState(authenticatorData: Uint8Array): boolean {
+  return authenticatorData.length > 32 && (authenticatorData[32] & 0x10) !== 0;
+}
+
+/**
+ * Per-device memory of which passkeys reported BS on their last ceremony here, keyed by
+ * base64url credential id. Credential ids are public vault values; the flag only steers
+ * the protection banner, so a missing entry just means "not known to be synced".
+ */
+export const SYNCED_PASSKEYS_KEY = "nwt.syncedPasskeys";
+
+function syncedMap(): Record<string, boolean> {
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem(SYNCED_PASSKEYS_KEY) ?? "{}",
+    );
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+export function markSynced(credentialId: Uint8Array, synced: boolean) {
+  try {
+    const map = syncedMap();
+    map[toBase64url(credentialId)] = synced;
+    localStorage.setItem(SYNCED_PASSKEYS_KEY, JSON.stringify(map));
+  } catch {
+    // Storage off: the banner keeps asking for a second method; harmless.
+  }
+}
+
+export function isSynced(credentialId: Uint8Array): boolean {
+  return syncedMap()[toBase64url(credentialId)] === true;
 }

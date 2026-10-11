@@ -297,6 +297,13 @@ elsewhere, if the browser refused persistent storage, *"This browser may clear N
 data when space runs low. Add a way back in (passkey, passphrase or recovery kit) so you can
 always sign in again."* **[Got it]**.
 
+**Protection banner** ([ADR-0042](decisions/0042-protection-banner.md)): once in, an amber strip
+above the app lists each open risk, one line each, until all are closed: *"Your key is only on
+this device…"* (no recovery method), *"You have one way back in. Add a second one, or use a
+passkey that syncs…"* (one method, not a synced passkey), *"Anyone who can use this browser
+can open NetWorth. Turn on app lock."* (device slot kept). **[Not now]** hides it for this
+browser session; a new risk brings it back.
+
 **C. Joining a household (invitee)** — the only step that needs two people at once.
 - **Waiting screen:** *"Asha needs to add you. Call Asha and read out your code:"* then the
   invitee's `keyFingerprint` large, in five groups (`3f2a 91c0 7d4e b812 0c6a`). Polls
