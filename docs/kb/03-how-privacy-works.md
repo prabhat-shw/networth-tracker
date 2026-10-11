@@ -61,7 +61,9 @@ without asking anything. Before you invite anyone or add data, the app asks you 
 way back in: Face ID / passkey, a passphrase, or a recovery kit. A passphrase is put through
 **Argon2id**, a deliberately slow calculation, to produce a key; the slowness makes guessing
 passphrases in bulk impractical. Choosing Face ID also turns on *app lock*: the app then
-forgets the device copy and asks for Face ID each time. You can also turn on **fast unlock** with a
+forgets the device copy and asks for Face ID each time. **Settings → Security** switches app
+lock on or off (turning it off asks for your passkey or passphrase first) and adds or removes
+ways back in, always keeping at least one. You can also turn on **fast unlock** with a
 **passkey** (fingerprint or face). The passkey produces a secret that never leaves your device,
 and that secret unlocks a separate copy of the same key. Your passphrase keeps working, and
 without the passkey that copy is useless.

@@ -628,6 +628,18 @@ deep.
 - No loading/empty states of note (all static/local); **error** only applies to Data actions
   (export failure) shown as an inline `Alert` on that row.
 
+**Security, as built** ([#103](https://github.com/prabhat-shw/networth-tracker/issues/103), [ADR-0044](decisions/0044-security-settings.md); route `/settings`, linked from Home and
+the protection banner's **Fix**):
+- **Ways back in:** one row per method (Passphrase, Recovery kit, Passkey *n* with "· syncs"
+  when its backup flag was seen). **Remove** asks *"Remove … ? It will stop working on every
+  device."* The last recovery method shows *"Your only way back in"* instead; with app lock on,
+  the last passphrase/passkey shows *"App lock needs a passkey or passphrase"*. **Add a way
+  back in** opens the §3.0 E chooser titled *"Add a way back in"*.
+- **App lock** switch. Off → *"Confirm it's you"* (passkey or passphrase), then this device
+  opens without asking. On → immediate; disabled with a hint when there's no passkey or
+  passphrase to unlock with. Adding a method while app lock is on also confirms first.
+- **Lock now** (primary, bottom). With app lock off, a note says the device reopens without asking.
+
 ### 3.10 Insights — "This year"
 
 **Purpose:** answer the question v1 left on the table — *why* did my number move, not just

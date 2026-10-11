@@ -8,7 +8,7 @@ import {
   type DeviceSlot,
   type DeviceSlotStore,
 } from "@/crypto/vault-device";
-import { encodeVault, toBase64url } from "@/crypto/wire";
+import { decodeVault, encodeVault, toBase64url } from "@/crypto/wire";
 import { type KeySession, keySession } from "@/features/lock/key-session";
 
 /** The server calls first run makes. Only the vault (wrapped keys) and a wrapped HDK go out. */
@@ -24,6 +24,14 @@ async function expectOk(res: Response, what: string) {
 }
 
 const json = { "content-type": "application/json" };
+
+/** `null` = signed in but no identity yet (first run). Throws on anything but 200/404. */
+export async function fetchVault(): Promise<IdentityVault | null> {
+  const res = await fetch("/api/identity/vault", { cache: "no-store" });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`vault: ${res.status}`);
+  return decodeVault(await res.json());
+}
 
 export const httpFirstRunApi: FirstRunApi = {
   async putVault(vault) {

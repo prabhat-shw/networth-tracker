@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type ReactNode, useId, useState } from "react";
 
 /**
@@ -43,6 +44,9 @@ export function Home({ household }: { household: ReactNode }) {
           {household}
         </div>
       )}
+      <Link href="/settings" className="text-sm underline">
+        Settings
+      </Link>
     </div>
   );
 }

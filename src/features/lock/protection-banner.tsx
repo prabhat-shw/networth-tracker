@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { RISK_COPY, type Risk } from "./protection";
 
@@ -40,9 +41,14 @@ export function ProtectionBanner({ risks }: { risks: Risk[] }) {
           <li key={r}>{RISK_COPY[r]}</li>
         ))}
       </ul>
-      <button type="button" onClick={dismiss} className="shrink-0 underline">
-        Not now
-      </button>
+      <span className="flex shrink-0 gap-3">
+        <Link href="/settings" className="font-medium underline">
+          Fix
+        </Link>
+        <button type="button" onClick={dismiss} className="underline">
+          Not now
+        </button>
+      </span>
     </aside>
   );
 }

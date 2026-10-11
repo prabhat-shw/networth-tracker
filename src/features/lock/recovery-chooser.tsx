@@ -51,12 +51,15 @@ export function RecoveryChooser({
   addPasskey = registerPasskey,
   onProtected,
   onCancel,
+  title = "Protect your account first",
 }: {
   source: RecoverySource;
   prf?: PrfApi;
   addPasskey?: () => Promise<boolean>;
   onProtected: () => void;
   onCancel: () => void;
+  /** Settings → Security reuses the chooser to add another method (#103). */
+  title?: string;
 }) {
   const [step, setStep] = useState<Step>({ at: "choose" });
   const [passkeys, setPasskeys] = useState(false);
@@ -142,7 +145,7 @@ export function RecoveryChooser({
 
   return (
     <section className="flex w-full max-w-sm flex-col gap-3 text-left text-sm">
-      <h2 className="text-lg font-semibold">Protect your account first</h2>
+      <h2 className="text-lg font-semibold">{title}</h2>
       {step.at === "choose" && (
         <>
           <p className="text-neutral-600 dark:text-neutral-400">

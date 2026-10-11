@@ -13,12 +13,7 @@ import {
   type DeviceSlotStore,
   openDeviceSlot,
 } from "@/crypto/vault-device";
-import {
-  decodeVault,
-  hasRecoveryMethod,
-  sameBytes,
-  vaultSlots,
-} from "@/crypto/wire";
+import { hasRecoveryMethod, sameBytes, vaultSlots } from "@/crypto/wire";
 import type { SignInApi } from "@/features/auth/auth-client";
 import type { HouseholdApi } from "@/features/household/household-client";
 import { HouseholdGate } from "@/features/household/household-gate";
@@ -36,22 +31,19 @@ import { UnlockScreen, useAutoLock } from "@/features/lock/unlock-screen";
 import {
   FirstRun,
   type FirstRunApi,
+  fetchVault,
   httpFirstRunApi,
 } from "@/features/onboarding/first-run";
 import {
   InstallHint,
   type StorageEnv,
 } from "@/features/onboarding/install-hint";
+import {
+  SecurityContext,
+  type SecuritySource,
+} from "@/features/settings/security-settings";
 import { authClient } from "./auth-client";
 import { SignIn } from "./sign-in";
-
-/** `null` = signed in but no identity yet (first run). Throws on anything but 200/404. */
-export async function fetchVault(): Promise<IdentityVault | null> {
-  const res = await fetch("/api/identity/vault", { cache: "no-store" });
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`vault: ${res.status}`);
-  return decodeVault(await res.json());
-}
 
 export interface GateSession {
   pending: boolean;
@@ -77,7 +69,8 @@ type DeviceState =
  * → the household gate (#63), then the app. Auto-lock with a device slot just reopens it.
  * Right after a passphrase unlock, the one-time passkey offer comes first (#75). While the
  * device slot is open, the app can add a recovery method from it (`RecoveryContext`).
- * Once in, the protection banner names each remaining risk (ADR-0042).
+ * Once in, the protection banner names each remaining risk (ADR-0042), and Settings →
+ * Security works on the vault and this device's slot (`SecurityContext`, #103).
  */
 export function AppGateView({
   session,
@@ -165,9 +158,9 @@ export function AppGateView({
     };
   }, [ready, slot, status, keys]);
 
-  const recovery = useMemo<RecoverySource | null>(
+  const security = useMemo<SecuritySource | null>(
     () =>
-      ready && slot && store && email
+      ready && store && email
         ? {
             email,
             vault: ready,
@@ -176,6 +169,10 @@ export function AppGateView({
               await firstRunApi.putVault(next);
               setVault({ status: "ready", vault: next });
             },
+            async keepDeviceSlot(next) {
+              await store.save(next);
+              setDevice({ status: "slot", slot: next });
+            },
             async dropDeviceSlot() {
               await store.clear();
               setDevice({ status: "none" });
@@ -183,6 +180,11 @@ export function AppGateView({
           }
         : null,
     [ready, slot, store, email, firstRunApi],
+  );
+  // Adding a recovery method from the open device slot (#90) is the same source, narrowed.
+  const recovery = useMemo<RecoverySource | null>(
+    () => (security?.device ? { ...security, device: security.device } : null),
+    [security],
   );
 
   if (session.pending && !settled) return <Centered>Loading…</Centered>;
@@ -254,11 +256,13 @@ export function AppGateView({
   });
   return (
     <RecoveryContext value={recovery}>
-      <ProtectionBanner risks={gaps} />
-      {slot && <InstallHint env={storageEnv} />}
-      <HouseholdGate keys={keys} api={householdApi}>
-        {children}
-      </HouseholdGate>
+      <SecurityContext value={security}>
+        <ProtectionBanner risks={gaps} />
+        {slot && <InstallHint env={storageEnv} />}
+        <HouseholdGate keys={keys} api={householdApi}>
+          {children}
+        </HouseholdGate>
+      </SecurityContext>
     </RecoveryContext>
   );
 }
