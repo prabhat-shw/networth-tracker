@@ -16,7 +16,7 @@ what type, with which institutions).
 | Host / cloud operator | Full DB + disk read | Records are AES-256-GCM ciphertext; keys never leave devices |
 | Network attacker | MITM, traffic analysis | TLS everywhere; Tailscale-only in production; whole-universe price downloads hide holdings |
 | Stolen unlocked laptop | Live session | Auto-lock, keys wiped from memory on lock, passphrase/passkey to unlock |
-| Stolen locked device | Disk read | IndexedDB holds ciphertext only; unlock key derived per session, never persisted. Built in #97 ([ADR-0041](decisions/0041-silent-first-run.md)). With app lock off ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), [ADR-0038](decisions/0038-vault-v3-device-slot.md)), a non-extractable device key + the wrapped private key are kept in IndexedDB, so disk access yields the key (user's choice, banner; app lock wiring #91); with app lock on, unchanged |
+| Stolen locked device | Disk read | IndexedDB holds ciphertext only; unlock key derived per session, never persisted. Built in #97 ([ADR-0041](decisions/0041-silent-first-run.md)). With app lock off ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), [ADR-0038](decisions/0038-vault-v3-device-slot.md)), a non-extractable device key + the wrapped private key are kept in IndexedDB, so disk access yields the key (user's choice, banner [ADR-0042](decisions/0042-protection-banner.md); turning app lock off re-asks for the passphrase or a passkey, turning it on deletes the device key, [ADR-0043](decisions/0043-app-lock-and-slot-removal.md)); with app lock on, unchanged |
 | Malicious dependency | Exfiltration at runtime | Strict CSP (no third-party origins), lockfile + `osv-scanner` + dependency review, no analytics/CDN |
 | Malicious statement file | Parser exploit | PDF/CSV parsed in a Web Worker with no network access; pdf.js sandboxed; fuzz-style parser tests |
 | Malicious server swaps an invitee's public key | Relays a key it controls | Static-static ECDH wrap + out-of-band key fingerprint check before inviting ([ADR-0019](decisions/0019-household-key-wrapping.md)) |
@@ -35,6 +35,9 @@ what type, with which institutions).
 - Device slot ([ADR-0038](decisions/0038-vault-v3-device-slot.md)): the device key is non-extractable before
   and after an IndexedDB round trip; the store holds only key, public key and wrap; another
   identity, an extractable key or tampering fails closed. Missing vault slots fail closed.
+- App lock and slot removal ([ADR-0043](decisions/0043-app-lock-and-slot-removal.md)): a slot rebuilt from the passphrase or a passkey
+  opens the same key, a wrong one fails closed; app lock on leaves IndexedDB empty; removing
+  the last recovery method throws.
 - Recovery before first data ([ADR-0040](decisions/0040-recovery-method-before-first-data.md)): the server refuses an invite (409) while the caller's
   vault has no recovery slot (PGlite test); each chooser option's saved vault really opens
   with that option, and Face ID drops the device slot only after the upload (browser tests).

@@ -41,8 +41,8 @@ cannot be re-wrapped into new slots.
 - Clients from before this change fail closed (`VaultFormatError`) on a v3 vault; users who
   only ever had v1/v2 vaults are unaffected.
 - A device that signs in with a passphrase or passkey can't build a device slot yet (the
-  session key is non-extractable); #91 adds that when app lock is turned off.
-- Removing the passphrase or kit slot is left to #91 (Settings → Security).
+  session key is non-extractable); [ADR-0043](0043-app-lock-and-slot-removal.md) adds that when app lock is turned off.
+- Removing the passphrase or kit slot: [ADR-0043](0043-app-lock-and-slot-removal.md).
 
 ## Alternatives rejected
 
