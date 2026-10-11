@@ -70,6 +70,8 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
       values (${sealed.id}, ${sealed.householdId}, ${sealed.version},
               ${Buffer.from(sealed.ciphertext, "base64url")})`;
 
+    // Home leads with the empty state; the household panel is a secondary action (#105).
+    await a.getByRole("button", { name: "Invite a member" }).click();
     // A invites B. The key is only on A's device, so the server refuses until A picks a
     // recovery method (ADR-0040); the invite then goes out without another tap.
     await a.getByLabel("Invite member").fill(email.b);
@@ -93,6 +95,7 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
     await a.reload();
     await expect(appHeading(a)).toBeVisible({ timeout: 30_000 });
     await expect(a.getByLabel("Passphrase")).toHaveCount(0);
+    await a.getByRole("button", { name: "Invite a member" }).click();
     await a.getByRole("button", { name: new RegExp(email.b) }).click();
     const check = a.getByRole("dialog", { name: "Check their code" });
     await expect(check).toBeVisible();

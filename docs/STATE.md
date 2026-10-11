@@ -1,4 +1,4 @@
-_Last updated: 2026-10-11 (session 19: #91 split into #101/#102/#103; #101 protection banner in review) · next session: start here_
+_Last updated: 2026-10-11 (session 19: #101 merged (PR #104); #105 empty Home in review) · next session: start here_
 
 ## Where we are
 
@@ -18,15 +18,15 @@ _Last updated: 2026-10-11 (session 19: #91 split into #101/#102/#103; #101 prote
   merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 merged (PR #87). #84 dark mode merged (PR #85). Onboarding-v2 plan merged (PR #94).
 - Merged: **#88** vault v3 + device slot (PR #95, [ADR-0038](decisions/0038-vault-v3-device-slot.md), `vault-device.ts`, `device-store.ts`); **#96** magic link (PR #98, [ADR-0039](decisions/0039-magic-link-sign-in.md)); **#90** recovery before first invite (PR #99, [ADR-0040](decisions/0040-recovery-method-before-first-data.md); **M2 push must call `requireRecoveryMethod`**).
   **#97** silent first run (PR #100, [ADR-0041](decisions/0041-silent-first-run.md)). **#91 split** into #101/#102/#103.
-  **#101** protection banner in review ([ADR-0042](decisions/0042-protection-banner.md), `protection.ts`, BS flag in `passkey-prf.ts`).
+  **#101** banner merged (PR #104, [ADR-0042](decisions/0042-protection-banner.md)). **#105** empty Home in review (`src/features/home/`; E2E ran in CI only).
 
 ## Next session picks up
 
 Next: **redeploy the home server** for Next 16.3.8. Then onboarding v2 ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md)):
-merge #101 → **#102** app lock toggle + slot removal (area:crypto: device slot after a passphrase/passkey
+merge #105 → **#102** app lock toggle + slot removal (area:crypto: device slot after a passphrase/passkey
 sign-in needs an extractable unwrap; remove passphrase/kit/passkey slots, ≥ 1 recovery) → **#103**
 Settings → Security (adds the banner's "Fix" link) → #92 E2E. Google sign-in later (#93, M8).
-**#105** (owner): empty Home after sign-in, invite as a secondary action (M1, `size:S`). Then close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
+Inviter's Home nudge (UX.md §3.0 "ready to join") is still unbuilt: the panel is collapsed now. Then close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
 (8952155): `pnpm test` (190; 191 on #82) · `pnpm e2e` (smoke + M1 acceptance) · typecheck · check · build.
 
