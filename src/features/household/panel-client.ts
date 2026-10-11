@@ -34,6 +34,14 @@ export interface PanelApi {
   cancel(householdId: string, emailHash: string): Promise<void>;
 }
 
+/** The server's 409 when the caller has no recovery method yet (ADR-0040). */
+export class RecoveryRequiredError extends Error {
+  constructor() {
+    super("a recovery method is required first");
+    this.name = "RecoveryRequiredError";
+  }
+}
+
 async function ok(res: Response, what: string): Promise<Response> {
   if (!res.ok) throw new Error(`${what}: ${res.status}`);
   return res;
@@ -56,10 +64,13 @@ export const httpPanelApi: PanelApi = {
     return (await (await ok(res, "invites")).json()).invites;
   },
   async invite(id, email) {
-    await ok(
-      await fetch(`${base(id)}/invites`, json("POST", { email })),
-      "invite",
-    );
+    const res = await fetch(`${base(id)}/invites`, json("POST", { email }));
+    if (res.status === 409) {
+      const body = await res.json().catch(() => null);
+      if (body?.error === "recovery-required")
+        throw new RecoveryRequiredError();
+    }
+    await ok(res, "invite");
   },
   async add(id, userId, wrappedHdk) {
     await ok(

@@ -1,24 +1,30 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useEffect, useState } from "react";
+import {
+  type FormEvent,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { keyFingerprint } from "@/crypto/household";
 import { exportPublicKey } from "@/crypto/keys";
 import { fromBase64url, toBase64url } from "@/crypto/wire";
 import { type KeySession, keySession } from "@/features/lock/key-session";
+import type { PrfApi } from "@/features/lock/passkey-prf";
+import {
+  RecoveryChooser,
+  RecoveryContext,
+} from "@/features/lock/recovery-chooser";
+import { type Check, CodeCheck } from "./code-check";
 import {
   addInvitee,
   httpPanelApi,
-  type Invitee,
   type Member,
   type OpenInvite,
   type PanelApi,
+  RecoveryRequiredError,
 } from "./panel-client";
-
-/** The code check (§3.0 C). Holds the invitee as shown, never a key. */
-type Check =
-  | { at: "comparing"; invite: OpenInvite; invitee: Invitee; theirs: string }
-  | { at: "adding" }
-  | { at: "stopped" };
 
 /**
  * Minimal Household panel (#64, UX.md §3.8, ADR-0031): members, open invites, invite by
@@ -28,10 +34,17 @@ type Check =
 export function HouseholdPanel({
   keys = keySession,
   api = httpPanelApi,
+  prf,
+  addPasskey,
 }: {
   keys?: KeySession;
   api?: PanelApi;
+  prf?: PrfApi;
+  addPasskey?: () => Promise<boolean>;
 }) {
+  const recovery = useContext(RecoveryContext);
+  /** The address waiting on "Protect your account first" (ADR-0040). */
+  const [protecting, setProtecting] = useState<string | null>(null);
   const householdId = keys.householdKey()?.householdId ?? null;
   const [members, setMembers] = useState<Member[] | null>(null);
   const [invites, setInvites] = useState<OpenInvite[]>([]);
@@ -78,18 +91,39 @@ export function HouseholdPanel({
   if (!householdId) return null;
   const refresh = () => setReload((n) => n + 1);
 
-  async function invite(e: FormEvent) {
-    e.preventDefault();
-    if (!householdId || !email.trim()) return;
+  async function invite(e?: FormEvent, address = email.trim()) {
+    e?.preventDefault();
+    if (!householdId || !address) return;
     setError(null);
     try {
-      await api.invite(householdId, email.trim());
+      await api.invite(householdId, address);
       setEmail("");
       refresh();
-    } catch {
-      setError("Couldn't send the invite. Check the address and try again.");
+    } catch (err) {
+      if (!(err instanceof RecoveryRequiredError))
+        return setError(
+          "Couldn't send the invite. Check the address and try again.",
+        );
+      if (recovery) return setProtecting(address);
+      setError(
+        "Add a way back in (passkey, passphrase or recovery kit) before inviting anyone.",
+      );
     }
   }
+
+  if (protecting && recovery)
+    return (
+      <RecoveryChooser
+        source={recovery}
+        prf={prf}
+        addPasskey={addPasskey}
+        onProtected={() => {
+          setProtecting(null);
+          invite(undefined, protecting);
+        }}
+        onCancel={() => setProtecting(null)}
+      />
+    );
 
   async function openCheck(invite: OpenInvite) {
     if (!invite.invitee) return;
@@ -188,60 +222,6 @@ export function HouseholdPanel({
   );
 }
 
-function CodeCheck({
-  check,
-  ownCode,
-  onMatch,
-  onMismatch,
-  onClose,
-}: {
-  check: Check;
-  ownCode: string | null;
-  onMatch(): void;
-  onMismatch(): void;
-  onClose(): void;
-}) {
-  return (
-    <div
-      role="dialog"
-      aria-label="Check their code"
-      className="flex flex-col gap-3 rounded-lg border border-neutral-300 p-4 dark:border-neutral-700"
-    >
-      {check.at === "stopped" ? (
-        <>
-          <p role="alert" className="font-medium text-red-600">
-            Stop. Someone may be intercepting this invite. Don't retry; tell the
-            person who runs your server.
-          </p>
-          <p>The invite is cancelled and nothing was shared.</p>
-          <button type="button" onClick={onClose} className={secondary}>
-            Close
-          </button>
-        </>
-      ) : check.at === "adding" ? (
-        <p>Adding…</p>
-      ) : (
-        <>
-          <Code label={`${check.invitee.email}'s code`} value={check.theirs} />
-          <Code label="Your code" value={ownCode} />
-          <p>
-            Ask {check.invitee.email} to read theirs. Does it match exactly?
-          </p>
-          <button type="button" onClick={onMatch} className={primary}>
-            It matches — add {check.invitee.email}
-          </button>
-          <button type="button" onClick={onMismatch} className={secondary}>
-            It doesn't match
-          </button>
-          <button type="button" onClick={onClose} className="py-1 text-xs">
-            Not now
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
-
 function Row({
   chip,
   onClick,
@@ -272,18 +252,5 @@ function Row({
   );
 }
 
-function Code({ label, value }: { label: string; value: string | null }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <p className="text-xs uppercase tracking-wide text-neutral-500">
-        {label}
-      </p>
-      <p className="font-mono text-xl tracking-wider">{value ?? "…"}</p>
-    </div>
-  );
-}
-
 const primary =
   "rounded-md bg-neutral-900 px-3 py-2 font-medium text-white dark:bg-white dark:text-neutral-900";
-const secondary =
-  "rounded-md border border-neutral-300 px-3 py-2 font-medium dark:border-neutral-700";

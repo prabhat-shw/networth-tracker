@@ -35,6 +35,9 @@ what type, with which institutions).
 - Device slot ([ADR-0038](decisions/0038-vault-v3-device-slot.md)): the device key is non-extractable before
   and after an IndexedDB round trip; the store holds only key, public key and wrap; another
   identity, an extractable key or tampering fails closed. Missing vault slots fail closed.
+- Recovery before first data ([ADR-0040](decisions/0040-recovery-method-before-first-data.md)): the server refuses an invite (409) while the caller's
+  vault has no recovery slot (PGlite test); each chooser option's saved vault really opens
+  with that option, and Face ID drops the device slot only after the upload (browser tests).
 - Passkey slots ([ADR-0033](decisions/0033-vault-passkey-slots.md)): a wrong PRF output, salt or credential, or a wrap moved to
   another credential or vault, fails closed; the PRF output is never in the vault or a request.
   Fast unlock (#75, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md)): the post-unlock enrol

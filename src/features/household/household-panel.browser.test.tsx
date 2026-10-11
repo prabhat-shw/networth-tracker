@@ -10,10 +10,21 @@ import {
 } from "@/crypto/household";
 import { exportPublicKey, generateIdentityKeyPair } from "@/crypto/keys";
 import type { UnlockedIdentity } from "@/crypto/vault";
+import { createDeviceIdentity } from "@/crypto/vault-device";
 import { fromBase64url, toBase64url } from "@/crypto/wire";
 import { createKeySession } from "@/features/lock/key-session";
+import type { PrfApi } from "@/features/lock/passkey-prf";
+import {
+  RecoveryContext,
+  type RecoverySource,
+} from "@/features/lock/recovery-chooser";
 import { HouseholdPanel } from "./household-panel";
-import type { OpenInvite, PanelApi } from "./panel-client";
+import {
+  httpPanelApi,
+  type OpenInvite,
+  type PanelApi,
+  RecoveryRequiredError,
+} from "./panel-client";
 
 let asha: UnlockedIdentity; // the inviter
 let bala: UnlockedIdentity; // the invitee
@@ -144,5 +155,91 @@ describe("HouseholdPanel", () => {
       .element(screen.getByRole("button", { name: /Invited/ }))
       .not.toBeInTheDocument();
     expect(api.add).not.toHaveBeenCalled();
+  });
+});
+
+describe("protect before the first invite (ADR-0040)", () => {
+  /** The server refuses once (no recovery method yet), then accepts. */
+  function refusingOnce() {
+    const api = server([]);
+    api.invite = vi
+      .fn<PanelApi["invite"]>()
+      .mockRejectedValueOnce(new RecoveryRequiredError())
+      .mockResolvedValue(undefined);
+    return api;
+  }
+
+  it("opens the chooser on the refusal, then sends the same invite once protected", async () => {
+    const api = refusingOnce();
+    const { vault, device } = await createDeviceIdentity();
+    const source: RecoverySource = {
+      email: "asha@example.com",
+      vault,
+      device,
+      saveVault: vi.fn(async () => {}),
+      dropDeviceSlot: vi.fn(async () => {}),
+    };
+    const keys = createKeySession();
+    keys.start(asha);
+    keys.setHouseholdKey(hdk);
+    const noPrf: PrfApi = {
+      available: async () => false,
+      unlock: async () => null,
+      enrol: async () => null,
+    };
+    const screen = await render(
+      <RecoveryContext value={source}>
+        <HouseholdPanel keys={keys} api={api} prf={noPrf} />
+      </RecoveryContext>,
+    );
+    await screen.getByLabelText("Invite member").fill("bala@example.com");
+    await screen.getByRole("button", { name: "Invite", exact: true }).click();
+    await expect
+      .element(screen.getByText("Protect your account first"))
+      .toBeVisible();
+
+    await screen.getByRole("button", { name: "Choose a passphrase" }).click();
+    await screen.getByLabelText("Passphrase").fill("correct horse battery");
+    await screen.getByRole("button", { name: "Save passphrase" }).click();
+    await vi.waitFor(() => expect(api.invite).toHaveBeenCalledTimes(2), {
+      timeout: 15_000,
+    });
+    expect(api.invite).toHaveBeenLastCalledWith(
+      hdk.householdId,
+      "bala@example.com",
+    );
+    expect(source.saveVault).toHaveBeenCalledOnce();
+    await expect.element(screen.getByText("Household")).toBeVisible();
+  });
+
+  it("without a device slot to build from, explains instead", async () => {
+    const api = refusingOnce();
+    const screen = await panel(api);
+    await screen.getByLabelText("Invite member").fill("bala@example.com");
+    await screen.getByRole("button", { name: "Invite", exact: true }).click();
+    await expect
+      .element(screen.getByRole("alert"))
+      .toMatchTextContent("Add a way back in");
+  });
+});
+
+describe("httpPanelApi.invite", () => {
+  it("turns the server's recovery-required 409 into RecoveryRequiredError, nothing else", async () => {
+    const fetchSpy = vi.spyOn(window, "fetch");
+    fetchSpy.mockResolvedValueOnce(
+      Response.json({ error: "recovery-required" }, { status: 409 }),
+    );
+    await expect(httpPanelApi.invite("hh", "b@example.com")).rejects.toThrow(
+      RecoveryRequiredError,
+    );
+    fetchSpy.mockResolvedValueOnce(
+      Response.json({ error: "something else" }, { status: 409 }),
+    );
+    const other = await httpPanelApi
+      .invite("hh", "b@example.com")
+      .catch((e) => e);
+    expect(other).toBeInstanceOf(Error);
+    expect(other).not.toBeInstanceOf(RecoveryRequiredError);
+    fetchSpy.mockRestore();
   });
 });

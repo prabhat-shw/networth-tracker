@@ -1,6 +1,7 @@
 // Member relay on real Postgres (ADR-0023) and the M1 acceptance test: a second member is
 // invited, receives the HDK through the server, and decrypts a record the first one made.
 // Sessions are stubbed; the session → user path is covered in records.pg.test.ts.
+import { eq } from "drizzle-orm";
 import { beforeAll, describe, expect, it } from "vitest";
 import { open, recordAad, seal } from "@/crypto/aead";
 import {
@@ -14,7 +15,7 @@ import { encodeVault, fromBase64url, toBase64url } from "@/crypto/wire";
 import * as schema from "./db/schema";
 import { migratedDb } from "./db/test-db";
 import type { GuardDeps } from "./guard";
-import { pgInviteStore } from "./invites";
+import { emailHash, pgInviteStore } from "./invites";
 import {
   addMember,
   createHousehold,
@@ -41,9 +42,11 @@ let hh: string;
 
 const storeVault = async (userId: string) => {
   const { vault, identity } = await createIdentity("pass phrase one");
-  await db
-    .insert(schema.identityVaults)
-    .values({ userId, publicKey: vault.publicKey, vault: "{}" });
+  await db.insert(schema.identityVaults).values({
+    userId,
+    publicKey: vault.publicKey,
+    vault: JSON.stringify(encodeVault(vault)),
+  });
   return { identity, wire: encodeVault(vault) };
 };
 
@@ -134,6 +137,45 @@ describe("household member relay", () => {
     const { invites } = await (await invitesOf(ASHA)).json();
     expect(invites).toHaveLength(1);
     expect(invites[0].invitee).toBeNull();
+  });
+
+  it("refuses an invite while the inviter's vault has no recovery method (ADR-0040)", async () => {
+    const [row] = await db
+      .select()
+      .from(schema.identityVaults)
+      .where(eq(schema.identityVaults.userId, ASHA));
+    const { publicKey } = JSON.parse(row.vault);
+    const setVault = (vault: unknown) =>
+      db
+        .update(schema.identityVaults)
+        .set({ vault: JSON.stringify(vault) })
+        .where(eq(schema.identityVaults.userId, ASHA));
+
+    await setVault({ v: 3, publicKey });
+    const res = await invite(ASHA, "dev@example.com");
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: "recovery-required" });
+    expect(await pgInviteStore(db).isInvited("dev@example.com")).toBe(false);
+
+    // Any one recovery slot is enough: here, only a recovery-kit wrap.
+    await setVault({
+      v: 3,
+      publicKey,
+      byRecovery: JSON.parse(row.vault).byRecovery,
+    });
+    expect((await invite(ASHA, "dev@example.com")).status).toBe(204);
+    await db
+      .delete(schema.householdInvites)
+      .where(
+        eq(
+          schema.householdInvites.emailHash,
+          await emailHash("dev@example.com"),
+        ),
+      );
+    await db
+      .update(schema.identityVaults)
+      .set({ vault: row.vault })
+      .where(eq(schema.identityVaults.userId, ASHA));
   });
 
   it("will not relay a wrap to someone the household did not invite", async () => {

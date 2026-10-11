@@ -1,6 +1,6 @@
 # ADR-0037 — Onboarding v2: email → in; key on device; protect before the first data
 
-**Status:** Accepted (plan) · 2026-10-11 · owner decision · issues #88–#92 (#88: [ADR-0038](0038-vault-v3-device-slot.md)) · supersedes in part [ADR-0024](0024-lock-unlock-session.md), [ADR-0025](0025-onboarding-flow.md), [ADR-0027](0027-first-run-implementation.md), [ADR-0034](0034-passkey-fast-unlock-ux.md)
+**Status:** Accepted (plan) · 2026-10-11 · owner decision · issues #88–#92 (#88: [ADR-0038](0038-vault-v3-device-slot.md), #90: [ADR-0040](0040-recovery-method-before-first-data.md)) · supersedes in part [ADR-0024](0024-lock-unlock-session.md), [ADR-0025](0025-onboarding-flow.md), [ADR-0027](0027-first-run-implementation.md), [ADR-0034](0034-passkey-fast-unlock-ux.md)
 
 ## Context
 

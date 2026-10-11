@@ -16,6 +16,7 @@ import {
 } from "./db/schema";
 import { deny, type GuardDeps, guardHousehold, UUID } from "./guard";
 import { emailHash, INVITE_TTL_DAYS } from "./invites";
+import { requireRecoveryMethod } from "./vault";
 
 const MAX_BODY_BYTES = 4096;
 /** Wrap blob (ADR-0019): 1 + 65 + 16 + 1 + kid (0–255) + 40 bytes. */
@@ -158,6 +159,8 @@ export async function inviteMember(
     !/^[^@\s]+@[^@\s]+$/.test(email.trim())
   )
     return deny(400);
+  const unprotected = await requireRecoveryMethod(deps.db, guard.userId);
+  if (unprotected) return unprotected;
 
   const hash = await emailHash(email);
   const expiresAt = new Date(Date.now() + INVITE_TTL_DAYS * 86_400_000);
