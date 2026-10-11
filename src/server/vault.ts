@@ -2,6 +2,7 @@
  * Identity-vault relay (ADR-0022). The signed-in user stores and fetches their own vault so
  * a fresh browser profile can unlock with the passphrase or recovery code. The server
  * validates the shape (same bounded codec the client uses) but cannot open anything in it.
+ * Since v3 (ADR-0038) it may hold no slot at all; the server reads only which slots exist.
  */
 import { eq, sql } from "drizzle-orm";
 import {
@@ -9,9 +10,11 @@ import {
   encodeVault,
   MAX_VAULT_JSON_BYTES,
   VaultFormatError,
+  type VaultSlots,
+  vaultSlots,
 } from "@/crypto/wire";
 import { identityVaults } from "./db/schema";
-import { deny, type GuardDeps } from "./guard";
+import { type Db, deny, type GuardDeps } from "./guard";
 
 const fail = (status: 409 | 413 | 415, error: string) =>
   Response.json({ error }, { status });
@@ -73,4 +76,20 @@ export async function putVault(
     .returning({ userId: identityVaults.userId });
   if (written.length === 0) return fail(409, "public key cannot change");
   return new Response(null, { status: 204 });
+}
+
+/**
+ * Which slots the user's stored vault has (never their contents), or null with no vault.
+ * #90 refuses the first record write or invite while `hasRecoveryMethod` is false.
+ */
+export async function storedVaultSlots(
+  db: Db,
+  userId: string,
+): Promise<VaultSlots | null> {
+  const [row] = await db
+    .select({ vault: identityVaults.vault })
+    .from(identityVaults)
+    .where(eq(identityVaults.userId, userId))
+    .limit(1);
+  return row ? vaultSlots(decodeVault(JSON.parse(row.vault))) : null;
 }

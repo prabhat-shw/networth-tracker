@@ -16,7 +16,7 @@ what type, with which institutions).
 | Host / cloud operator | Full DB + disk read | Records are AES-256-GCM ciphertext; keys never leave devices |
 | Network attacker | MITM, traffic analysis | TLS everywhere; Tailscale-only in production; whole-universe price downloads hide holdings |
 | Stolen unlocked laptop | Live session | Auto-lock, keys wiped from memory on lock, passphrase/passkey to unlock |
-| Stolen locked device | Disk read | IndexedDB holds ciphertext only; unlock key derived per session, never persisted. **Planned ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), #88):** with app lock off, a non-extractable device key + the wrapped private key are kept in IndexedDB (user's choice, banner); with app lock on, unchanged |
+| Stolen locked device | Disk read | IndexedDB holds ciphertext only; unlock key derived per session, never persisted. With app lock off ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), [ADR-0038](decisions/0038-vault-v3-device-slot.md)), a non-extractable device key + the wrapped private key are kept in IndexedDB, so disk access yields the key (user's choice, banner; app lock wiring #91); with app lock on, unchanged |
 | Malicious dependency | Exfiltration at runtime | Strict CSP (no third-party origins), lockfile + `osv-scanner` + dependency review, no analytics/CDN |
 | Malicious statement file | Parser exploit | PDF/CSV parsed in a Web Worker with no network access; pdf.js sandboxed; fuzz-style parser tests |
 | Malicious server swaps an invitee's public key | Relays a key it controls | Static-static ECDH wrap + out-of-band key fingerprint check before inviting ([ADR-0019](decisions/0019-household-key-wrapping.md)) |
@@ -32,6 +32,9 @@ what type, with which institutions).
   asserted there, while other tests use the bounds floor for speed ([ADR-0028](decisions/0028-fast-kdf-in-tests.md))
 - Identity vault tests: the private key is absent from the stored vault, and create /
   change / restore make no `fetch` or IndexedDB call ([ADR-0018](decisions/0018-identity-vault-and-recovery-code.md))
+- Device slot ([ADR-0038](decisions/0038-vault-v3-device-slot.md)): the device key is non-extractable before
+  and after an IndexedDB round trip; the store holds only key, public key and wrap; another
+  identity, an extractable key or tampering fails closed. Missing vault slots fail closed.
 - Passkey slots ([ADR-0033](decisions/0033-vault-passkey-slots.md)): a wrong PRF output, salt or credential, or a wrap moved to
   another credential or vault, fails closed; the PRF output is never in the vault or a request.
   Fast unlock (#75, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md)): the post-unlock enrol

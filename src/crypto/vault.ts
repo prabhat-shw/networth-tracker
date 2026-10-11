@@ -1,9 +1,12 @@
 /**
  * Identity vault (ADR-0002, ADR-0018): the member's P-256 private key, AES-GCM wrapped
- * under the passphrase unlock key, the recovery-code key and, optionally, one key per
- * passkey (ADR-0033, `vault-passkey.ts`). The vault holds only the public key, public slot
- * metadata and ciphertext, so it may be stored in IndexedDB and uploaded as-is.
+ * under the passphrase unlock key, the recovery-code key and one key per passkey
+ * (ADR-0033, `vault-passkey.ts`). Since v3 (ADR-0038) every slot is optional; a vault with
+ * none is opened only by this device's key (`vault-device.ts`). The vault holds only the
+ * public key, public slot metadata and ciphertext, so it may be stored and uploaded as-is.
  */
+
+import { DecryptError } from "./aead";
 import {
   type UnlockedIdentity,
   unlockedIdentity,
@@ -24,13 +27,14 @@ export type { UnlockedIdentity } from "./identity-wrap";
 type Slot = "passphrase" | "recovery";
 
 export interface IdentityVault {
-  /** In-memory model version; the wire form stays v1 while `passkeys` is empty. */
-  v: 2;
+  /** In-memory model version; the wire form stays v1/v2 while both slots below exist. */
+  v: 3;
   /** Raw SEC1 public key; the HDK is wrapped to this, so it never changes. */
   publicKey: Bytes;
-  kdf: KdfParams;
-  byPassphrase: Bytes;
-  byRecovery: Bytes;
+  /** Passphrase slot: `kdf` and `byPassphrase` are both set or both null. */
+  kdf: KdfParams | null;
+  byPassphrase: Bytes | null;
+  byRecovery: Bytes | null;
   passkeys: PasskeySlot[];
 }
 
@@ -52,15 +56,39 @@ function wrapPrivateKey(
   return wrap(key, privateKey, slot, slotAad(slot, publicKey));
 }
 
-/** Throws `DecryptError` for a wrong key, a swapped slot or any tampering. */
+/** Throws `DecryptError` for a wrong key, a missing or swapped slot or any tampering. */
 function unwrapPrivateKey(
   key: CryptoKey,
-  sealed: Bytes,
+  sealed: Bytes | null,
   slot: Slot,
   publicKey: Bytes,
   extractable: boolean,
 ): Promise<CryptoKey> {
+  if (!sealed) return Promise.reject(new DecryptError());
   return unwrap(key, sealed, slot, slotAad(slot, publicKey), extractable);
+}
+
+/** The passphrase's unlock key; `DecryptError` when the vault has no passphrase slot. */
+async function passphraseKey(
+  vault: IdentityVault,
+  passphrase: string,
+): Promise<CryptoKey> {
+  if (!vault.kdf) throw new DecryptError();
+  return (await deriveUnlockKey(passphrase, vault.kdf)).key;
+}
+
+/** Extractable private key from the passphrase slot, for re-wrapping into another slot. */
+async function privateKeyByPassphrase(
+  vault: IdentityVault,
+  passphrase: string,
+): Promise<CryptoKey> {
+  return unwrapPrivateKey(
+    await passphraseKey(vault, passphrase),
+    vault.byPassphrase,
+    "passphrase",
+    vault.publicKey,
+    true,
+  );
 }
 
 function unlocked(
@@ -105,7 +133,7 @@ export async function createIdentity(passphrase: string): Promise<{
   const recoveryCode = generateRecoveryCode();
   const recoveryKey = await deriveRecoveryKey(recoveryCode);
   const vault: IdentityVault = {
-    v: 2,
+    v: 3,
     publicKey,
     kdf: params,
     byPassphrase: await wrapPrivateKey(
@@ -144,15 +172,11 @@ export async function addPasskeySlot(
   passphrase: string,
   prf: PasskeyPrf,
 ): Promise<IdentityVault> {
-  const { key } = await deriveUnlockKey(passphrase, vault.kdf);
-  const privateKey = await unwrapPrivateKey(
-    key,
-    vault.byPassphrase,
-    "passphrase",
-    vault.publicKey,
-    true,
+  return withPasskeySlot(
+    vault,
+    await privateKeyByPassphrase(vault, passphrase),
+    prf,
   );
-  return withPasskeySlot(vault, privateKey, prf);
 }
 
 /** Throws `DecryptError` on a wrong passphrase; never yields a usable key. */
@@ -160,7 +184,7 @@ export async function unlockWithPassphrase(
   vault: IdentityVault,
   passphrase: string,
 ): Promise<UnlockedIdentity> {
-  const { key } = await deriveUnlockKey(passphrase, vault.kdf);
+  const key = await passphraseKey(vault, passphrase);
   return unlocked(vault, await sessionKey(vault, key));
 }
 
@@ -173,18 +197,18 @@ export async function changePassphrase(
   oldPassphrase: string,
   newPassphrase: string,
 ): Promise<IdentityVault> {
-  const { key: oldKey } = await deriveUnlockKey(oldPassphrase, vault.kdf);
-  const privateKey = await unwrapPrivateKey(
-    oldKey,
-    vault.byPassphrase,
-    "passphrase",
-    vault.publicKey,
-    true,
+  return withPassphraseSlot(
+    vault,
+    await privateKeyByPassphrase(vault, oldPassphrase),
+    newPassphrase,
   );
-  return rewrapPassphrase(vault, privateKey, newPassphrase);
 }
 
-async function rewrapPassphrase(
+/**
+ * Sets (or replaces) the passphrase slot. `privateKey` must be extractable: a fresh
+ * identity's, or one unwrapped from another slot for re-wrapping (`vault-device.ts`).
+ */
+export async function withPassphraseSlot(
   vault: IdentityVault,
   privateKey: CryptoKey,
   passphrase: string,
@@ -219,7 +243,7 @@ export async function restoreWithRecoveryCode(
     vault.publicKey,
     true,
   );
-  const next = await rewrapPassphrase(vault, privateKey, newPassphrase);
+  const next = await withPassphraseSlot(vault, privateKey, newPassphrase);
   return {
     vault: next,
     identity: await unlockWithPassphrase(next, newPassphrase),
@@ -231,14 +255,20 @@ export async function rotateRecoveryCode(
   vault: IdentityVault,
   passphrase: string,
 ): Promise<{ vault: IdentityVault; recoveryCode: string }> {
-  const { key } = await deriveUnlockKey(passphrase, vault.kdf);
-  const privateKey = await unwrapPrivateKey(
-    key,
-    vault.byPassphrase,
-    "passphrase",
-    vault.publicKey,
-    true,
+  return withRecoverySlot(
+    vault,
+    await privateKeyByPassphrase(vault, passphrase),
   );
+}
+
+/**
+ * Issues a recovery code and (re)sets the recovery slot; the code is returned once, for the
+ * user to print. `privateKey` must be extractable, as for `withPassphraseSlot`.
+ */
+export async function withRecoverySlot(
+  vault: IdentityVault,
+  privateKey: CryptoKey,
+): Promise<{ vault: IdentityVault; recoveryCode: string }> {
   const recoveryCode = generateRecoveryCode();
   const byRecovery = await wrapPrivateKey(
     await deriveRecoveryKey(recoveryCode),

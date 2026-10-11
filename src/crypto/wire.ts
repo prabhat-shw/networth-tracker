@@ -6,7 +6,9 @@
  * work factor to something trivially brute-forced.
  *
  * v1 has no passkey slots; v2 adds `passkeys` (ADR-0033). A vault without passkeys is still
- * written as v1, so it stays byte-identical and readable by clients that predate v2.
+ * written as v1, so it stays byte-identical and readable by clients that predate v2. v3
+ * (ADR-0038) makes the passphrase and recovery slots optional; it is written only when one
+ * of them is missing, so a vault that fits v1 or v2 never changes form.
  */
 import type { Bytes, KdfParams } from "./kdf";
 import type { IdentityVault } from "./vault";
@@ -56,18 +58,20 @@ export interface PasskeySlotWire {
 }
 
 export interface VaultWire {
-  v: 1 | 2;
+  v: 1 | 2 | 3;
   publicKey: string;
-  kdf: {
+  /** v3: `kdf` and `byPassphrase` are both present or both absent. */
+  kdf?: {
     alg: "argon2id";
     memoryKiB: number;
     iterations: number;
     parallelism: number;
     salt: string;
   };
-  byPassphrase: string;
-  byRecovery: string;
-  /** v2 only. */
+  byPassphrase?: string;
+  /** Optional in v3 only. */
+  byRecovery?: string;
+  /** v2 (non-empty), or v3 (non-empty when present). */
   passkeys?: PasskeySlotWire[];
 }
 
@@ -86,24 +90,34 @@ export function fromBase64url(text: string): Bytes {
   return out;
 }
 
-export function encodeVault(vault: IdentityVault): VaultWire {
-  const base: VaultWire = {
-    v: 1,
-    publicKey: toBase64url(vault.publicKey),
-    kdf: {
-      alg: vault.kdf.alg,
-      memoryKiB: vault.kdf.memoryKiB,
-      iterations: vault.kdf.iterations,
-      parallelism: vault.kdf.parallelism,
-      salt: toBase64url(vault.kdf.salt),
-    },
-    byPassphrase: toBase64url(vault.byPassphrase),
-    byRecovery: toBase64url(vault.byRecovery),
-  };
-  if (vault.passkeys.length === 0) return base;
+function encodeKdf(kdf: KdfParams): NonNullable<VaultWire["kdf"]> {
   return {
-    ...base,
-    v: 2,
+    alg: kdf.alg,
+    memoryKiB: kdf.memoryKiB,
+    iterations: kdf.iterations,
+    parallelism: kdf.parallelism,
+    salt: toBase64url(kdf.salt),
+  };
+}
+
+/** v1 or v2 when both the passphrase and recovery slots exist; v3 otherwise. */
+export function encodeVault(vault: IdentityVault): VaultWire {
+  if ((vault.kdf === null) !== (vault.byPassphrase === null))
+    throw new VaultFormatError("passphrase slot");
+  const full = vault.byPassphrase !== null && vault.byRecovery !== null;
+  const out: VaultWire = {
+    v: full ? 1 : 3,
+    publicKey: toBase64url(vault.publicKey),
+  };
+  if (vault.kdf && vault.byPassphrase) {
+    out.kdf = encodeKdf(vault.kdf);
+    out.byPassphrase = toBase64url(vault.byPassphrase);
+  }
+  if (vault.byRecovery) out.byRecovery = toBase64url(vault.byRecovery);
+  if (vault.passkeys.length === 0) return out;
+  return {
+    ...out,
+    v: full ? 2 : 3,
     passkeys: vault.passkeys.map((s) => ({
       credentialId: toBase64url(s.credentialId),
       prfSalt: toBase64url(s.prfSalt),
@@ -136,7 +150,7 @@ function bounded(x: unknown, at: keyof typeof KDF_BOUNDS): number {
 
 function passkeySlots(x: unknown): PasskeySlot[] {
   if (!Array.isArray(x)) throw new VaultFormatError("passkeys");
-  // v2 exists only to carry slots; an empty list is written as v1.
+  // `passkeys` exists only to carry slots; an empty list is left out (v1, or v3 without it).
   if (x.length < 1 || x.length > PASSKEY_BOUNDS.maxSlots)
     throw new VaultFormatError("passkeys count");
   const { min, max } = PASSKEY_BOUNDS.credentialIdBytes;
@@ -161,13 +175,20 @@ function passkeySlots(x: unknown): PasskeySlot[] {
 }
 
 const V1_KEYS = ["v", "publicKey", "kdf", "byPassphrase", "byRecovery"];
+const V3_OPTIONAL = ["kdf", "byPassphrase", "byRecovery", "passkeys"];
 
-/** Throws `VaultFormatError` for anything but a well-formed, in-bounds v1 or v2 vault. */
-export function decodeVault(input: unknown): IdentityVault {
-  if (!isObject(input)) throw new VaultFormatError("not an object");
-  if (input.v !== 1 && input.v !== 2) throw new VaultFormatError("version");
-  exactKeys(input, input.v === 1 ? V1_KEYS : [...V1_KEYS, "passkeys"], "vault");
-  const { kdf } = input;
+/** v3: only the keys present, each optional; the passphrase pair travels together. */
+function v3Keys(input: Record<string, unknown>): string[] {
+  const keys = ["v", "publicKey", ...V3_OPTIONAL.filter((k) => k in input)];
+  if ("kdf" in input !== "byPassphrase" in input)
+    throw new VaultFormatError("passphrase slot");
+  // A vault with both slots has a v1/v2 form; one canonical form per vault.
+  if ("byPassphrase" in input && "byRecovery" in input)
+    throw new VaultFormatError("v3 with both slots");
+  return keys;
+}
+
+function decodeKdf(kdf: unknown): KdfParams {
   if (!isObject(kdf)) throw new VaultFormatError("kdf");
   exactKeys(
     kdf,
@@ -176,13 +197,31 @@ export function decodeVault(input: unknown): IdentityVault {
   );
   if (kdf.alg !== "argon2id") throw new VaultFormatError("kdf.alg");
   const { min, max } = KDF_BOUNDS.saltBytes;
-  const params: KdfParams = {
+  return {
     alg: "argon2id",
     memoryKiB: bounded(kdf.memoryKiB, "memoryKiB"),
     iterations: bounded(kdf.iterations, "iterations"),
     parallelism: bounded(kdf.parallelism, "parallelism"),
     salt: bytes(kdf.salt, "kdf.salt", min, max),
   };
+}
+
+const wrapOrNull = (x: unknown, at: string) =>
+  x === undefined ? null : bytes(x, at, 1, MAX_WRAP_BYTES);
+
+/** Throws `VaultFormatError` for anything but a well-formed, in-bounds v1, v2 or v3 vault. */
+export function decodeVault(input: unknown): IdentityVault {
+  if (!isObject(input)) throw new VaultFormatError("not an object");
+  const keys =
+    input.v === 1
+      ? V1_KEYS
+      : input.v === 2
+        ? [...V1_KEYS, "passkeys"]
+        : input.v === 3
+          ? v3Keys(input)
+          : null;
+  if (!keys) throw new VaultFormatError("version");
+  exactKeys(input, keys, "vault");
   const publicKey = bytes(
     input.publicKey,
     "publicKey",
@@ -191,11 +230,32 @@ export function decodeVault(input: unknown): IdentityVault {
   );
   if (publicKey[0] !== 0x04) throw new VaultFormatError("publicKey");
   return {
-    v: 2,
+    v: 3,
     publicKey,
-    kdf: params,
-    byPassphrase: bytes(input.byPassphrase, "byPassphrase", 1, MAX_WRAP_BYTES),
-    byRecovery: bytes(input.byRecovery, "byRecovery", 1, MAX_WRAP_BYTES),
-    passkeys: input.v === 2 ? passkeySlots(input.passkeys) : [],
+    kdf: input.kdf === undefined ? null : decodeKdf(input.kdf),
+    byPassphrase: wrapOrNull(input.byPassphrase, "byPassphrase"),
+    byRecovery: wrapOrNull(input.byRecovery, "byRecovery"),
+    passkeys: input.passkeys === undefined ? [] : passkeySlots(input.passkeys),
   };
 }
+
+/**
+ * Which slots a vault has, never their contents (ADR-0038). The server uses this to refuse
+ * the first data or invite while no recovery method exists (ADR-0037, #90).
+ */
+export interface VaultSlots {
+  passphrase: boolean;
+  recovery: boolean;
+  passkeys: number;
+}
+
+export function vaultSlots(vault: IdentityVault): VaultSlots {
+  return {
+    passphrase: vault.byPassphrase !== null,
+    recovery: vault.byRecovery !== null,
+    passkeys: vault.passkeys.length,
+  };
+}
+
+export const hasRecoveryMethod = (s: VaultSlots): boolean =>
+  s.passphrase || s.recovery || s.passkeys > 0;

@@ -85,7 +85,7 @@ describe("identity vault", () => {
     const next = await changePassphrase(reload(vault), PASS, "new passphrase");
     expect(next.publicKey).toEqual(vault.publicKey);
     expect(next.byRecovery).toEqual(vault.byRecovery);
-    expect(next.kdf.salt).not.toEqual(vault.kdf.salt);
+    expect(next.kdf?.salt).not.toEqual(vault.kdf?.salt);
     await expect(unlockWithPassphrase(next, PASS)).rejects.toThrow(
       DecryptError,
     );
@@ -211,7 +211,7 @@ describe("the private key never leaves the device", () => {
         ].sort(),
       );
       for (const field of [v.publicKey, v.byPassphrase, v.byRecovery]) {
-        expect(field).toBeInstanceOf(Uint8Array);
+        if (!field) throw new Error("slot missing");
         expect(contains(field, d)).toBe(false);
         expect(contains(field, pkcs8)).toBe(false);
       }
