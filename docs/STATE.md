@@ -2,7 +2,7 @@ _Last updated: 2026-10-11 (session 21: #92 merged, M1 closed, M2 planned) · nex
 
 ## Where we are
 
-**Milestone:** M2 — Encrypted sync engine ([brief](phases/M2.md), issues #113–#118). M0 and M1 are closed.
+**Milestone:** M2 — Encrypted sync engine (brief: `docs/phases/M2.md`, issues #113–#118). M0 and M1 are closed.
 
 - **Merged in M1** (details in the ADRs): crypto primitives (0013), identity vault (0018),
   household key (0019), auth (0020, `src/server/auth.ts`), membership guard (0021), vault
