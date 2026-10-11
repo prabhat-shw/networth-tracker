@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-09-28 (session 17: #71, #74, #75, #78, #79, #82 merged; #84 in PR) · next session: start here_
+_Last updated: 2026-10-11 (session 17: #71–#86 merged; #84 in PR) · next session: start here_
 
 ## Where we are
 
@@ -11,10 +11,8 @@ _Last updated: 2026-09-28 (session 17: #71, #74, #75, #78, #79, #82 merged; #84 
   relay (0022), member relay + invites (0023), key session + unlock (0024, `src/features/lock/`),
   onboarding spec (0025, UX.md §3.0), sign-in + gate (0026, `src/features/auth/`), first run
   (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0006`.
-- **#54 restore** merged (PR #60); **#58 test speed** merged (PR #62, [ADR-0028](decisions/0028-fast-kdf-in-tests.md):
-  tests use the Argon2id bounds floor except `crypto.test.ts`). Vitest config is `vitest.config.mts`.
-- **#52 join API** merged (PR #65, [ADR-0029](decisions/0029-ending-an-invite.md)): invites with
-  the inviter's name in `GET /api/households`; cancel and decline endpoints.
+- **#54 restore** (PR #60); **#58** tests use the Argon2id floor (PR #62, [ADR-0028](decisions/0028-fast-kdf-in-tests.md)).
+- **#52 join API** merged (PR #65, [ADR-0029](decisions/0029-ending-an-invite.md)): inviter's name, cancel, decline.
 - **#63 household gate** merged (PR #66, [ADR-0030](decisions/0030-household-key-after-unlock.md)): `src/features/household/`.
 - **#64 Household panel** merged (PR #68, [ADR-0031](decisions/0031-inviter-household-panel.md)): invite + inviter's code check.
 - **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)); see Gotchas.
@@ -22,11 +20,13 @@ _Last updated: 2026-09-28 (session 17: #71, #74, #75, #78, #79, #82 merged; #84 
   [ADR-0033](decisions/0033-vault-passkey-slots.md)): wire v2 only with slots, 12 KiB limit.
 - **#75 fast unlock** merged (PR #77, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md); closed #48). Owner tests on a device after M1.
 - **#46 split:** #78 E2E harness merged (PR #80, [ADR-0035](decisions/0035-e2e-harness.md)); #79 M1 acceptance
-  merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83); **#84** dark-mode page colours in PR.
+  merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 security bump merged (PR #87). **#84** dark mode in PR #85.
 
 ## Next session picks up
 
-Next: merge the #84 PR; owner wants a faster onboarding (decide the design first); the owner is running the real-device passkey check (#75) on staging; then
+Next: merge #85 (#84). **Redeploy the home server** for Next 16.3.8. **Owner decision 2026-10-11: onboarding redesign** (email code / magic link → in;
+key kept on device; choose passkey / passphrase / kit before the first data or invite; app lock on by
+default with Face ID; Google sign-in later): write the ADR + PLAN/SECURITY changes and file issues first. Then
 close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
 (8952155): `pnpm test` (190; 191 on #82) · `pnpm e2e` (smoke + M1 acceptance) · typecheck · check · build.

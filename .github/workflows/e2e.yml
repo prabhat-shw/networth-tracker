@@ -14,6 +14,10 @@ on:
       - "e2e/**"
       - "playwright.config.ts"
       - "drizzle/**"
+      # Dependency bumps (Next.js, Better Auth, …) change what the specs exercise.
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
       - ".github/workflows/e2e.yml"
   push:
     branches: [main]

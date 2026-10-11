@@ -5,6 +5,10 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 
 ## [Unreleased]
 
+### Security
+- Dependencies (#86): Next.js 16.3.4 → 16.3.8 (critical `next/og` RCE advisory
+  GHSA-vcvr-r3jv-pc5j); `sharp` ≥ 0.35.5 and `source-map-js` ≥ 1.2.2 via pnpm overrides.
+
 ### Added
 - Passkey fast unlock (M1, #74, #75): unlock with Face ID, a fingerprint or a passkey on
   browsers that support it; the passphrase opens in place as the fallback, and by itself after
