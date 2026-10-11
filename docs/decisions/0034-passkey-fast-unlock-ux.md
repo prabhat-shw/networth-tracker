@@ -1,6 +1,6 @@
 # ADR-0034 — Passkey fast unlock: ceremony, fallback and enrolment
 
-**Status:** Accepted · 2026-09-28 · issue #75 (part of #48; `area:crypto`, owner approval) · builds on [ADR-0033](0033-vault-passkey-slots.md), [ADR-0024](0024-lock-unlock-session.md)
+**Status:** Accepted · 2026-09-28 · issue #75 (part of #48; `area:crypto`, owner approval) · builds on [ADR-0033](0033-vault-passkey-slots.md), [ADR-0024](0024-lock-unlock-session.md) · **superseded in part by [ADR-0037](0037-onboarding-v2-key-on-device.md)** (onboarding v2)
 
 ## Context
 

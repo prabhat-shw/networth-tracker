@@ -41,3 +41,4 @@ One line per session: date · issue · outcome.
 - 2026-09-28 · issue #82 · sign-in kept across Better Auth's focus refetch: only the first session check shows Loading (owner-reported on staging)
 - 2026-10-11 · issue #84 · page background/text follow the system theme (UX.md §6.1), color-scheme light dark; E2E checks both (owner-reported)
 - 2026-10-11 · issue #86 · Next 16.3.4 → 16.3.8 (critical next/og RCE), sharp/source-map-js override floors; audit gate clean (1 moderate: esbuild dev server via drizzle-kit)
+- 2026-10-11 · onboarding v2 plan · owner decision: email/magic link → in, key on device (device slot), recovery method before first data/invite, app lock on with Face ID, Google later (ADR-0037); issues #88–#93

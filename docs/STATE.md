@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-10-11 (session 17: #71–#86 merged; #84 in PR) · next session: start here_
+_Last updated: 2026-10-11 (session 17: #71–#86 merged; onboarding-v2 plan merging) · next session: start here_
 
 ## Where we are
 
@@ -20,13 +20,13 @@ _Last updated: 2026-10-11 (session 17: #71–#86 merged; #84 in PR) · next sess
   [ADR-0033](decisions/0033-vault-passkey-slots.md)): wire v2 only with slots, 12 KiB limit.
 - **#75 fast unlock** merged (PR #77, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md); closed #48). Owner tests on a device after M1.
 - **#46 split:** #78 E2E harness merged (PR #80, [ADR-0035](decisions/0035-e2e-harness.md)); #79 M1 acceptance
-  merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 security bump merged (PR #87). **#84** dark mode in PR #85.
+  merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 merged (PR #87). #84 dark mode merged (PR #85). Onboarding-v2 plan: PR #94 (docs).
 
 ## Next session picks up
 
-Next: merge #85 (#84). **Redeploy the home server** for Next 16.3.8. **Owner decision 2026-10-11: onboarding redesign** (email code / magic link → in;
-key kept on device; choose passkey / passphrase / kit before the first data or invite; app lock on by
-default with Face ID; Google sign-in later): write the ADR + PLAN/SECURITY changes and file issues first. Then
+Next: **redeploy the home server** for Next 16.3.8. Then **onboarding v2** ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md),
+owner 2026-10-11) in order: **#88** vault v3 + device slot → #89 magic link + email → in → #90 recovery
+method before first data → #91 Security settings + banner → #92 E2E. Google sign-in later (#93, M8). Then
 close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
 (8952155): `pnpm test` (190; 191 on #82) · `pnpm e2e` (smoke + M1 acceptance) · typecheck · check · build.

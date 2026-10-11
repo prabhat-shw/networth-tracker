@@ -251,6 +251,11 @@ Visual detail (colour, spacing, exact type) is in §7; see it rendered with real
 
 ### 3.0 Sign-in, first run & joining a household
 
+> **Being replaced by onboarding v2** ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), owner 2026-10-11):
+> email code or magic link → straight into the app; a recovery method (Face ID / passkey,
+> passphrase or kit) is chosen before the first data or invite. #89 rewrites this section;
+> until then it describes what is built.
+
 **Purpose:** get a person from an email address to an unlocked app, once, without making
 security feel like paperwork, and without the server ever seeing a secret. Approved by the owner
 2026-09-27 (#50, [ADR-0025](decisions/0025-onboarding-flow.md)); iterate as it is built; builds #45. Screens share the §3.1 shell (centred column, the permanent
