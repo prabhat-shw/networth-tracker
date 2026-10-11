@@ -1,4 +1,4 @@
-_Last updated: 2026-10-11 (session 22: #120 first-owner sign-up in review) · next session: start here_
+_Last updated: 2026-10-12 (session 22: #120 merged, PR #121) · next session: start here_
 
 ## Where we are
 
@@ -8,7 +8,7 @@ _Last updated: 2026-10-11 (session 22: #120 first-owner sign-up in review) · ne
   household key (0019), auth (0020, `src/server/auth.ts`), membership guard (0021), vault
   relay (0022), member relay + invites (0023), key session + unlock (0024, `src/features/lock/`),
   onboarding spec (0025, UX.md §3.0), sign-in + gate (0026, `src/features/auth/`), first run
-  (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0006`.
+  (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0007`.
 - Merged: #54 restore (PR #60), #58 fast KDF in tests ([ADR-0028](decisions/0028-fast-kdf-in-tests.md)), #52 join API ([ADR-0029](decisions/0029-ending-an-invite.md)),
   #63 household gate ([ADR-0030](decisions/0030-household-key-after-unlock.md), `src/features/household/`), #64 Household panel ([ADR-0031](decisions/0031-inviter-household-panel.md)),
   #69 docs enforcement ([ADR-0032](decisions/0032-changelog-and-docs-impact.md); see Gotchas).
@@ -22,12 +22,12 @@ _Last updated: 2026-10-11 (session 22: #120 first-owner sign-up in review) · ne
 
 ## Next session picks up
 
-**#120** in review ([ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md): first sign-up on an empty server owns it, `server_owner` table, migration `0007`; **run `pnpm db:migrate` on Neon before merging**; `area:security`, owner approval).
+**#120** merged (PR #121, [ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md): first sign-up on an empty server owns it, `server_owner` table). Neon (staging) migrated through `0007`.
 Next: **#113** (ADR-0045: version vs pull cursor, LWW clock in plaintext, routes, limits, padding;
 the recommendations are in the M2 brief, and the owner decides). Then #114 and #115 (independent) → #116 → #117 → #118.
-The owner still has to redeploy the home server (H4; not possible from this machine). Open items: #112 social recovery (size:L, ADR first,
+The owner still has to redeploy the home server (H4, run on the server; this machine has no Tailscale/SSH to it). Open items: #112 social recovery (size:L, ADR first,
 no milestone yet), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household,
-ADR-0031 member names in the members API. Green on `main` (9e13e7f): CI e2e (smoke, M1 and onboarding v2).
+ADR-0031 member names in the members API. Green on `main` (1748842): `pnpm test` (267) · CI e2e · typecheck · check.
 
 ## Also open
 
