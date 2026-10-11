@@ -28,7 +28,8 @@ deferring the check to M2.
 - **Leak scans cover what can be named.** Passphrases, recovery phrases (whole and every
   3-word run), and the record plaintext are checked in every request body and URL, in
   local/session storage, and in every `public` table (as text and hex). IndexedDB must
-  hold no databases. Private keys and the HDK are non-extractable, so they have no raw
+  hold no databases. *Amended by #92 (ADR-0038):* only `nwt-device`, holding one
+  non-extractable key + wrapped bytes with app lock off and nothing with it on. Private keys and the HDK are non-extractable, so they have no raw
   form to search for; the unit suites keep asserting they never leave.
 - **Sign-in rate limits stay as they are.** All browsers in a run share one IP, and code sends
   are limited to 3 per 5 min per IP, so `signIn` empties the throwaway `rate_limit` table
