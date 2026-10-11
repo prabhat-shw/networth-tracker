@@ -42,7 +42,7 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M1 — Identity & crypto core. M0 complete (PRs #18-#22). |
+| Milestone | M2 — Encrypted sync engine ([brief](phases/M2.md), issues #113–#118). M0 and M1 are closed. |
 | Next up | see docs/STATE.md |
 | Decisions recorded | 44 ADRs |
 
