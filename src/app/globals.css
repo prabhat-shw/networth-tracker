@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+/*
+ * Page chrome follows the system theme (UX.md §6.1), the same signal Tailwind's `dark:`
+ * variants use. Without it the page stayed white while dark-styled controls turned black
+ * (#84). A Light/Dark/System setting arrives with Settings → Appearance (UX.md §3.9).
+ */
+:root {
+  color-scheme: light dark;
+  --page-bg: #f9f9f7;
+  --page-fg: #0b0b0b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #0d0d0d;
+    --page-fg: #ffffff;
+  }
+}
+
+body {
+  background-color: var(--page-bg);
+  color: var(--page-fg);
+}

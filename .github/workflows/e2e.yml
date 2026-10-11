@@ -9,7 +9,7 @@ on:
       - "src/crypto/**"
       - "src/features/auth/**"
       - "src/features/e2e/**"
-      - "src/app/page.tsx"
+      - "src/app/**"
       - "next.config.ts"
       - "e2e/**"
       - "playwright.config.ts"
