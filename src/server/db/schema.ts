@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
+  check,
   customType,
   index,
   integer,
@@ -177,6 +178,21 @@ export const invites = pgTable("invites", {
   expiresAt: ts("expires_at").notNull(),
   consumedAt: ts("consumed_at"),
 });
+
+/**
+ * The bootstrap claim (ADR-0046): at most one row, ever. On a server with no users, the first
+ * uninvited sign-up writes its email hash here; the primary key makes the claim atomic, and
+ * the row outlives every account, so a database is opened to an uninvited address only once.
+ */
+export const serverOwner = pgTable(
+  "server_owner",
+  {
+    id: integer("id").primaryKey().default(1),
+    emailHash: bytea("email_hash").notNull(),
+    claimedAt: created(),
+  },
+  (t) => [check("server_owner_single_row", sql`${t.id} = 1`)],
+);
 
 /**
  * An in-app invite to one household (ADR-0023). Binds the email hash to the household, so a

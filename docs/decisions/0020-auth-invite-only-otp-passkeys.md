@@ -1,6 +1,6 @@
 # ADR-0020 — Auth: Better Auth, passkeys + SMTP email OTP, invite-only
 
-**Status:** Accepted · 2026-09-26 · implements the auth half of [ADR-0001](0001-zero-knowledge-architecture.md)
+**Status:** Accepted · 2026-09-26 · implements the auth half of [ADR-0001](0001-zero-knowledge-architecture.md) · amended by [ADR-0046](0046-first-sign-up-owns-empty-server.md) (the first owner needs no invite)
 
 ## Context
 

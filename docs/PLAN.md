@@ -128,7 +128,7 @@ passkey PRF (optional fast unlock) ------------┘
 
 ### Non-negotiable controls
 
-- Invite-only registration; Better Auth with passkeys + email OTP (auth is for *sync access*,
+- Invite-only registration (the first sign-up on an empty server becomes the owner, ADR-0046); Better Auth with passkeys + email OTP (auth is for *sync access*,
   independent of the crypto)
 - Strict CSP with nonces, no third-party scripts, no analytics, no CDN
 - CAS/statement PDFs parsed **entirely in-browser** (pdf.js in a worker, no network) — the
