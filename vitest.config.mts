@@ -23,6 +23,8 @@ export default defineConfig({
         // Component tests in a real browser (CLAUDE.md: "component (browser mode)"). The
         // installed Chrome is used, locally and on GitHub's runners, so nothing is downloaded.
         resolve: { alias },
+        // `next/link` reads `process.env` (inlined by Next's own bundler, absent here).
+        define: { "process.env": {} },
         test: {
           name: "browser",
           sequence: { groupOrder: 1 },

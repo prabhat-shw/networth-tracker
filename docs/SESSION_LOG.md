@@ -50,3 +50,4 @@ One line per session: date · issue · outcome.
 - 2026-10-11 · #101 merged (PR #104) · #105 empty Home: zero-state leads, Household panel behind "Invite a member"; E2E updated (CI only, Docker off)
 - 2026-10-11 · #105 merged (PR #106) · #102 app lock = device slot (off re-asks passphrase/passkey, on clears the key), slot removal keeps ≥1 recovery method (ADR-0043); follow-up: server guard on vault PUT
 - 2026-10-11 · #102 merged (PR #107) · #108 vault PUT 409 recovery-required when the last recovery slot is dropped, atomic in the upsert (owner pre-approved merge on green CI)
+- 2026-10-11 · #108 merged (PR #109) · #103 Settings → Security at /settings: methods add/remove, app lock switch with re-auth, Lock now, banner Fix link (ADR-0044); home server not deployable from this machine
