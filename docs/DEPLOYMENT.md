@@ -72,8 +72,10 @@ curl -k https://<tailnet-host>/api/health
 Expected: `{"status":"ok","app":"ok","db":"ok"}` with HTTP 200. A `503` with `"db":"down"`
 means the app cannot reach Postgres: check `docker compose logs db`.
 
-**First owner (once):** registration is invite-only (ADR-0020). Invite yourself, then sign
-in with an emailed code and add a passkey:
+**First owner (once):** open the app and sign in with your email straight away. On a server
+with no users, the first sign-up becomes the owner without an invite ([ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md)),
+and after that the server is invite-only again. Do it right after the first deploy. If someone
+else got there first (or a sign-in never mails a code), invite yourself on the host:
 
 ```bash
 docker compose run --rm migrate pnpm auth:invite you@example.com
@@ -246,11 +248,13 @@ In Neon, **Tables** (left sidebar) shows `records` with 6 columns: `id`, `househ
 3. Optional guard test: set `DEMO_MODE` to `false` → Redeploy → the build must fail with
    *"Refusing to build"*. Set it back to `true` → Redeploy.
 
-### S6a. Invite yourself (first owner, once)
+### S6a. Invite yourself (only if the database already has users)
 
-Registration is invite-only (ADR-0020), and nobody exists yet to invite you from the app.
-Without this step, sign-in says *"a code is on its way"* but **no code is ever sent**. That
-message is deliberately the same for every address.
+On an **empty** database, skip this: just sign in, and the first sign-up becomes the owner
+([ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md)). Staging is public, so do it
+right after the first deploy. Once any account exists, registration is invite-only (ADR-0020).
+A new address then sees *"a code is on its way"*, but **no code is ever sent** until it is invited.
+That message is deliberately the same for every address.
 
 1. Copy Neon's **unpooled** connection string exactly as in S4 steps 1–6.
 2. In PowerShell, one line at a time:
@@ -269,7 +273,7 @@ Everyone after you (a spouse) is invited from the app's Household panel (#64), n
 **If no code arrives**, in this order:
 - Wrong inbox: it's `SMTP_DEMO_TO`.
 - `SMTP_DEMO_TO` missing: staging then sends nothing. Add it, then **Redeploy**.
-- Not invited, or the invite has expired: redo step 2.
+- Not invited (and the database already has users), or the invite has expired: redo step 2.
 - Rate limit: 3 requests per 5 minutes per IP; wait and retry.
 - Mail server error: **Logs** → filter `/api/auth/email-otp/send-verification-otp` →
   `Failed to run background task` (usually the Gmail app password, or `SMTP_PORT` 465 vs 587).

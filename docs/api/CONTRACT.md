@@ -47,8 +47,10 @@ Better Auth under `/api/auth`, paths as Better Auth 1.7 defines them. Session co
 | GET | `/get-session` | → `{ session, user }` or `null` | 30 / min |
 | POST | `/sign-out` | clears the session | 30 / min |
 
-Not available: `/sign-up/email` or any password or social route. Invites are created by
-`pnpm auth:invite <email>` (owner bootstrap) and by the in-app household invite below.
+Not available: `/sign-up/email` or any password or social route. On a server with no users,
+the first address to sign in becomes the owner without an invite; that claim happens once per
+database ([ADR-0046](../decisions/0046-first-sign-up-owns-empty-server.md)). After it, invites
+come from the in-app household invite below, or from `pnpm auth:invite <email>` (admin tool).
 
 ## Identity vault (ADR-0022, ADR-0033, ADR-0038, ADR-0043)
 

@@ -20,6 +20,7 @@ what type, with which institutions).
 | Malicious dependency | Exfiltration at runtime | Strict CSP (no third-party origins), lockfile + `osv-scanner` + dependency review, no analytics/CDN |
 | Malicious statement file | Parser exploit | PDF/CSV parsed in a Web Worker with no network access; pdf.js sandboxed; fuzz-style parser tests |
 | Malicious server swaps an invitee's public key | Relays a key it controls | Static-static ECDH wrap + out-of-band key fingerprint check before inviting ([ADR-0019](decisions/0019-household-key-wrapping.md)) |
+| Stranger reaching a fresh server | Signs up before the owner | One-time, atomic first-owner claim only while no user exists ([ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md)); production is Tailscale-only; sign in right after the first deploy |
 | Curious household member | Legitimate login | Per-record ownership; private (non-shared) records are wrapped only to their owner |
 | Us (the developers) | Bugs | Plaintext-scan test on the DB, cross-household E2E isolation test, no PII in logs |
 

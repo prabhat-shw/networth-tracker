@@ -21,6 +21,9 @@ function setup() {
       invited.delete(normaliseEmail(e));
       consumed.push(normaliseEmail(e));
     },
+    // The bootstrap claim is covered against Postgres (auth.pg.test.ts).
+    mayBootstrap: async () => false,
+    claimOwner: async () => false,
   };
   const mail: { to: string; otp: string; link: string }[] = [];
   const db: Record<string, unknown[]> = {

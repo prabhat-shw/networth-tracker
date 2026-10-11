@@ -1,4 +1,4 @@
-_Last updated: 2026-10-11 (session 21: #92 merged, M1 closed, M2 planned) · next session: start here_
+_Last updated: 2026-10-11 (session 22: #120 first-owner sign-up in review) · next session: start here_
 
 ## Where we are
 
@@ -22,6 +22,7 @@ _Last updated: 2026-10-11 (session 21: #92 merged, M1 closed, M2 planned) · nex
 
 ## Next session picks up
 
+**#120** in review ([ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md): first sign-up on an empty server owns it, `server_owner` table, migration `0007`; **run `pnpm db:migrate` on Neon before merging**; `area:security`, owner approval).
 Next: **#113** (ADR-0045: version vs pull cursor, LWW clock in plaintext, routes, limits, padding;
 the recommendations are in the M2 brief, and the owner decides). Then #114 and #115 (independent) → #116 → #117 → #118.
 The owner still has to redeploy the home server (H4; not possible from this machine). Open items: #112 social recovery (size:L, ADR first,
@@ -40,7 +41,7 @@ ADR-0031 member names in the members API. Green on `main` (9e13e7f): CI e2e (smo
 
 - **Passkey PRF** can't run in headless Chrome (tests fake `PrfApi`): verify fast unlock on a real phone.
 - **Staging migrations are manual**: after any new `drizzle/` migration, run `pnpm db:migrate`
-  against Neon's unpooled URL (DEPLOYMENT.md step 4) *before* merging code that needs it.
+  against Neon's unpooled URL (DEPLOYMENT.md step 4) *before* merging code that needs it ("…already exists, skipping" NOTICEs are harmless).
 - Neon URLs may carry `channel_binding=require`; if staging reports `db:"down"`, strip it in `client.ts`.
 - **Vercel:** import the repo only once (a re-import made a duplicate project, since deleted).
   Env vars need a **Redeploy** to take effect. `APP_ORIGIN` = the staging URL (used from M1 auth).
@@ -51,7 +52,6 @@ ADR-0031 member names in the members API. Green on `main` (9e13e7f): CI e2e (smo
   Remap db via a local compose override (`ports: !override`) and set `E2E_DATABASE_URL`.
 - **Social recovery (spouse re-wrap to a new identity) is not built:** the server refuses a vault
   public-key change (ADR-0022), so a member who lost every method cannot start over: #112 (size:L, ADR first).
-- Neon `db:migrate` prints "…already exists, skipping" NOTICEs; they are harmless.
 - New household-scoped routes: call `guardHousehold` first; never answer 403 (ADR-0021).
 - Server tests that touch SQL: use PGlite with the real migrations (`migratedDb()` from `db/test-db.ts`), not
   the Better Auth memory adapter, which hides schema bugs.

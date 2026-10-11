@@ -1,6 +1,7 @@
 /**
  * Sync-access authentication (ADR-0001, ADR-0020). Better Auth with passkeys, an email
- * OTP and a magic link (ADR-0039); no passwords, no social logins, no open sign-up. Auth only gates *access*
+ * OTP and a magic link (ADR-0039); no passwords, no social logins, no open sign-up: invites,
+ * plus one claim by the first sign-up on an empty server (ADR-0046). Auth only gates *access*
  * to ciphertext: it never sees or derives a data key.
  */
 import { passkey } from "@better-auth/passkey";
@@ -62,7 +63,10 @@ type MailContext =
     }
   | undefined;
 
-/** Only an existing account or an invited address is ever mailed; the answer is the same. */
+/**
+ * Only an existing account, an invited address, or (on a server nobody has claimed yet) a
+ * would-be owner is ever mailed; the answer is the same either way.
+ */
 async function mayMail(
   deps: AuthDeps,
   email: string,
@@ -70,7 +74,11 @@ async function mayMail(
 ): Promise<boolean> {
   const known =
     (await ctx?.context.internalAdapter.findUserByEmail(email)) ?? null;
-  return known !== null || (await deps.invites.isInvited(email));
+  return (
+    known !== null ||
+    (await deps.invites.isInvited(email)) ||
+    (await deps.invites.mayBootstrap(email))
+  );
 }
 
 export function createAuth(deps: AuthDeps) {
@@ -100,10 +108,12 @@ export function createAuth(deps: AuthDeps) {
       user: {
         create: {
           // The only way an account is created. Invite-less emails never get this far
-          // (no OTP is sent), but the gate is enforced here regardless of the path.
+          // (no OTP is sent), but the gate is enforced here regardless of the path. The
+          // one exception is the first owner of an empty server (ADR-0046).
           before: async (user) => {
-            if (!(await deps.invites.isInvited(user.email)))
-              throw new APIError("FORBIDDEN", { message: "invite required" });
+            if (await deps.invites.isInvited(user.email)) return;
+            if (await deps.invites.claimOwner(user.email)) return;
+            throw new APIError("FORBIDDEN", { message: "invite required" });
           },
           after: async (user) => {
             await deps.invites.consume(user.email);

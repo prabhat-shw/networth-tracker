@@ -15,6 +15,8 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   GHSA-vcvr-r3jv-pc5j); `sharp` ≥ 0.35.5 and `source-map-js` ≥ 1.2.2 via pnpm overrides.
 
 ### Changed
+- The first person on a new server just signs in with their email: no invite command on the
+  host (#120). After that first sign-up, the server is invite-only as before.
 - Home after sign-in (M1, #105): opens on an empty "Your household net worth will show up
   here" screen. Inviting someone is now an optional **Invite a member** action, not the
   first thing you see.

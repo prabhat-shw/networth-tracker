@@ -50,6 +50,13 @@
       "when": 1790490049258,
       "tag": "0006_household_invites",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791741810295,
+      "tag": "0007_server_owner",
+      "breakpoints": true
     }
   ]
 }
