@@ -4,7 +4,7 @@
  * validates the shape (same bounded codec the client uses) but cannot open anything in it.
  * Since v3 (ADR-0038) it may hold no slot at all; the server reads only which slots exist.
  */
-import { eq, sql } from "drizzle-orm";
+import { and, eq, not, sql } from "drizzle-orm";
 import {
   decodeVault,
   encodeVault,
@@ -41,8 +41,17 @@ export async function getVault(
 }
 
 /**
+ * Stored vaults are canonical JSON (re-encoded on write), where a slot's key is present
+ * exactly when the slot exists (`encodeVault`). So this reads "the stored vault has a
+ * recovery method" without decoding it, inside the upsert.
+ */
+const storedHasRecovery = sql`jsonb_exists_any(${identityVaults.vault}::jsonb, array['byPassphrase', 'byRecovery', 'passkeys'])`;
+
+/**
  * Creates or replaces the caller's vault. The public key is fixed by the first upload; a
- * later upload with a different key is refused (409), atomically in one upsert.
+ * later upload with a different key is refused (409). An upload that would drop the last
+ * recovery method of a vault that had one is refused too (409 `recovery-required`, ADR-0043,
+ * #108). Both checks run atomically in the one upsert.
  */
 export async function putVault(
   deps: GuardDeps,
@@ -66,17 +75,37 @@ export async function putVault(
   }
   // Stored re-encoded, so only canonical, validated JSON is ever served back.
   const canonical = JSON.stringify(encodeVault(vault));
+  const sameKey = sql`${identityVaults.publicKey} = excluded.public_key`;
+  const keepsRecovery = hasRecoveryMethod(vaultSlots(vault));
   const written = await deps.db
     .insert(identityVaults)
     .values({ userId, publicKey: vault.publicKey, vault: canonical })
     .onConflictDoUpdate({
       target: identityVaults.userId,
       set: { vault: canonical, updatedAt: sql`now()` },
-      setWhere: sql`${identityVaults.publicKey} = excluded.public_key`,
+      setWhere: keepsRecovery ? sameKey : and(sameKey, not(storedHasRecovery)),
     })
     .returning({ userId: identityVaults.userId });
-  if (written.length === 0) return fail(409, "public key cannot change");
+  if (written.length === 0)
+    return keepsRecovery
+      ? fail(409, "public key cannot change")
+      : refusedFor(deps.db, userId, vault.publicKey);
   return new Response(null, { status: 204 });
+}
+
+/** Nothing was written; says why. Only a read, so no race can change the outcome. */
+async function refusedFor(
+  db: Db,
+  userId: string,
+  publicKey: Uint8Array,
+): Promise<Response> {
+  const [row] = await db
+    .select({ publicKey: identityVaults.publicKey })
+    .from(identityVaults)
+    .where(eq(identityVaults.userId, userId))
+    .limit(1);
+  const same = row && Buffer.from(row.publicKey).equals(Buffer.from(publicKey));
+  return fail(409, same ? "recovery-required" : "public key cannot change");
 }
 
 /**

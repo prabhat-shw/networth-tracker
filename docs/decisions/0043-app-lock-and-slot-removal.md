@@ -33,9 +33,10 @@ device slot (its session key is non-extractable), and no slot can be removed saf
 
 - No wire, server or IndexedDB format change. #103 wires the UI: the toggle, a re-auth
   prompt, and removal with `putVault`.
-- **Follow-up:** the server still accepts a `PUT /api/identity/vault` that drops the last
-  recovery slot. Only the owner's own vault is at risk (a bug, not an attacker), but the
-  server could refuse it with 409 like ADR-0040 does for invites.
+- **Server guard** (#108): `PUT /api/identity/vault` refuses with `409 recovery-required` an
+  upload that drops the last recovery slot of a stored vault that had one, atomically in
+  the upsert (`jsonb_exists_any` on the canonical stored JSON). A slotless vault over a
+  slotless one (first-run retry) is still accepted.
 - Tests: `src/crypto/vault-slots.test.ts`; IndexedDB is empty after app lock on
   (`device-store.browser.test.tsx`).
 

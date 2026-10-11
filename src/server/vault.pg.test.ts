@@ -1,15 +1,21 @@
 // Vault relay on real Postgres (ADR-0022). Sessions are stubbed: the session → user path is
 // covered with real Better Auth in records.pg.test.ts; here the subject is the vault rules.
 import { beforeAll, describe, expect, it } from "vitest";
+import { randomBytes } from "@/crypto/kdf";
+import type { IdentityVault } from "@/crypto/vault";
 import { createIdentity } from "@/crypto/vault";
 import {
+  addPasskeyFromDevice,
+  addPassphraseFromDevice,
   addRecoveryKitFromDevice,
   createDeviceIdentity,
 } from "@/crypto/vault-device";
+import { newPrfSalt } from "@/crypto/vault-passkey";
 import {
   decodeVault,
   encodeVault,
   MAX_VAULT_JSON_BYTES,
+  PASSKEY_BOUNDS,
   toBase64url,
   type VaultWire,
 } from "@/crypto/wire";
@@ -154,5 +160,84 @@ describe("vault v3: slots optional, presence only (ADR-0038)", () => {
       recovery: true,
       passkeys: 0,
     });
+  });
+});
+
+describe("never drops the last recovery method (ADR-0043, #108)", () => {
+  const slotless = (v: IdentityVault): IdentityVault => ({
+    ...v,
+    kdf: null,
+    byPassphrase: null,
+    byRecovery: null,
+    passkeys: [],
+  });
+  let n = 0;
+  /** A fresh user whose stored vault is `build`'s, uploaded from a device identity. */
+  async function userWith(
+    build: (
+      made: Awaited<ReturnType<typeof createDeviceIdentity>>,
+    ) => Promise<IdentityVault>,
+  ) {
+    const id = `0d000000-0000-4000-8000-${String(++n).padStart(12, "0")}`;
+    await deps.db
+      .insert(schema.user)
+      .values({ id, name: "D", email: `d${n}@example.com` });
+    const made = await createDeviceIdentity();
+    const vault = await build(made);
+    expect((await put(id, encodeVault(vault))).status).toBe(204);
+    return { id, made, vault };
+  }
+
+  it("refuses a slotless upload over a vault with any recovery slot; nothing changes", async () => {
+    const builds = [
+      (m: Awaited<ReturnType<typeof createDeviceIdentity>>) =>
+        addPassphraseFromDevice(m.vault, m.device, "pw"),
+      async (m: Awaited<ReturnType<typeof createDeviceIdentity>>) =>
+        (await addRecoveryKitFromDevice(m.vault, m.device)).vault,
+      (m: Awaited<ReturnType<typeof createDeviceIdentity>>) =>
+        addPasskeyFromDevice(m.vault, m.device, {
+          credentialId: randomBytes(32),
+          prfSalt: newPrfSalt(),
+          prfOutput: randomBytes(PASSKEY_BOUNDS.prfOutputBytes),
+        }),
+    ];
+    for (const build of builds) {
+      const { id, vault } = await userWith(build);
+      const before = await (await get(id)).text();
+      const res = await put(id, encodeVault(slotless(vault)));
+      expect(res.status).toBe(409);
+      expect(await res.json()).toEqual({ error: "recovery-required" });
+      expect(await (await get(id)).text()).toBe(before);
+    }
+  });
+
+  it("accepts dropping one of two methods, and a slotless re-upload over a slotless vault", async () => {
+    const { id, vault } = await userWith(async (m) =>
+      addPassphraseFromDevice(
+        (await addRecoveryKitFromDevice(m.vault, m.device)).vault,
+        m.device,
+        "pw",
+      ),
+    );
+    expect(
+      (await put(id, encodeVault({ ...vault, byRecovery: null }))).status,
+    ).toBe(204);
+    expect(await storedVaultSlots(deps.db, id)).toMatchObject({
+      passphrase: true,
+      recovery: false,
+    });
+
+    const fresh = await userWith(async (m) => m.vault);
+    expect((await put(fresh.id, encodeVault(fresh.vault))).status).toBe(204);
+  });
+
+  it("still names a changed public key, even when the new vault has no slots", async () => {
+    const { id } = await userWith((m) =>
+      addPassphraseFromDevice(m.vault, m.device, "pw"),
+    );
+    const other = await createDeviceIdentity();
+    const res = await put(id, encodeVault(other.vault));
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: "public key cannot change" });
   });
 });
