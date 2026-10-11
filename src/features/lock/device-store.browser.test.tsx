@@ -2,8 +2,10 @@
 // CryptoKey, and nothing but that key, the public key and wrapped bytes is stored.
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  addPassphraseFromDevice,
   createDeviceIdentity,
   createDeviceSlot,
+  deviceSlotByPassphrase,
   openDeviceSlot,
 } from "@/crypto/vault-device";
 import { deviceSlotStore } from "./device-store";
@@ -84,5 +86,19 @@ describe("device slot store", () => {
     expect(await store.load()).toBeNull();
     expect(await other.load()).not.toBeNull();
     await other.clear();
+  });
+
+  it("app lock: off keeps only a slot rebuilt from the passphrase; on leaves no key material at all", async () => {
+    const made = await createDeviceIdentity();
+    const vault = await addPassphraseFromDevice(made.vault, made.device, "pw");
+    // Signed in elsewhere with the passphrase, then app lock turned off (ADR-0043).
+    await store.save(await deviceSlotByPassphrase(vault, "pw"));
+    const slot = await store.load();
+    expect(slot?.key.extractable).toBe(false);
+    if (slot) await openDeviceSlot(vault, slot);
+    expect(await dump()).toHaveLength(1);
+    // App lock on: the device key is forgotten, and the database is empty.
+    await store.clear();
+    expect(await dump()).toEqual([]);
   });
 });

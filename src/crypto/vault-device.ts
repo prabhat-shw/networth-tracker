@@ -19,10 +19,15 @@ import type { Bytes } from "./kdf";
 import { exportPublicKey, generateIdentityKeyPair } from "./keys";
 import {
   type IdentityVault,
+  privateKeyByPassphrase,
   withPassphraseSlot,
   withRecoverySlot,
 } from "./vault";
-import { type PasskeyPrf, withPasskeySlot } from "./vault-passkey";
+import {
+  type PasskeyPrf,
+  privateKeyByPasskey,
+  withPasskeySlot,
+} from "./vault-passkey";
 import { sameBytes } from "./wire";
 
 /** Everything the device keeps: a key that cannot be exported, and wrapped bytes. */
@@ -151,5 +156,31 @@ export async function addPasskeyFromDevice(
     vault,
     await devicePrivateKey(vault, device, true),
     prf,
+  );
+}
+
+/**
+ * App lock off on a device that signed in with the passphrase (ADR-0043): the session key
+ * is non-extractable, so the passphrase is asked again and a fresh device slot is built.
+ * Throws `DecryptError` on a wrong passphrase. App lock on = `DeviceSlotStore.clear()`.
+ */
+export async function deviceSlotByPassphrase(
+  vault: IdentityVault,
+  passphrase: string,
+): Promise<DeviceSlot> {
+  return createDeviceSlot(
+    vault.publicKey,
+    await privateKeyByPassphrase(vault, passphrase),
+  );
+}
+
+/** Same, with a passkey's PRF output. Throws `DecryptError` for a wrong or unknown one. */
+export async function deviceSlotByPasskey(
+  vault: IdentityVault,
+  prf: PasskeyPrf,
+): Promise<DeviceSlot> {
+  return createDeviceSlot(
+    vault.publicKey,
+    await privateKeyByPasskey(vault, prf),
   );
 }

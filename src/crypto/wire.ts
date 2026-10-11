@@ -259,3 +259,24 @@ export function vaultSlots(vault: IdentityVault): VaultSlots {
 
 export const hasRecoveryMethod = (s: VaultSlots): boolean =>
   s.passphrase || s.recovery || s.passkeys > 0;
+
+/** Removing this slot would leave no way back in but this device (ADR-0043). */
+export class LastRecoveryMethodError extends Error {
+  constructor() {
+    super("a vault keeps at least one recovery method");
+    this.name = "LastRecoveryMethodError";
+  }
+}
+
+/** Returns `next` unless it lost the last recovery method that `before` had. */
+export function keepRecovery(
+  before: IdentityVault,
+  next: IdentityVault,
+): IdentityVault {
+  if (
+    hasRecoveryMethod(vaultSlots(before)) &&
+    !hasRecoveryMethod(vaultSlots(next))
+  )
+    throw new LastRecoveryMethodError();
+  return next;
+}

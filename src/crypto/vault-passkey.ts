@@ -14,7 +14,7 @@ import {
 import { type Bytes, randomBytes } from "./kdf";
 import { hkdf } from "./keys";
 import type { IdentityVault } from "./vault";
-import { PASSKEY_BOUNDS, sameBytes } from "./wire";
+import { keepRecovery, PASSKEY_BOUNDS, sameBytes } from "./wire";
 
 export interface PasskeySlot {
   /** WebAuthn credential id (public): tells the unlock screen which passkey to ask for. */
@@ -114,17 +114,20 @@ export async function withPasskeySlot(
   return { ...vault, passkeys: [...others, slot] };
 }
 
-/** Stops a passkey unlocking this vault. The passphrase and recovery slots are untouched. */
+/**
+ * Stops a passkey unlocking this vault. The passphrase and recovery slots are untouched.
+ * Throws `LastRecoveryMethodError` if it was the last recovery method (ADR-0043).
+ */
 export function removePasskeySlot(
   vault: IdentityVault,
   credentialId: Bytes,
 ): IdentityVault {
-  return {
+  return keepRecovery(vault, {
     ...vault,
     passkeys: vault.passkeys.filter(
       (s) => !sameBytes(s.credentialId, credentialId),
     ),
-  };
+  });
 }
 
 /**
@@ -135,6 +138,28 @@ export async function unlockWithPasskey(
   vault: IdentityVault,
   prf: PasskeyPrf,
 ): Promise<UnlockedIdentity> {
+  return unlockedIdentity(
+    vault.publicKey,
+    await passkeyPrivateKey(vault, prf, false),
+  );
+}
+
+/**
+ * Extractable private key from a passkey slot, only for re-wrapping it into the device
+ * slot (`vault-device.ts`). Never keep it or hand it to the session. Same errors as above.
+ */
+export function privateKeyByPasskey(
+  vault: IdentityVault,
+  prf: PasskeyPrf,
+): Promise<CryptoKey> {
+  return passkeyPrivateKey(vault, prf, true);
+}
+
+async function passkeyPrivateKey(
+  vault: IdentityVault,
+  prf: PasskeyPrf,
+  extractable: boolean,
+): Promise<CryptoKey> {
   try {
     checkPrf(prf);
   } catch {
@@ -144,12 +169,11 @@ export async function unlockWithPasskey(
     sameBytes(s.credentialId, prf.credentialId),
   );
   if (!slot || !sameBytes(slot.prfSalt, prf.prfSalt)) throw new DecryptError();
-  const privateKey = await unwrapPrivateKey(
+  return unwrapPrivateKey(
     await slotKey(prf),
     slot.wrap,
     KID,
     passkeyAad(slot.credentialId, vault.publicKey),
-    false,
+    extractable,
   );
-  return unlockedIdentity(vault.publicKey, privateKey);
 }

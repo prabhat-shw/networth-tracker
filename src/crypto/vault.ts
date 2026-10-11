@@ -21,6 +21,7 @@ import {
   type PasskeySlot,
   withPasskeySlot,
 } from "./vault-passkey";
+import { keepRecovery } from "./wire";
 
 export type { UnlockedIdentity } from "./identity-wrap";
 
@@ -77,8 +78,12 @@ async function passphraseKey(
   return (await deriveUnlockKey(passphrase, vault.kdf)).key;
 }
 
-/** Extractable private key from the passphrase slot, for re-wrapping into another slot. */
-async function privateKeyByPassphrase(
+/**
+ * Extractable private key from the passphrase slot, only for re-wrapping it into another
+ * slot (here, or the device slot in `vault-device.ts`). Never keep it or hand it to the
+ * session. Throws `DecryptError` on a wrong passphrase or a vault without the slot.
+ */
+export async function privateKeyByPassphrase(
   vault: IdentityVault,
   passphrase: string,
 ): Promise<CryptoKey> {
@@ -277,4 +282,17 @@ export async function withRecoverySlot(
     vault.publicKey,
   );
   return { vault: { ...vault, byRecovery }, recoveryCode };
+}
+
+/**
+ * Drops the passphrase slot (ADR-0043). Throws `LastRecoveryMethodError` if it was the
+ * last recovery method; the device slot does not count, since it is not in the vault.
+ */
+export function removePassphraseSlot(vault: IdentityVault): IdentityVault {
+  return keepRecovery(vault, { ...vault, kdf: null, byPassphrase: null });
+}
+
+/** Drops the recovery-kit slot: the printed words stop working. Same rule as above. */
+export function removeRecoverySlot(vault: IdentityVault): IdentityVault {
+  return keepRecovery(vault, { ...vault, byRecovery: null });
 }

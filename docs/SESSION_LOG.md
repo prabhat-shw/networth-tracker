@@ -48,3 +48,4 @@ One line per session: date · issue · outcome.
 - 2026-10-11 · issue #97 · silent first run on the device slot, gate opens it silently (auto-lock reopens), RecoveryContext from the gate, storage hint; E2E: A protects with a kit at invite and restores with it (ADR-0041); closes #89
 - 2026-10-11 · #91 split into #101 banner / #102 app lock + slot removal (area:crypto) / #103 Settings → Security · #101 protection banner + BS-flag memory (ADR-0042)
 - 2026-10-11 · #101 merged (PR #104) · #105 empty Home: zero-state leads, Household panel behind "Invite a member"; E2E updated (CI only, Docker off)
+- 2026-10-11 · #105 merged (PR #106) · #102 app lock = device slot (off re-asks passphrase/passkey, on clears the key), slot removal keeps ≥1 recovery method (ADR-0043); follow-up: server guard on vault PUT
