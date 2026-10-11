@@ -9,6 +9,8 @@ on:
       - "src/crypto/**"
       - "src/features/auth/**"
       - "src/features/e2e/**"
+      - "src/features/lock/**"
+      - "src/features/settings/**"
       - "src/app/**"
       - "next.config.ts"
       - "e2e/**"

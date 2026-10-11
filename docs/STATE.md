@@ -1,4 +1,4 @@
-_Last updated: 2026-10-11 (session 19: #101, #105, #102, #108 merged; #103 Security settings in review) · next session: start here_
+_Last updated: 2026-10-11 (session 20: #103 merged; #92 onboarding v2 E2E in review) · next session: start here_
 
 ## Where we are
 
@@ -18,12 +18,12 @@ _Last updated: 2026-10-11 (session 19: #101, #105, #102, #108 merged; #103 Secur
   merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 merged (PR #87). #84 dark mode merged (PR #85). Onboarding-v2 plan merged (PR #94).
 - Merged: **#88** vault v3 + device slot (PR #95, [ADR-0038](decisions/0038-vault-v3-device-slot.md), `vault-device.ts`, `device-store.ts`); **#96** magic link (PR #98, [ADR-0039](decisions/0039-magic-link-sign-in.md)); **#90** recovery before first invite (PR #99, [ADR-0040](decisions/0040-recovery-method-before-first-data.md); **M2 push must call `requireRecoveryMethod`**).
   **#97** silent first run (PR #100, [ADR-0041](decisions/0041-silent-first-run.md)). **#91 split** into #101/#102/#103.
-  **#101** banner merged (PR #104, [ADR-0042](decisions/0042-protection-banner.md)). **#105** empty Home merged (PR #106). **#102** merged (PR #107, [ADR-0043](decisions/0043-app-lock-and-slot-removal.md): app lock = device slot; `deviceSlotBy*`, `remove*Slot`); **#108** merged (PR #109, vault PUT 409). **#103** in review ([ADR-0044](decisions/0044-security-settings.md), `/settings`, `src/features/settings/`).
+  **#101** banner merged (PR #104, [ADR-0042](decisions/0042-protection-banner.md)). **#105** empty Home merged (PR #106). **#102** merged (PR #107, [ADR-0043](decisions/0043-app-lock-and-slot-removal.md): app lock = device slot; `deviceSlotBy*`, `remove*Slot`); **#108** merged (PR #109, vault PUT 409). **#103** merged (PR #110, [ADR-0044](decisions/0044-security-settings.md), `/settings`). **#92** in review: `e2e/onboarding-v2.spec.ts` (link sign-in, chooser passphrase, app lock on/off, new device), device-slot IndexedDB checks, shared `profiles`/`expectNoLeaks` in `e2e/support.ts`.
 
 ## Next session picks up
 
 Next: **owner redeploys the home server** (H4; not this machine: no `.env`/Docker here). Then onboarding v2 ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md)):
-merge #103 → **#92** E2E. Google sign-in later (#93, M8).
+merge **#92** (`area:security`: owner approval). Google sign-in later (#93, M8).
 Inviter's Home nudge (UX.md §3.0 "ready to join") is still unbuilt: the panel is collapsed now. Then close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
 (d7bf279): `pnpm test` (258) · CI e2e (smoke + M1 acceptance) · typecheck · check.
@@ -47,7 +47,10 @@ after confirming; ADR-0031 member names in the members API (needed by UX.md §3.
 - **Docker on Windows:** the image only builds because of the new `.dockerignore`; never
   remove `node_modules` from it. Docker Desktop must be running (`docker info`).
 - **E2E (ADR-0035):** `docker compose -f compose.e2e.yml -p nwt-e2e up -d --wait`, `pnpm e2e`, then `down -v`
-  (Docker Desktop running). CI: `.github/workflows/e2e.yml`, path-filtered.
+  (Docker Desktop running). CI: `.github/workflows/e2e.yml`, path-filtered. Windows reserved port 55432?
+  Remap db via a local compose override (`ports: !override`) and set `E2E_DATABASE_URL`.
+- **Social recovery (spouse re-wrap to a new identity) is not built:** the server refuses a vault
+  public-key change (ADR-0022), so a member who lost every method cannot start over: #112 (size:L, ADR first).
 - Neon `db:migrate` prints "…already exists, skipping" NOTICEs; they are harmless.
 - New household-scoped routes: call `guardHousehold` first; never answer 403 (ADR-0021).
 - Server tests that touch SQL: use PGlite with the real migrations (`migratedDb()` from `db/test-db.ts`), not
