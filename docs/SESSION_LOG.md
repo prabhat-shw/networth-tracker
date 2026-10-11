@@ -45,3 +45,4 @@ One line per session: date · issue · outcome.
 - 2026-10-11 · issue #88 · vault v3 (optional slots, v1/v2 unchanged on the wire), device slot (non-extractable key in IndexedDB, add passphrase/kit/passkey from it), server slot presence (ADR-0038)
 - 2026-10-11 · issue #89 split → #96 + #97 · #96 magic-link sign-in: fragment link `/#link=`, Continue spends it, same invite gate + rate limits (ADR-0039)
 - 2026-10-11 · #97 paused (E2E needs #90 first; owner chose #90 → #97) · #90 recovery method before first invite: server 409 recovery-required, chooser (passkey/passphrase/kit), Face ID drops device slot (ADR-0040)
+- 2026-10-11 · issue #97 · silent first run on the device slot, gate opens it silently (auto-lock reopens), RecoveryContext from the gate, storage hint; E2E: A protects with a kit at invite and restores with it (ADR-0041); closes #89

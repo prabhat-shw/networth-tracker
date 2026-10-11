@@ -251,21 +251,21 @@ Visual detail (colour, spacing, exact type) is in §7; see it rendered with real
 
 ### 3.0 Sign-in, first run & joining a household
 
-> **Being replaced by onboarding v2** ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), owner 2026-10-11):
-> email code or magic link → straight into the app; a recovery method (Face ID / passkey,
-> passphrase or kit) is chosen before the first data or invite. **A. Sign in** is current
-> (magic link added, #96); #97 rewrites B (first run) and the routing; until then they describe what is built.
+> **Onboarding v2** ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), owner 2026-10-11; built in #96, #97, #90): email code or
+> magic link → straight into the app; a recovery method is chosen at the first invite or data (E).
 
 **Purpose:** get a person from an email address to an unlocked app, once, without making
 security feel like paperwork, and without the server ever seeing a secret. Approved by the owner
 2026-09-27 (#50, [ADR-0025](decisions/0025-onboarding-flow.md)); iterate as it is built; builds #45. Screens share the §3.1 shell (centred column, the permanent
 "Encrypted on this device" line).
 
-**Routing after sign-in** — never a menu, the app decides:
+**Routing after sign-in** — never a menu, the app decides ([ADR-0041](decisions/0041-silent-first-run.md)):
 ```
-signed in ─┬─ vault on this device or GET /api/identity/vault → 200 ─→ Unlock (§3.1)
-           └─ 404 (no identity yet) ─→ First run ─┬─ has an open household invite → Waiting to join
-                                                   └─ no invite → household created silently → Home
+signed in ─┬─ 404 (no identity yet) ─→ First run (silent) ─┬─ open household invite → Waiting to join
+           │                                               └─ no invite → household created → Home
+           ├─ vault + this device's slot ─→ opens silently (app lock off) → Home
+           ├─ vault with a recovery method, no slot here ─→ Unlock (§3.1)
+           └─ vault without one, no slot here ─→ "Your key is only on the device you first signed in on…"
 ```
 
 **A. Sign in** (one screen, fields expand in place)
@@ -286,22 +286,16 @@ signed in ─┬─ vault on this device or GET /api/identity/vault → 200 ─�
   "That code has expired — send a new one". **429:** "Too many tries. Try again in 5 minutes"
   with a live countdown; the fields stay filled.
 
-**B. First run** — three steps, a progress line ("Step 2 of 3"), no back-and-forth wizard
-chrome. Nothing is saved to the server until step 2 is confirmed; closing the tab earlier
-just starts over.
-1. **Choose a passphrase.** One field with a show/hide toggle, no "repeat it" field (the
-   recovery kit is the safety net). Guidance, not rules: *"Four or more unrelated words is
-   strong and easy to type."* Refuse under 12 characters. Honest line: *"We can't reset
-   this. Forget it, and only your recovery kit or a household member gets you back in."*
-   **[Continue]** runs `createIdentity` (~1 s, "Creating your keys…" on the button).
-2. **Save your recovery kit.** The 24 words in a numbered 3×8 grid (2×12 on phones).
-   **[Download PDF]** and **[Print]**; no Copy button (clipboard managers sync to the cloud).
-   Confirm by typing **two words the app asks for** ("word 7", "word 19"), then **[Done]**.
-   Only then is the vault uploaded (`PUT /api/identity/vault`). Copy: *"Anyone with these
-   words can open your data. Keep them on paper, somewhere safe."*
-3. **Faster sign-in (optional).** *"Add a passkey to sign in with Face ID or your fingerprint.
-   You'll still unlock with your passphrase."* (Unlock by passkey is #48.) **[Add passkey]** ·
-   **[Not now]**. Shown once; later from Settings → Security.
+**B. First run** — asks nothing. One screen, *"Setting up on this device…"*, while the device
+makes the key, keeps it in the device slot, uploads the vault and creates the household (or
+goes to *Waiting to join*). On failure: *"Couldn't finish setting up. Check your
+connection."* + **[Try again]**, which reuses the same key. While the key lives only in the
+device slot, a dismissable strip above the app warns about storage: on iOS Safari outside a
+Home Screen app, *"Add NetWorth to your Home Screen (Share → Add to Home Screen). Safari
+deletes a site's data after 7 days without a visit, and your key is kept on this device."*;
+elsewhere, if the browser refused persistent storage, *"This browser may clear NetWorth's
+data when space runs low. Add a way back in (passkey, passphrase or recovery kit) so you can
+always sign in again."* **[Got it]**.
 
 **C. Joining a household (invitee)** — the only step that needs two people at once.
 - **Waiting screen:** *"Asha needs to add you. Call Asha and read out your code:"* then the
@@ -350,7 +344,8 @@ joins, choose a way back in if this device is lost. We can't reset it for you."*
 | Returning, this device, with passkey → Home | 2 (passkey → Unlock) |
 | Sign in by email code | 1 (Send code; the code auto-submits) |
 | Sign in by magic link | 2 (Email me a link → Continue; the mail tap doesn't count) |
-| First run, code → Home (no invite) | 4 (Continue → Download → Done → Not now) |
+| First run, code → Home (no invite) | 0 (nothing asked) |
+| Returning, this device, app lock off → Home | 0 (opens silently) |
 | Invitee joining, once added | 1 (Yes) |
 | Inviter adding a ready member from Home | 2 (nudge → It matches) |
 | First invite, protecting with a passphrase | 2 (Choose a passphrase → Save; the invite resends itself) |

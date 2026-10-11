@@ -16,7 +16,7 @@ That is exactly the arrangement here:
 | Writing and reading cards | Your phone or laptop |
 | The lock | AES-256-GCM encryption, performed in your browser |
 | The warehouse | The server (your home machine, or a hosting provider) |
-| The key | Derived from your passphrase, never leaves your device |
+| The key | Made on your device and kept there; never sent to the server |
 
 For each item, the server stores a random ID, a version number, a timestamp, and a blob of
 scrambled bytes. It does not even store the *type* of item. Someone who stole the entire
@@ -55,9 +55,13 @@ otherwise.
 
 ## Unlocking, and what "no password reset" means
 
-When you open the app you enter your passphrase. It is put through **Argon2id**, a
-deliberately slow calculation, to produce your key. The slowness is the point: it makes
-guessing passphrases in bulk impractical. You can also turn on **fast unlock** with a
+When you first sign in, your device makes your key and keeps it in the browser, locked
+under a second key that no script can read out. Coming back on that device opens the app
+without asking anything. Before you invite anyone or add data, the app asks you to choose a
+way back in: Face ID / passkey, a passphrase, or a recovery kit. A passphrase is put through
+**Argon2id**, a deliberately slow calculation, to produce a key; the slowness makes guessing
+passphrases in bulk impractical. Choosing Face ID also turns on *app lock*: the app then
+forgets the device copy and asks for Face ID each time. You can also turn on **fast unlock** with a
 **passkey** (fingerprint or face). The passkey produces a secret that never leaves your device,
 and that secret unlocks a separate copy of the same key. Your passphrase keeps working, and
 without the passkey that copy is useless.
@@ -65,7 +69,7 @@ without the passkey that copy is useless.
 Because the key never reaches the server, **nobody can reset your password and hand your data
 back.** That is the flip side of the guarantee. So there are two independent ways back in:
 
-1. **Your recovery kit** — 24 words generated at setup. Print it; keep it with your important
+1. **Your recovery kit** — 24 words, if you chose one. Print it; keep it with your important
    papers. It can rebuild your key.
 2. **Your spouse** — if they still have access, they can re-share the household key with your
    new account.

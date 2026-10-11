@@ -1,5 +1,5 @@
 // Shared E2E steps (ADR-0035): invite an address, read its sign-in code from Mailpit,
-// sign in, and walk first run. They drive the real UI; nothing reaches into app state.
+// sign in, walk first run, and protect the account. They drive the real UI; nothing reaches into app state.
 // The database helpers stand in for M2's record push and scan tables afterwards (ADR-0036).
 import { execFileSync } from "node:child_process";
 import { expect, type Page } from "@playwright/test";
@@ -61,12 +61,6 @@ export async function signIn(page: Page, email: string) {
   await page.getByLabel("6-digit code").fill(await signInCode(email, before));
 }
 
-export async function unlock(page: Page, passphrase: string) {
-  await page.getByLabel("Passphrase").fill(passphrase);
-  await page.getByRole("button", { name: "Unlock" }).click();
-  await skipIfOffered(page);
-}
-
 /** The value shown under a code label (`<p>label</p><p>value</p>`). */
 export async function codeUnder(page: Page, label: string): Promise<string> {
   const value = page
@@ -77,13 +71,23 @@ export async function codeUnder(page: Page, label: string): Promise<string> {
 }
 
 /**
- * First run (UX.md §3.0 B): passphrase → recovery kit (typing back the two requested
- * words) → skip the passkey step. Ends in the app, or on "Waiting to join" for an invitee.
- * Returns the 24 words, for a later restore.
+ * First run (UX.md §3.0 B, ADR-0037): asks nothing. Ends in the app, or on "Waiting to
+ * join" for an invitee.
  */
-export async function firstRun(page: Page, passphrase: string) {
-  await page.getByLabel("Passphrase").fill(passphrase);
-  await page.getByRole("button", { name: "Continue" }).click();
+export async function firstRun(page: Page) {
+  const waiting = page.getByRole("heading", { name: "Waiting to join" });
+  await expect(appHeading(page).or(waiting)).toBeVisible({ timeout: 30_000 });
+}
+
+/**
+ * "Protect your account first" (UX.md §3.0 E, ADR-0040), shown at the first invite: picks
+ * the recovery kit and types back the two requested words. Returns the 24 words.
+ */
+export async function protectWithKit(page: Page): Promise<string[]> {
+  await expect(
+    page.getByRole("heading", { name: "Protect your account first" }),
+  ).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("button", { name: "Save a recovery kit" }).click();
   const list = page.getByRole("list", { name: "Recovery words" });
   await expect(list).toBeVisible({ timeout: 30_000 });
   const words = await list
@@ -100,26 +104,7 @@ export async function firstRun(page: Page, passphrase: string) {
     await field.fill(words[n - 1]);
   }
   await page.getByRole("button", { name: "Done" }).click();
-  // Step 3 (passkey) appears only where WebAuthn exists; headless Chrome has it.
-  const notNow = page.getByRole("button", { name: "Not now" });
-  const waiting = page.getByRole("heading", { name: "Waiting to join" });
-  await expect(appHeading(page).or(notNow).or(waiting)).toBeVisible({
-    timeout: 30_000,
-  });
-  if (await notNow.isVisible()) await notNow.click();
-  await expect(appHeading(page).or(waiting)).toBeVisible({ timeout: 30_000 });
   return words;
-}
-
-/**
- * Waits for the app, declining an optional screen on the way: first run's passkey step or
- * the one-time fast-unlock offer after a passphrase unlock (ADR-0034).
- */
-export async function skipIfOffered(page: Page) {
-  const notNow = page.getByRole("button", { name: "Not now" });
-  await expect(appHeading(page).or(notNow)).toBeVisible({ timeout: 30_000 });
-  if (await notNow.isVisible()) await notNow.click();
-  await expect(appHeading(page)).toBeVisible({ timeout: 30_000 });
 }
 
 /** Direct database access: M2's push stand-in and the plaintext scan. */

@@ -1,5 +1,6 @@
-// M1 acceptance (#79, closes #46; docs/phases/M1.md): two members share a household key and
-// B decrypts A's record; B restores on a fresh profile with the recovery kit; a third user in
+// M1 acceptance (#79, closes #46; docs/phases/M1.md; onboarding v2, #97): two members share a
+// household key and B decrypts A's record; A protects the account with a recovery kit at the
+// first invite (ADR-0040) and later restores with it on a fresh profile; a third user in
 // another household gets 404; no secret appears in a request, in browser storage, or in any
 // server table. Records are sealed and opened by the E2E-only probe (ADR-0036) and inserted
 // straight into Postgres, standing in for M2's push.
@@ -18,16 +19,12 @@ import {
   firstRun,
   invite,
   newEmail,
+  protectWithKit,
   signIn,
-  unlock,
 } from "./support";
 
-const PASS = {
-  a: "alpha orchard lantern violet e2e",
-  b: "bravo harbour cobalt meadow e2e",
-  b2: "bravo restored granite willow e2e",
-  c: "charlie summit ember thistle e2e",
-};
+/** The only passphrase in this flow: chosen when A restores with the kit. */
+const PASS_A2 = "alpha restored granite willow e2e";
 
 test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, no leaks", async ({
   browser,
@@ -55,7 +52,7 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
     invite(email.a);
     const a = await open(browser);
     await signIn(a, email.a);
-    const wordsA = await firstRun(a, PASS.a);
+    await firstRun(a);
     await expect(appHeading(a)).toBeVisible();
     await a.getByLabel("Probe text").fill(secret);
     await a.getByRole("button", { name: "Seal" }).click();
@@ -73,23 +70,29 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
       values (${sealed.id}, ${sealed.householdId}, ${sealed.version},
               ${Buffer.from(sealed.ciphertext, "base64url")})`;
 
-    // A invites B from the Household panel.
+    // A invites B. The key is only on A's device, so the server refuses until A picks a
+    // recovery method (ADR-0040); the invite then goes out without another tap.
     await a.getByLabel("Invite member").fill(email.b);
     await a.getByRole("button", { name: "Invite", exact: true }).click();
-    await expect(a.getByText("⏳ Invite pending")).toBeVisible();
+    const wordsA = await protectWithKit(a);
+    await expect(a.getByText("⏳ Invite pending")).toBeVisible({
+      timeout: 30_000,
+    });
 
     // B: separate context, own identity; waits to join and shows a code.
     const b = await open(browser);
     await signIn(b, email.b);
-    const wordsB = await firstRun(b, PASS.b);
+    await firstRun(b);
     await expect(
       b.getByRole("heading", { name: "Waiting to join" }),
     ).toBeVisible();
     const bCode = await codeUnder(b, "Your code");
 
-    // A (the panel doesn't poll): reload, unlock, check B's code, add B.
+    // A (the panel doesn't poll): reload, which opens straight into the app on this
+    // device (no unlock), then check B's code and add B.
     await a.reload();
-    await unlock(a, PASS.a);
+    await expect(appHeading(a)).toBeVisible({ timeout: 30_000 });
+    await expect(a.getByLabel("Passphrase")).toHaveCount(0);
     await a.getByRole("button", { name: new RegExp(email.b) }).click();
     const check = a.getByRole("dialog", { name: "Check their code" });
     await expect(check).toBeVisible();
@@ -108,29 +111,23 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
     await b.getByRole("button", { name: "Open records" }).click();
     await expect(b.getByLabel("Opened records")).toHaveText(secret);
 
-    // B loses the device: a fresh profile restores with the recovery kit.
-    const b2 = await open(browser);
-    await signIn(b2, email.b);
-    await b2.getByRole("button", { name: "Use recovery kit instead" }).click();
-    await b2.getByLabel("Recovery kit words").fill(wordsB.join(" "));
-    await b2.getByRole("button", { name: "Restore" }).click();
-    await b2.getByLabel("New passphrase").fill(PASS.b2);
-    await b2.getByRole("button", { name: "Save and unlock" }).click();
-    // A new device trusts no sender yet (ADR-0030): confirm A's code again.
-    await expect(
-      b2.getByRole("heading", { name: "Check who added you" }),
-    ).toBeVisible({ timeout: 30_000 });
-    expect(await codeUnder(b2, "Their code")).toBe(aCode);
-    await b2.getByRole("button", { name: "Yes — open household" }).click();
-    await expect(appHeading(b2)).toBeVisible();
-    await b2.getByRole("button", { name: "Open records" }).click();
-    await expect(b2.getByLabel("Opened records")).toHaveText(secret);
+    // A loses the device: a fresh profile restores with the kit chosen at the invite.
+    const a2 = await open(browser);
+    await signIn(a2, email.a);
+    await a2.getByRole("button", { name: "Use recovery kit instead" }).click();
+    await a2.getByLabel("Recovery kit words").fill(wordsA.join(" "));
+    await a2.getByRole("button", { name: "Restore" }).click();
+    await a2.getByLabel("New passphrase").fill(PASS_A2);
+    await a2.getByRole("button", { name: "Save and unlock" }).click();
+    await expect(appHeading(a2)).toBeVisible({ timeout: 30_000 });
+    await a2.getByRole("button", { name: "Open records" }).click();
+    await expect(a2.getByLabel("Opened records")).toHaveText(secret);
 
     // C: another household; every household-1 route is a 404 (ADR-0021: never 403).
     invite(email.c);
     const c = await open(browser);
     await signIn(c, email.c);
-    const wordsC = await firstRun(c, PASS.c);
+    await firstRun(c);
     await expect(appHeading(c)).toBeVisible();
     for (const path of ["records", "members", "invites"]) {
       const res = await c.request.get(
@@ -142,11 +139,11 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
     // Leak scans. Private keys and the HDK are non-extractable CryptoKeys, so no raw form
     // exists to search for; the unit suites assert they never leave (SECURITY.md). Here:
     // every secret a person typed or read, and the record's plaintext.
-    const phrases = [wordsA, wordsB, wordsC].flatMap((w) => [
-      w.join(" "),
-      ...w.slice(0, 22).map((_, i) => w.slice(i, i + 3).join(" ")),
-    ]);
-    const secrets = [...Object.values(PASS), secret, ...phrases];
+    const phrases = [
+      wordsA.join(" "),
+      ...wordsA.slice(0, 22).map((_, i) => wordsA.slice(i, i + 3).join(" ")),
+    ];
+    const secrets = [PASS_A2, secret, ...phrases];
     const hex = (s: string) => Buffer.from(s).toString("hex");
 
     for (const r of requests)
@@ -158,7 +155,8 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
         session: JSON.stringify({ ...sessionStorage }),
         idb: (await indexedDB.databases()).map((d) => d.name),
       }));
-      expect(stored.idb).toEqual([]);
+      // Only the device slot's database (ADR-0038): a non-extractable key and wrapped bytes.
+      for (const name of stored.idb) expect(name).toBe("nwt-device");
       for (const s of secrets) {
         expect(stored.local).not.toContain(s);
         expect(stored.session).not.toContain(s);
@@ -167,7 +165,7 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
 
     const tables = await dumpTables(sql);
     expect(tables).toContain("records"); // the scan did read the tables
-    for (const s of [...Object.values(PASS), secret, ...phrases]) {
+    for (const s of secrets) {
       expect(tables).not.toContain(s);
       expect(tables).not.toContain(hex(s));
     }

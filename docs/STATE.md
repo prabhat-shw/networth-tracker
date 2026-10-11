@@ -1,4 +1,4 @@
-_Last updated: 2026-10-11 (session 18: #88, #96 merged; #90 in review; #97 next) · next session: start here_
+_Last updated: 2026-10-11 (session 18: #88, #96, #90 merged; #97 in review) · next session: start here_
 
 _Last updated: 2026-10-11 (session 18: #88 vault v3 + device slot in review) · next session: start here_
 
@@ -18,14 +18,13 @@ _Last updated: 2026-10-11 (session 18: #88 vault v3 + device slot in review) · 
   [ADR-0033](decisions/0033-vault-passkey-slots.md)): wire v2 only with slots, 12 KiB limit.
 - **#46 split:** #78 E2E harness merged (PR #80, [ADR-0035](decisions/0035-e2e-harness.md)); #79 M1 acceptance
   merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 merged (PR #87). #84 dark mode merged (PR #85). Onboarding-v2 plan merged (PR #94).
-- Merged: **#88** vault v3 + device slot (PR #95, [ADR-0038](decisions/0038-vault-v3-device-slot.md), `vault-device.ts`, `device-store.ts`); **#96** magic link (PR #98, [ADR-0039](decisions/0039-magic-link-sign-in.md)). **#90** in review ([ADR-0040](decisions/0040-recovery-method-before-first-data.md)): invite 409
-  `recovery-required` → `RecoveryChooser` via `RecoveryContext` (gate must provide it in #97); M2 push must call `requireRecoveryMethod`.
+- Merged: **#88** vault v3 + device slot (PR #95, [ADR-0038](decisions/0038-vault-v3-device-slot.md), `vault-device.ts`, `device-store.ts`); **#96** magic link (PR #98, [ADR-0039](decisions/0039-magic-link-sign-in.md)); **#90** recovery before first invite (PR #99, [ADR-0040](decisions/0040-recovery-method-before-first-data.md); **M2 push must call `requireRecoveryMethod`**).
+  **#97** silent first run in review ([ADR-0041](decisions/0041-silent-first-run.md)): gate opens the device slot, provides `RecoveryContext`; closes #89.
 
 ## Next session picks up
 
 Next: **redeploy the home server** for Next 16.3.8. Then **onboarding v2** ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md),
-owner 2026-10-11) in order: #90 (merge) → **#97** silent first run on the device slot + provide `RecoveryContext`; E2E
-then picks a kit in the chooser at invite (#89 tracks #96 + #97) → #91 Security settings + banner → #92 E2E. Google sign-in later (#93, M8). #91 must also build a device slot after a passphrase/passkey
+owner 2026-10-11) in order: #97 (merge; E2E ran only in CI, Docker was off) → **#91** Security settings + banner → #92 E2E. Google sign-in later (#93, M8). #91 must also build a device slot after a passphrase/passkey
 sign-in (needs an extractable unwrap) and remove passphrase/kit slots (ADR-0038). Then
 close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
