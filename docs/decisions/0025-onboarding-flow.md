@@ -1,6 +1,6 @@
 # ADR-0025 — Onboarding: sign-in, first run, joining with a code check
 
-**Status:** Accepted · 2026-09-27 (owner, #50; iterate as #45 is built) · spec in [UX.md §3.0](../UX.md) · builds on [ADR-0017](0017-tap-budgets.md), [ADR-0018](0018-identity-vault-and-recovery-code.md), [ADR-0020](0020-auth-invite-only-otp-passkeys.md), [ADR-0023](0023-household-member-relay.md)
+**Status:** Accepted · 2026-09-27 (owner, #50; iterate as #45 is built) · spec in [UX.md §3.0](../UX.md) · builds on [ADR-0017](0017-tap-budgets.md), [ADR-0018](0018-identity-vault-and-recovery-code.md), [ADR-0020](0020-auth-invite-only-otp-passkeys.md), [ADR-0023](0023-household-member-relay.md) · **superseded in part by [ADR-0037](0037-onboarding-v2-key-on-device.md)** (onboarding v2)
 
 ## Context
 

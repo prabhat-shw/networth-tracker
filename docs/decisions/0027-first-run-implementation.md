@@ -1,6 +1,6 @@
 # ADR-0027 — First run: hand-written kit PDF, session start, invite routing
 
-**Status:** Accepted · 2026-09-27 · issue #53 · implements [ADR-0025](0025-onboarding-flow.md) (UX.md §3.0 B)
+**Status:** Accepted · 2026-09-27 · issue #53 · implements [ADR-0025](0025-onboarding-flow.md) (UX.md §3.0 B) · **superseded in part by [ADR-0037](0037-onboarding-v2-key-on-device.md)** (onboarding v2)
 
 ## Context
 

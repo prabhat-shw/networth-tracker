@@ -143,8 +143,10 @@ passkey PRF (optional fast unlock) ------------┘
 
 ### Explicit trade-offs accepted
 
-Lose passphrase *and* recovery kit *and* spouse's copy → data is gone; no server-side
-reports, alerts or email ingestion; no password reset that recovers data.
+Lose every recovery method (passkey, passphrase, recovery kit) *and* spouse's copy → data is
+gone; no server-side reports, alerts or email ingestion; no password reset that recovers data.
+With app lock off (user's choice, ADR-0037), the key is kept on the device: a stolen device's
+disk is then the weak point, and the app says so in a banner.
 
 ---
 
@@ -284,7 +286,7 @@ Each milestone is a handful of issues; each issue is one session.
 | # | Milestone | Ships |
 | --- | --- | --- |
 | **M0** | Foundation | Repo, kanban board, CI, `CLAUDE.md` + docs skeleton, ADR-0001..0007, threat model, Next.js scaffold, Tailwind/shadcn, Drizzle + Postgres in Compose, health check, Vercel staging |
-| **M1** | Identity & crypto core | Key hierarchy, Argon2id, WebCrypto wrappers + test vectors, lock/unlock UX, recovery kit, Better Auth + passkeys, invite-only household |
+| **M1** | Identity & crypto core | Key hierarchy, Argon2id, WebCrypto wrappers + test vectors, lock/unlock UX, recovery kit, Better Auth + passkeys, invite-only household; **onboarding v2** (#88–#92, [ADR-0037](decisions/0037-onboarding-v2-key-on-device.md)): email/magic link → in, key on device, recovery method chosen before the first data |
 | **M2** | Encrypted sync engine | Record envelope, versioning, `pull`/`push`, tombstones, offline queue, Dexie store, contract + plaintext-scan tests |
 | **M3** | Data model & manual entry | Households/members/ownership shares, accounts, holdings, transactions, liabilities, **goals + allocations**, nominees (#25), tax lots (#26), linked transfers (#27); entry forms; net-worth engine with tests |
 | **M4** | Prices & valuation | Daily AMFI ingest, Yahoo equity/US/crypto, Frankfurter FX, gold; universe download; client valuation; historical timeline |

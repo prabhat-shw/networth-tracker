@@ -1,6 +1,6 @@
 # ADR-0024 — Lock/unlock session: in-memory keys, 5-minute auto-lock
 
-**Status:** Accepted · 2026-09-27 · issue #7 · builds on [ADR-0018](0018-identity-vault-and-recovery-code.md); passkey unlock split to #48
+**Status:** Accepted · 2026-09-27 · issue #7 · builds on [ADR-0018](0018-identity-vault-and-recovery-code.md); passkey unlock split to #48 · **superseded in part by [ADR-0037](0037-onboarding-v2-key-on-device.md)** (onboarding v2)
 
 ## Context
 
