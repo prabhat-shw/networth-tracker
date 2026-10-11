@@ -2,3 +2,8 @@ allowBuilds:
   esbuild: false
   sharp: false
   unrs-resolver: false
+
+# Security floors for transitive dependencies (#86); drop each once its parent ships it.
+overrides:
+  "sharp@<0.35.5": "^0.35.5"
+  "source-map-js@<1.2.2": "^1.2.2"
