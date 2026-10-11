@@ -13,6 +13,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   GHSA-vcvr-r3jv-pc5j); `sharp` ≥ 0.35.5 and `source-map-js` ≥ 1.2.2 via pnpm overrides.
 
 ### Changed
+- Home after sign-in (M1, #105): opens on an empty "Your household net worth will show up
+  here" screen. Inviting someone is now an optional **Invite a member** action, not the
+  first thing you see.
 - First run asks nothing (M1, #97): after the email code or link, the app sets itself up
   on this device and opens; coming back on the same device opens it without unlocking. A
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.

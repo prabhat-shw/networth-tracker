@@ -450,6 +450,9 @@ visible.
   "Your household net worth will show up here" + a prominent "Add your first account" button
   (not just the FAB — first-run deserves an explicit CTA) — nudges and goals sections hidden
   entirely rather than shown empty.
+  **Until M2** ([#105](https://github.com/prabhat-shw/networth-tracker/issues/105)): the button is shown disabled with *"Coming soon."*, and the
+  Household panel (§3.8) sits behind a secondary text action **Invite a member** under the
+  zero-state, collapsed by default, so inviting never reads as the next onboarding step.
 - **Error (decryption/valuation failure — should be rare):** hero tile becomes an inline
   `Alert`: "Couldn't compute net worth — [Retry]", rest of screen still renders whatever did
   load; never a full-screen crash page for a partial failure.
