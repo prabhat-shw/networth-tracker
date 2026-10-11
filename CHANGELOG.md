@@ -18,6 +18,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Protection banner (M1, #101): a strip above the app names each risk to your data, such
+  as no way back in, only one way back in, or app lock off, until you fix it. Passkeys
+  that sync (iCloud Keychain, Google Password Manager) count as a second way back in.
 - Protect before sharing (M1, #90): inviting someone needs a way back in first, either Face
   ID / passkey, a passphrase or a recovery kit; the server refuses otherwise. Choosing Face ID
   also turns on app lock.

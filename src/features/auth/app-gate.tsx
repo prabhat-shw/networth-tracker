@@ -25,7 +25,9 @@ import { HouseholdGate } from "@/features/household/household-gate";
 import { deviceSlotStore } from "@/features/lock/device-store";
 import { EnrolOffer } from "@/features/lock/enrol-offer";
 import { type KeySession, keySession } from "@/features/lock/key-session";
-import type { PrfApi } from "@/features/lock/passkey-prf";
+import { isSynced, type PrfApi } from "@/features/lock/passkey-prf";
+import { risks } from "@/features/lock/protection";
+import { ProtectionBanner } from "@/features/lock/protection-banner";
 import {
   RecoveryContext,
   type RecoverySource,
@@ -75,6 +77,7 @@ type DeviceState =
  * → the household gate (#63), then the app. Auto-lock with a device slot just reopens it.
  * Right after a passphrase unlock, the one-time passkey offer comes first (#75). While the
  * device slot is open, the app can add a recovery method from it (`RecoveryContext`).
+ * Once in, the protection banner names each remaining risk (ADR-0042).
  */
 export function AppGateView({
   session,
@@ -244,8 +247,14 @@ export function AppGateView({
       />
     );
   // Household key: loaded after every unlock, or the waiting / confirm screens (#63).
+  const gaps = risks({
+    slots: vaultSlots(vault.vault),
+    syncedPasskey: vault.vault.passkeys.some((p) => isSynced(p.credentialId)),
+    appLock: !slot,
+  });
   return (
     <RecoveryContext value={recovery}>
+      <ProtectionBanner risks={gaps} />
       {slot && <InstallHint env={storageEnv} />}
       <HouseholdGate keys={keys} api={householdApi}>
         {children}
