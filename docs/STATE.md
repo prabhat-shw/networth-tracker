@@ -50,7 +50,7 @@ after confirming; ADR-0031 member names in the members API (needed by UX.md §3.
   (Docker Desktop running). CI: `.github/workflows/e2e.yml`, path-filtered. Windows reserved port 55432?
   Remap db via a local compose override (`ports: !override`) and set `E2E_DATABASE_URL`.
 - **Social recovery (spouse re-wrap to a new identity) is not built:** the server refuses a vault
-  public-key change (ADR-0022), so a member who lost every method cannot start over. Needs an issue.
+  public-key change (ADR-0022), so a member who lost every method cannot start over: #112 (size:L, ADR first).
 - Neon `db:migrate` prints "…already exists, skipping" NOTICEs; they are harmless.
 - New household-scoped routes: call `guardHousehold` first; never answer 403 (ADR-0021).
 - Server tests that touch SQL: use PGlite with the real migrations (`migratedDb()` from `db/test-db.ts`), not
