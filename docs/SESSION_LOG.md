@@ -39,4 +39,5 @@ One line per session: date · issue · outcome.
 - 2026-09-28 · issue #78 · E2E harness: @playwright/test, production build on :3100 against throwaway Postgres + Mailpit (compose.e2e.yml / CI services), OTP read from Mailpit, smoke spec, path-filtered e2e.yml (ADR-0035); #46 split into #78 + #79
 - 2026-09-28 · issue #79 · M1 acceptance E2E: two members, B decrypts A's record, fresh-profile restore, cross-household 404, request/storage/DB leak scans; record probe bundled only via NEXT_PUBLIC_E2E alias, absence checked in CI (ADR-0036)
 - 2026-09-28 · issue #82 · sign-in kept across Better Auth's focus refetch: only the first session check shows Loading (owner-reported on staging)
+- 2026-10-11 · issue #84 · page background/text follow the system theme (UX.md §6.1), color-scheme light dark; E2E checks both (owner-reported)
 - 2026-10-11 · issue #86 · Next 16.3.4 → 16.3.8 (critical next/og RCE), sharp/source-map-js override floors; audit gate clean (1 moderate: esbuild dev server via drizzle-kit)

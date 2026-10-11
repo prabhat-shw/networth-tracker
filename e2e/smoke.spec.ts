@@ -30,3 +30,18 @@ test("sign in → first run → unlocked → reload → unlock", async ({ page }
   await skipIfOffered(page);
   await expect(appHeading(page)).toBeVisible();
 });
+
+// #84: the page itself follows the system theme, not just the controls (UX.md §6.1).
+test("page colours follow light and dark mode", async ({ page }) => {
+  const colours = () =>
+    page.evaluate(() => {
+      const s = getComputedStyle(document.body);
+      return [s.backgroundColor, s.color];
+    });
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  await expect(page.getByLabel("Email")).toBeVisible();
+  expect(await colours()).toEqual(["rgb(249, 249, 247)", "rgb(11, 11, 11)"]);
+  await page.emulateMedia({ colorScheme: "dark" });
+  expect(await colours()).toEqual(["rgb(13, 13, 13)", "rgb(255, 255, 255)"]);
+});
