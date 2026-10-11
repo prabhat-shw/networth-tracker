@@ -54,3 +54,4 @@ One line per session: date · issue · outcome.
 - 2026-10-11 · #103 merged (PR #110) · #92 onboarding v2 E2E: link sign-in, chooser passphrase, app lock on/off with IndexedDB slot checks, new-device passphrase unlock; M1 spec on shared leak scan. Spouse re-wrap to a new identity unbuilt (flagged)
 - 2026-10-11 · #92 merged (PR #111), M1 milestone closed · M2 planned: docs/phases/M2.md, issues #113–#118 (ADR-0045 first); #112 social recovery filed
 - 2026-10-11 · #120 first sign-up on an empty server becomes the owner (ADR-0046): atomic one-row `server_owner` claim, mail gate opens only with no users; PGlite tests incl. race; migration 0007
+- 2026-10-12 · #120 merged (PR #121); Neon migrated through 0007; home-server redeploy left to the owner (no access from this machine)
