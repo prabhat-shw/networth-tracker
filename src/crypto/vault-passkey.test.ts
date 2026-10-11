@@ -113,7 +113,10 @@ describe("passkey slots", () => {
     ).rejects.toThrow(DecryptError);
     await expect(
       unlockWithPasskey(
-        { ...withPhone, passkeys: [{ ...slot, wrap: withPhone.byPassphrase }] },
+        {
+          ...withPhone,
+          passkeys: [{ ...slot, wrap: withPhone.byPassphrase ?? slot.wrap }],
+        },
         phone,
       ),
     ).rejects.toThrow(DecryptError);

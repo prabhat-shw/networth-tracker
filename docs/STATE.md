@@ -1,6 +1,6 @@
 # State — read me first
 
-_Last updated: 2026-10-11 (session 17: #71–#86 merged; onboarding-v2 plan merging) · next session: start here_
+_Last updated: 2026-10-11 (session 18: #88 vault v3 + device slot in review) · next session: start here_
 
 ## Where we are
 
@@ -11,22 +11,22 @@ _Last updated: 2026-10-11 (session 17: #71–#86 merged; onboarding-v2 plan merg
   relay (0022), member relay + invites (0023), key session + unlock (0024, `src/features/lock/`),
   onboarding spec (0025, UX.md §3.0), sign-in + gate (0026, `src/features/auth/`), first run
   (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0006`.
-- **#54 restore** (PR #60); **#58** tests use the Argon2id floor (PR #62, [ADR-0028](decisions/0028-fast-kdf-in-tests.md)).
-- **#52 join API** merged (PR #65, [ADR-0029](decisions/0029-ending-an-invite.md)): inviter's name, cancel, decline.
-- **#63 household gate** merged (PR #66, [ADR-0030](decisions/0030-household-key-after-unlock.md)): `src/features/household/`.
-- **#64 Household panel** merged (PR #68, [ADR-0031](decisions/0031-inviter-household-panel.md)): invite + inviter's code check.
-- **#69 docs enforcement** merged (PR #70, [ADR-0032](decisions/0032-changelog-and-docs-impact.md)); see Gotchas.
+- Merged: #54 restore (PR #60), #58 fast KDF in tests ([ADR-0028](decisions/0028-fast-kdf-in-tests.md)), #52 join API ([ADR-0029](decisions/0029-ending-an-invite.md)),
+  #63 household gate ([ADR-0030](decisions/0030-household-key-after-unlock.md), `src/features/household/`), #64 Household panel ([ADR-0031](decisions/0031-inviter-household-panel.md)),
+  #69 docs enforcement ([ADR-0032](decisions/0032-changelog-and-docs-impact.md); see Gotchas).
 - **#71** merged (PR #73). **#48 split** into #74 + #75. **#74** vault passkey slots merged (PR #76,
   [ADR-0033](decisions/0033-vault-passkey-slots.md)): wire v2 only with slots, 12 KiB limit.
 - **#75 fast unlock** merged (PR #77, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md); closed #48). Owner tests on a device after M1.
 - **#46 split:** #78 E2E harness merged (PR #80, [ADR-0035](decisions/0035-e2e-harness.md)); #79 M1 acceptance
-  merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 merged (PR #87). #84 dark mode merged (PR #85). Onboarding-v2 plan: PR #94 (docs).
+  merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 merged (PR #87). #84 dark mode merged (PR #85). Onboarding-v2 plan merged (PR #94).
+- **#88 vault v3 + device slot** in review ([ADR-0038](decisions/0038-vault-v3-device-slot.md), owner approval): `src/crypto/vault-device.ts`, `src/features/lock/device-store.ts`, `storedVaultSlots` in `src/server/vault.ts`.
 
 ## Next session picks up
 
 Next: **redeploy the home server** for Next 16.3.8. Then **onboarding v2** ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md),
-owner 2026-10-11) in order: **#88** vault v3 + device slot → #89 magic link + email → in → #90 recovery
-method before first data → #91 Security settings + banner → #92 E2E. Google sign-in later (#93, M8). Then
+owner 2026-10-11) in order: #88 (merge after owner approval) → **#89** magic link + email → in → #90 recovery
+method before first data → #91 Security settings + banner → #92 E2E. Google sign-in later (#93, M8). #91 must also build a device slot after a passphrase/passkey
+sign-in (needs an extractable unwrap) and remove passphrase/kit slots (ADR-0038). Then
 close the M1 milestone and start **M2** (read `docs/phases/M2.md`). Follow-ups: ADR-0030 leave-household / pre-add code check, self re-wrap
 after confirming; ADR-0031 member names in the members API (needed by UX.md §3.8). Green on `main`
 (8952155): `pnpm test` (190; 191 on #82) · `pnpm e2e` (smoke + M1 acceptance) · typecheck · check · build.

@@ -5,6 +5,7 @@ import {
   type IdentityVault,
   unlockWithPassphrase,
 } from "./vault";
+import { createDeviceIdentity } from "./vault-device";
 import {
   decodeVault,
   encodeVault,
@@ -25,8 +26,10 @@ beforeAll(async () => {
   wire = encodeVault(vault);
 }, 30_000);
 
-const tamper = (patch: (w: VaultWire & Record<string, unknown>) => void) => {
-  const copy = structuredClone(wire) as VaultWire & Record<string, unknown>;
+type FullWire = Required<VaultWire> & Record<string, unknown>;
+
+const tamper = (patch: (w: FullWire) => void) => {
+  const copy = structuredClone(wire) as FullWire;
   patch(copy);
   return () => decodeVault(copy);
 };
@@ -66,55 +69,55 @@ describe("vault wire codec", () => {
   it.each([
     [
       "huge memory",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         w.kdf.memoryKiB = 64 * 1024 * 1024;
       },
     ],
     [
       "tiny memory",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         w.kdf.memoryKiB = 8;
       },
     ],
     [
       "huge iterations",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         w.kdf.iterations = 1e9;
       },
     ],
     [
       "one iteration",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         w.kdf.iterations = 1;
       },
     ],
     [
       "huge parallelism",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         w.kdf.parallelism = 255;
       },
     ],
     [
       "fractional cost",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         w.kdf.iterations = 2.5;
       },
     ],
     [
       "string cost",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         (w.kdf as Record<string, unknown>).memoryKiB = "65536";
       },
     ],
     [
       "short salt",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         w.kdf.salt = toBase64url(new Uint8Array(8));
       },
     ],
     [
       "other kdf",
-      (w: VaultWire) => {
+      (w: FullWire) => {
         (w.kdf as Record<string, unknown>).alg = "pbkdf2";
       },
     ],
@@ -252,5 +255,53 @@ describe("vault wire codec", () => {
   it("rejects non-objects", () => {
     for (const x of [null, [], "vault", 1])
       expect(() => decodeVault(x)).toThrow(VaultFormatError);
+  });
+});
+
+describe("vault v3 (ADR-0038)", () => {
+  let slotless: VaultWire;
+  beforeAll(async () => {
+    slotless = encodeVault((await createDeviceIdentity()).vault);
+  });
+
+  it("writes v3 only when a slot is missing, and round-trips each shape", () => {
+    expect(slotless).toEqual({ v: 3, publicKey: slotless.publicKey });
+    for (const w of [
+      slotless,
+      { ...slotless, byRecovery: wire.byRecovery },
+      { ...slotless, kdf: wire.kdf, byPassphrase: wire.byPassphrase },
+    ]) {
+      const decoded = decodeVault(w);
+      expect(decoded.v).toBe(3);
+      expect(encodeVault(decoded)).toEqual(w);
+    }
+    expect(decodeVault(wire).byRecovery).not.toBeNull();
+  });
+
+  it.each([
+    ["kdf without byPassphrase", () => ({ kdf: wire.kdf })],
+    ["byPassphrase without kdf", () => ({ byPassphrase: wire.byPassphrase })],
+    [
+      "both slots (has a v1 form)",
+      () => ({
+        kdf: wire.kdf,
+        byPassphrase: wire.byPassphrase,
+        byRecovery: wire.byRecovery,
+      }),
+    ],
+    ["an empty passkey list", () => ({ passkeys: [] })],
+    ["an empty recovery wrap", () => ({ byRecovery: "" })],
+    ["an extra field", () => ({ device: "x" })],
+    ["a null slot", () => ({ byRecovery: null })],
+  ])("rejects v3 with %s", (_, extra) => {
+    expect(() => decodeVault({ ...slotless, ...extra() })).toThrow(
+      VaultFormatError,
+    );
+  });
+
+  it("still requires both slots in v1 and v2", () => {
+    const { byRecovery: _, ...noRecovery } = wire;
+    expect(() => decodeVault(noRecovery)).toThrow(VaultFormatError);
+    expect(() => decodeVault({ ...slotless, v: 1 })).toThrow(VaultFormatError);
   });
 });

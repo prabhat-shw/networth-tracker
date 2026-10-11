@@ -3,6 +3,10 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { createIdentity } from "@/crypto/vault";
 import {
+  addRecoveryKitFromDevice,
+  createDeviceIdentity,
+} from "@/crypto/vault-device";
+import {
   decodeVault,
   encodeVault,
   MAX_VAULT_JSON_BYTES,
@@ -12,11 +16,12 @@ import {
 import * as schema from "./db/schema";
 import { migratedDb } from "./db/test-db";
 import type { GuardDeps } from "./guard";
-import { getVault, putVault } from "./vault";
+import { getVault, putVault, storedVaultSlots } from "./vault";
 
 const ORIGIN = "https://nwt.example";
 const ASHA = "0a000000-0000-4000-8000-0000000000a1";
 const BALA = "0b000000-0000-4000-8000-0000000000b1";
+const CHITRA = "0c000000-0000-4000-8000-0000000000c1";
 
 let deps: GuardDeps;
 let wire: VaultWire;
@@ -26,6 +31,7 @@ beforeAll(async () => {
   await db.insert(schema.user).values([
     { id: ASHA, name: "Asha", email: "asha@example.com" },
     { id: BALA, name: "Bala", email: "bala@example.com" },
+    { id: CHITRA, name: "Chitra", email: "chitra@example.com" },
   ]);
   deps = { db, sessionUser: async (h) => h.get("x-test-user") };
   wire = encodeVault((await createIdentity("pass phrase one")).vault);
@@ -116,5 +122,37 @@ describe("identity vault relay", () => {
     const reordered = JSON.stringify({ byRecovery, ...rest });
     expect((await put(BALA, reordered)).status).toBe(204);
     expect(await (await get(BALA)).text()).toBe(JSON.stringify(wire));
+  });
+});
+
+describe("vault v3: slots optional, presence only (ADR-0038)", () => {
+  it("accepts a slotless vault, then reports slots as they are added", async () => {
+    const { vault, device } = await createDeviceIdentity();
+    expect(await storedVaultSlots(deps.db, CHITRA)).toBeNull();
+    expect((await put(CHITRA, encodeVault(vault))).status).toBe(204);
+    expect(await storedVaultSlots(deps.db, CHITRA)).toEqual({
+      passphrase: false,
+      recovery: false,
+      passkeys: 0,
+    });
+
+    const withKit = await addRecoveryKitFromDevice(vault, device);
+    const v3 = encodeVault(withKit.vault);
+    expect(v3.v).toBe(3);
+    expect((await put(CHITRA, v3)).status).toBe(204);
+    expect(await (await get(CHITRA)).json()).toEqual(v3);
+    expect(await storedVaultSlots(deps.db, CHITRA)).toEqual({
+      passphrase: false,
+      recovery: true,
+      passkeys: 0,
+    });
+  });
+
+  it("v1 vaults report both slots", async () => {
+    expect(await storedVaultSlots(deps.db, ASHA)).toEqual({
+      passphrase: true,
+      recovery: true,
+      passkeys: 0,
+    });
   });
 });
