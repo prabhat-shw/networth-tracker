@@ -25,8 +25,10 @@
   (EPF/PPF/NPS/SSY). Framework-free, exhaustively unit-tested. **This is the PR gate.**
 - **db** — Dexie (`nwt-records`) stores sealed envelopes, the outbox and the pull cursor:
   ciphertext only. Decrypted records live in an in-memory cache dropped on lock (ADR-0048).
-- **sync** — pull by server `seq` cursor, push with per-record optimistic concurrency,
-  tombstones, LWW merge on `modifiedAt`/`modifiedBy` inside the plaintext (ADR-0003, ADR-0045).
+- **sync** (`src/sync/`) — pure engine over an injected transport and store: pull by server
+  `seq` cursor, push the outbox with per-record optimistic concurrency, merge on arrival with
+  LWW on `modifiedAt`/`modifiedBy` inside the plaintext, bounded retries, tombstones kept;
+  runs after unlock, on `online` and on an interval while visible (ADR-0003, 0045, 0049).
 - **prices** — universe download, local lookup, staleness, manual overrides (ADR-0005).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.
