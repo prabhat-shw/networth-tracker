@@ -1,4 +1,4 @@
-_Last updated: 2026-10-12 (session 24: #114 server push, PR open) · next session: start here_
+_Last updated: 2026-10-12 (session 25: #115 record codec, PR open) · next session: start here_
 
 ## Where we are
 
@@ -15,15 +15,15 @@ _Last updated: 2026-10-12 (session 24: #114 server push, PR open) · next sessio
 
 ## Next session picks up
 
-**#114** in review (branch `feat/server-record-push`): `POST …/records` in `src/server/records-push.ts` (guard → `requireRecoveryMethod`
-→ shape/padding → one transaction under the `households` row lock). Pull now pages by `seq`; `toEnvelope` is shared.
-Migration **`0008_record_seq`** backfills `seq` per household. **Neon must be migrated to `0008` before #114 merges.**
-**#113** merged (PR #124, [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)): client `version = base + 1`, server `seq` cursor, LWW inside the plaintext,
-100 records / 4 MiB / 64 KiB, 256 B padding. The spec is CONTRACT.md *Records*.
-Next: **#115** record codec (pad + seal, `mergeLww`; `area:crypto`, so the owner approves). Then #116 → #117 → #118.
+**#115** in review (branch `feat/record-codec`, `area:crypto`, so the owner approves the merge). [ADR-0047](decisions/0047-record-plaintext-format.md):
+`src/crypto/record-codec.ts` (`encodeRecord`/`decodeRecord`, `pad`/`unpad`) and `src/domain/lww.ts` (`mergeLww`, `compareStamps`).
+`decodeRecord(hdk, sealed, knownVersion)`: callers pass the highest version held, which is the replay check. `deleted` is sealed inside, and the kid must match.
+**#114** merged (PR #125): `POST …/records` in `src/server/records-push.ts`, pull by `seq`, migration `0008` (the owner ran Neon `db:migrate`).
+**#113** merged (PR #124, [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)). The spec is CONTRACT.md *Records*.
+Next: **#116** Dexie local store (add `dexie`; ciphertext only, outbox, cursor, and the highest version per id for replay). Then #117 → #118.
 The owner still has to redeploy the home server (H4, run on the server; this machine has no Tailscale/SSH to it). Open items: #112 social recovery (size:L, ADR first,
 no milestone yet), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household,
-ADR-0031 member names in the members API. Green on the branch: `pnpm test` (276) · typecheck · check; the E2E probe insert now sets `seq`.
+ADR-0031 member names in the members API. Green on the branch: `pnpm test` · typecheck · check.
 
 ## Also open
 

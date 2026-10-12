@@ -127,7 +127,7 @@ never merges, and it reads nothing from an envelope except its shape.
 - `ciphertext`: the base64url ADR-0013 envelope.
 - `deleted`: `true` marks a sealed tombstone.
 
-**Envelope shape** (checked on push; `400` otherwise): decoded length ≤ 64 KiB; byte 0 is
+**Envelope shape** (checked on push; `400` otherwise; the sealed plaintext is client-only, [ADR-0047](../decisions/0047-record-plaintext-format.md)): decoded length ≤ 64 KiB; byte 0 is
 `0x01`; `len − 30 − kidLen` (`kidLen` = byte 1) is a positive multiple of 256. Clients pad
 the plaintext to the next multiple of 256 bytes before sealing (`0x80` then zeros, ≥ 1 byte).
 

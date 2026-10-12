@@ -43,8 +43,8 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | --- | --- |
 | Version | `0.1.0` |
 | Milestone | M2 — Encrypted sync engine (brief: `docs/phases/M2.md`, issues #113–#118). M0 and M1 are closed. |
-| Next up | #114 |
-| Decisions recorded | 46 ADRs |
+| Next up | #115 |
+| Decisions recorded | 47 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.
