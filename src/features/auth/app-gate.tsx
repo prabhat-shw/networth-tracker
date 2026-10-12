@@ -42,6 +42,7 @@ import {
   SecurityContext,
   type SecuritySource,
 } from "@/features/settings/security-settings";
+import { SyncProvider } from "@/features/sync/sync-provider";
 import { authClient } from "./auth-client";
 import { SignIn } from "./sign-in";
 
@@ -70,7 +71,8 @@ type DeviceState =
  * Right after a passphrase unlock, the one-time passkey offer comes first (#75). While the
  * device slot is open, the app can add a recovery method from it (`RecoveryContext`).
  * Once in, the protection banner names each remaining risk (ADR-0042), and Settings →
- * Security works on the vault and this device's slot (`SecurityContext`, #103).
+ * Security works on the vault and this device's slot (`SecurityContext`, #103). With the
+ * household key loaded, sync runs for as long as the app is shown (ADR-0050).
  */
 export function AppGateView({
   session,
@@ -260,7 +262,11 @@ export function AppGateView({
         <ProtectionBanner risks={gaps} />
         {slot && <InstallHint env={storageEnv} />}
         <HouseholdGate keys={keys} api={householdApi}>
-          {children}
+          {userId && (
+            <SyncProvider keys={keys} userId={userId}>
+              {children}
+            </SyncProvider>
+          )}
         </HouseholdGate>
       </SecurityContext>
     </RecoveryContext>

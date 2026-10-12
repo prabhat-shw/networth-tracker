@@ -29,6 +29,9 @@
   `seq` cursor, push the outbox with per-record optimistic concurrency, merge on arrival with
   LWW on `modifiedAt`/`modifiedBy` inside the plaintext, bounded retries, tombstones kept;
   runs after unlock, on `online` and on an interval while visible (ADR-0003, 0045, 0049).
+  `startHouseholdSync` wires one household's store, cache, engine and scheduler; the
+  `SyncProvider` inside the household gate owns its lifetime, and screens read
+  `useRecords()` (ADR-0050).
 - **prices** — universe download, local lookup, staleness, manual overrides (ADR-0005).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.

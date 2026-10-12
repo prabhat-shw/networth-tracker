@@ -6,6 +6,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 ## [Unreleased]
 
 ### Security
+- Encrypted sync is live (M2, #118): records written on one device now reach every other
+  member's device, including edits made offline. When two people change the same record,
+  both devices settle on the latest edit. The server still only ever sees padded ciphertext.
 - Encrypted record push (M2, #114): devices can now upload sealed records. Each one applies
   only over the version it was based on, so an offline edit never silently overwrites a newer
   one. The server checks size and padding only, and still can't read a byte.

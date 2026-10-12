@@ -113,14 +113,15 @@ export async function firstRun(page: Page) {
   await expect(appHeading(page).or(waiting)).toBeVisible({ timeout: 30_000 });
 }
 
+const PROTECT_FIRST = "Protect your account first";
 /**
- * "Protect your account first" (UX.md §3.0 E, ADR-0040), shown at the first invite: picks
- * the recovery kit and types back the two requested words. Returns the 24 words.
+ * "Protect your account first" (UX.md §3.0 E, ADR-0040), shown at the first invite, or the
+ * same chooser under another `heading`: picks the kit, types back the two requested words.
  */
-export async function protectWithKit(page: Page): Promise<string[]> {
-  await expect(
-    page.getByRole("heading", { name: "Protect your account first" }),
-  ).toBeVisible({ timeout: 30_000 });
+export async function protectWithKit(page: Page, heading = PROTECT_FIRST) {
+  await expect(page.getByRole("heading", { name: heading })).toBeVisible({
+    timeout: 30_000,
+  });
   await page.getByRole("button", { name: "Save a recovery kit" }).click();
   const list = page.getByRole("list", { name: "Recovery words" });
   await expect(list).toBeVisible({ timeout: 30_000 });
@@ -141,7 +142,7 @@ export async function protectWithKit(page: Page): Promise<string[]> {
   return words;
 }
 
-/** Direct database access: M2's push stand-in and the plaintext scan. */
+/** Direct database access: assertions on stored envelopes and the plaintext scan. */
 export function database() {
   return postgres(E2E_ENV.DATABASE_URL, { max: 1, onnotice: () => {} });
 }

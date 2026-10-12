@@ -1,77 +1,83 @@
 "use client";
 
 /**
- * E2E-only record probe (ADR-0036, #79). Compiled in only when `NEXT_PUBLIC_E2E=1`: the
- * page imports it behind that build-time constant, so production builds contain none of it
- * (the E2E workflow builds without the flag and asserts the marker is absent).
+ * E2E-only record probe (ADR-0036, #79; real sync since #118). Compiled in only when
+ * `NEXT_PUBLIC_E2E=1`: the page imports it behind that build-time constant, so production
+ * builds contain none of it (the E2E workflow builds without the flag and asserts the marker
+ * is absent).
  *
- * Until M2 brings record push, it stands in for the client half of a record round trip:
- * "Seal" encrypts a text under the household key exactly as records will be (AES-256-GCM,
- * AAD `id|version`, envelope kid) and shows the envelope for the spec to insert; "Open"
- * pulls through the real `GET …/records` and decrypts. Keys stay in the key session.
+ * It drives the household's sync engine like a record screen will: "Seal" writes a text
+ * record (a new one, or the one named in "Probe record"), "Delete" deletes the named one, and
+ * "Open records" syncs now and lists what this device has decrypted. Everything goes through
+ * `engine.write` + `sync` (codec, padding, Dexie, push, pull); keys stay in the key session.
  */
 import { type FormEvent, useState } from "react";
-import { open, recordAad, seal } from "@/crypto/aead";
-import { fromBase64url, toBase64url } from "@/crypto/wire";
-import { keySession } from "@/features/lock/key-session";
+import { useHouseholdSync, useRecords } from "@/features/sync/sync-provider";
 
 export const PROBE_MARKER = "nwt-e2e-record-probe";
+const TYPE = "e2e-probe";
+
+const textOf = (data: unknown) =>
+  typeof data === "object" && data !== null && "text" in data
+    ? String(data.text)
+    : "(not a probe record)";
 
 export default function RecordProbe() {
+  const sync = useHouseholdSync();
+  const records = useRecords();
   const [sealed, setSealed] = useState("");
-  const [opened, setOpened] = useState<string[] | null>(null);
+  const [shown, setShown] = useState(false);
   const [error, setError] = useState("");
 
-  async function sealText(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const text = String(new FormData(form).get("text") ?? "");
-    form.reset();
-    const hk = keySession.householdKey();
-    if (!hk) return setError("locked");
-    const id = crypto.randomUUID();
-    const ciphertext = await seal(
-      hk.key,
-      new TextEncoder().encode(text),
-      recordAad(id, 1),
-      hk.kid,
-    );
-    setSealed(
-      JSON.stringify({
-        id,
-        householdId: hk.householdId,
-        version: 1,
-        ciphertext: toBase64url(ciphertext),
-      }),
-    );
+  async function run(action: () => Promise<unknown>) {
+    setError("");
+    try {
+      await action();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "failed");
+    }
   }
 
-  async function openAll() {
-    setError("");
-    const hk = keySession.householdKey();
-    if (!hk) return setError("locked");
-    const res = await fetch(`/api/households/${hk.householdId}/records`, {
-      cache: "no-store",
+  function sealText(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const fields = new FormData(form);
+    const text = String(fields.get("text") ?? "");
+    const id = String(fields.get("id") ?? "") || crypto.randomUUID();
+    form.reset();
+    if (!sync) return setError("sync not started");
+    // Written locally first; the push happens in the background and may wait for online.
+    run(async () => {
+      const record = await sync.write(id, TYPE, { text });
+      setSealed(
+        JSON.stringify({
+          id: record.id,
+          householdId: sync.householdId,
+          version: record.version,
+        }),
+      );
     });
-    if (!res.ok) return setError(`records: ${res.status}`);
-    const { records } = (await res.json()) as {
-      records: { id: string; version: number; ciphertext: string }[];
-    };
-    const out: string[] = [];
-    for (const r of records) {
-      try {
-        const plain = await open(
-          hk.key,
-          fromBase64url(r.ciphertext),
-          recordAad(r.id, r.version),
-        );
-        out.push(new TextDecoder().decode(plain));
-      } catch {
-        out.push("(cannot decrypt)");
-      }
-    }
-    setOpened(out);
   }
+
+  function deleteRecord(form: HTMLFormElement | null) {
+    const id = String(new FormData(form ?? undefined).get("id") ?? "");
+    const current = sync?.records().find((r) => r.id === id);
+    if (!sync || !current) return setError("unknown record");
+    form?.reset();
+    run(() => sync.write(id, TYPE, current.data, true));
+  }
+
+  function openAll() {
+    if (!sync) return setError("sync not started");
+    run(async () => {
+      setShown(true);
+      await sync.sync();
+    });
+  }
+
+  const sorted = [...records]
+    .filter((r) => r.type === TYPE)
+    .sort((a, b) => (a.id < b.id ? -1 : 1));
 
   return (
     <section
@@ -79,15 +85,30 @@ export default function RecordProbe() {
       aria-label="E2E record probe"
       className="flex w-full max-w-sm flex-col gap-2 border-t border-dashed pt-4 text-left text-xs"
     >
-      <form onSubmit={sealText} className="flex gap-2">
+      <form onSubmit={sealText} className="flex flex-col gap-2">
         <input
           name="text"
           aria-label="Probe text"
-          className="flex-1 rounded border px-2 py-1"
+          className="rounded border px-2 py-1"
         />
-        <button type="submit" className="rounded border px-2 py-1">
-          Seal
-        </button>
+        <input
+          name="id"
+          aria-label="Probe record"
+          placeholder="record id (blank = new)"
+          className="rounded border px-2 py-1 font-mono"
+        />
+        <div className="flex gap-2">
+          <button type="submit" className="rounded border px-2 py-1">
+            Seal
+          </button>
+          <button
+            type="button"
+            onClick={(e) => deleteRecord(e.currentTarget.form)}
+            className="rounded border px-2 py-1"
+          >
+            Delete
+          </button>
+        </div>
       </form>
       <output aria-label="Sealed record" className="break-all font-mono">
         {sealed}
@@ -99,11 +120,12 @@ export default function RecordProbe() {
       >
         Open records
       </button>
-      {opened && (
+      {shown && (
         <ul aria-label="Opened records">
-          {opened.map((t, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: display-only list, never reordered.
-            <li key={i}>{t}</li>
+          {sorted.map((r) => (
+            <li key={r.id} data-id={r.id}>
+              {textOf(r.data)}
+            </li>
           ))}
         </ul>
       )}
