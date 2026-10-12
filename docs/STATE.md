@@ -1,4 +1,4 @@
-_Last updated: 2026-10-12 (session 22: #120 merged, PR #121) · next session: start here_
+_Last updated: 2026-10-12 (session 23: #113 ADR-0045, PR open) · next session: start here_
 
 ## Where we are
 
@@ -9,22 +9,19 @@ _Last updated: 2026-10-12 (session 22: #120 merged, PR #121) · next session: st
   relay (0022), member relay + invites (0023), key session + unlock (0024, `src/features/lock/`),
   onboarding spec (0025, UX.md §3.0), sign-in + gate (0026, `src/features/auth/`), first run
   (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0007`.
-- Merged: #54 restore (PR #60), #58 fast KDF in tests ([ADR-0028](decisions/0028-fast-kdf-in-tests.md)), #52 join API ([ADR-0029](decisions/0029-ending-an-invite.md)),
-  #63 household gate ([ADR-0030](decisions/0030-household-key-after-unlock.md), `src/features/household/`), #64 Household panel ([ADR-0031](decisions/0031-inviter-household-panel.md)),
-  #69 docs enforcement ([ADR-0032](decisions/0032-changelog-and-docs-impact.md); see Gotchas).
-- **#71** merged (PR #73). **#75 fast unlock** merged (PR #77, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md)); owner tests on a device after M1. **#48 split** into #74 + #75. **#74** vault passkey slots merged (PR #76,
-  [ADR-0033](decisions/0033-vault-passkey-slots.md)): wire v2 only with slots, 12 KiB limit.
-- **#46 split:** #78 E2E harness merged (PR #80, [ADR-0035](decisions/0035-e2e-harness.md)); #79 M1 acceptance
-  merged (PR #81, [ADR-0036](decisions/0036-e2e-record-probe.md)). #82 sign-in fix merged (PR #83). #86 Next 16.3.8 merged (PR #87). #84 dark mode merged (PR #85). Onboarding-v2 plan merged (PR #94).
-- Merged: **#88** vault v3 + device slot (PR #95, [ADR-0038](decisions/0038-vault-v3-device-slot.md), `vault-device.ts`, `device-store.ts`); **#96** magic link (PR #98, [ADR-0039](decisions/0039-magic-link-sign-in.md)); **#90** recovery before first invite (PR #99, [ADR-0040](decisions/0040-recovery-method-before-first-data.md); **M2 push must call `requireRecoveryMethod`**).
-  **#97** silent first run (PR #100, [ADR-0041](decisions/0041-silent-first-run.md)). **#91 split** into #101/#102/#103.
-  **#101** banner merged (PR #104, [ADR-0042](decisions/0042-protection-banner.md)). **#105** empty Home merged (PR #106). **#102** merged (PR #107, [ADR-0043](decisions/0043-app-lock-and-slot-removal.md): app lock = device slot; `deviceSlotBy*`, `remove*Slot`); **#108** merged (PR #109, vault PUT 409). **#103** merged (PR #110, [ADR-0044](decisions/0044-security-settings.md), `/settings`). **#92** merged (PR #111): `e2e/onboarding-v2.spec.ts`, device-slot IndexedDB checks, shared `profiles`/`expectNoLeaks` in `e2e/support.ts`.
+- Also merged in M1: restore, join API, household gate/panel, docs enforcement, passkey slots + fast unlock, E2E harness +
+  probe, vault v3 + device slot, magic link, recovery before first data, silent first run, banner, app lock, Settings → Security,
+  onboarding-v2 E2E (ADRs 0028–0044; `e2e/support.ts` has shared `profiles`/`expectNoLeaks`). **M2 push must call `requireRecoveryMethod`** (ADR-0040).
 
 ## Next session picks up
 
-**#120** merged (PR #121, [ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md): first sign-up on an empty server owns it, `server_owner` table). Neon (staging) migrated through `0007`.
-Next: **#113** (ADR-0045: version vs pull cursor, LWW clock in plaintext, routes, limits, padding;
-the recommendations are in the M2 brief, and the owner decides). Then #114 and #115 (independent) → #116 → #117 → #118.
+**#113** in review (branch `docs/adr-0045-sync-contract`). [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md), owner-decided:
+the client sets `version = base + 1`, and the server-stamped household `seq` is the pull cursor
+(`households.record_seq` row lock serialises pushes). The LWW clock is `modifiedAt`/`modifiedBy` inside the plaintext.
+Routes are GET/POST `/api/households/:id/records`. Limits: 100 records/push, body ≤ 4 MiB, envelope ≤ 64 KiB, plaintext padded to 256 B.
+The spec is CONTRACT.md *Records*. **#120** merged (PR #121, [ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md)). Neon migrated through `0007`.
+Next: **#114** server push (migration `records.seq` + `households.record_seq`, so staging needs `db:migrate` before merge;
+also update DEPLOYMENT.md's "6 columns" check and the `records.ts` docstring) and **#115** codec (independent). Then #116 → #117 → #118.
 The owner still has to redeploy the home server (H4, run on the server; this machine has no Tailscale/SSH to it). Open items: #112 social recovery (size:L, ADR first,
 no milestone yet), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household,
 ADR-0031 member names in the members API. Green on `main` (1748842): `pnpm test` (267) · CI e2e · typecheck · check.

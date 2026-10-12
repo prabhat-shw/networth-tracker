@@ -51,6 +51,7 @@ Finance and engineering terms in one place. Fuller explanations:
 | **ECDH** | Key agreement, used to wrap the household key for another member |
 | **HDK** | Household Data Key — the shared key that unlocks the household's records |
 | **IndexedDB** | The browser's built-in database; how the app works offline |
+| **Last-write-wins (LWW)** | When two devices edit the same item, the later edit (by the time stored inside the encrypted item) is kept |
 | **Next.js** | The framework hosting the app shell and the small API |
 | **Passkey** | Fingerprint/face login replacing a password, tied to the device |
 | **Device slot** | The private key wrapped under a non-extractable key kept only in this browser, so the app opens with no passphrase. Never uploaded. See ADR-0038 |
@@ -61,6 +62,7 @@ Finance and engineering terms in one place. Fuller explanations:
 | **Ruleset / branch protection** | GitHub rules stopping direct pushes to `main` |
 | **Security code** | A short fingerprint of a member's public key, read aloud to check nobody swapped keys when joining |
 | **SHA** | The short commit id stamped into each build, so you know which build you are running |
+| **Sync cursor (`seq`)** | A per-household counter the server stamps on every saved change; a device asks for "everything after N" |
 | **Tailscale** | Private network making the home server reachable without exposing it publicly |
 | **Tombstone** | A "this was deleted" marker, so deletions propagate between devices |
 | **Vitest** | The unit test runner; its suite is the pull-request gate |

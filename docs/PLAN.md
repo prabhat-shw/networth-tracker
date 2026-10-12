@@ -115,14 +115,14 @@ passkey PRF (optional fast unlock) ------------┘
                           householdDataKey (HDK, AES-256-GCM, random)
                           wrapped once per member via ECDH(HDK ← member pubkey)
                                                      │
-                     every record: AES-256-GCM(HDK, iv=random96, aad=recordId|version|type)
+                     every record: AES-256-GCM(HDK, iv=random96, aad=recordId|version)
 ```
 
 - **Sharing with spouse** = wrapping the HDK to their public key. The server relays the
   wrapped blob; it never holds an unwrapped key.
 - **Recovery** = the printed recovery kit, *plus* social recovery: if you lose everything,
   your spouse re-wraps the HDK to your new identity key. Two independent paths, both offline.
-- **Server sees:** `household_id`, `record_id` (random UUID), `version`, `updated_at`,
+- **Server sees:** `household_id`, `record_id` (random UUID), `version`, `seq` (pull cursor), `updated_at`,
   `ciphertext`, `deleted`. Not the record type, not a single number. Client downloads all
   records (the dataset is small) and indexes locally.
 
@@ -161,7 +161,7 @@ disk is then the weak point, and the app says so in a banner.
                 │ sync: opaque blobs                                    ▲
 ┌───────────────▼────────────────────────────────────────────────┬──────┴──────────────────┐
 │  Sync API (thin, replaceable)                                  │  Price service          │
-│   POST /api/sync/pull|push   auth   household/key-wrap   blobs │   AMFI NAVAll daily     │
+│   GET|POST …/records (sync)  auth   household/key-wrap   blobs │   AMFI NAVAll daily     │
 │   Postgres via Drizzle — ciphertext only                       │   Yahoo equity/US/crypto│
 └────────────────────────────────────────────────────────────────┴───  Frankfurter FX ─────┘
 ```
@@ -171,9 +171,11 @@ what makes the **M9 Rust/Axum rewrite** a clean weekend project rather than a re
 contract in `docs/api/CONTRACT.md` is executable, and the same contract test suite runs
 against either implementation.
 
-**Sync semantics:** per-record `version` + `updatedAt` + soft-delete tombstones,
-last-write-wins at record level, offline queue with optimistic concurrency (409 → re-pull →
-merge → retry). Same model that already works in paisa-diary.
+**Sync semantics (ADR-0003, ADR-0045):** each record has a client-set `version`, the server
+assigns a household-wide `seq` that pull uses as its cursor, and deletes are soft-delete
+tombstones. Merging is last-write-wins at record level, by `modifiedAt`/`modifiedBy`
+inside the ciphertext. An offline queue pushes with optimistic concurrency: a conflict leads
+to re-pull → merge → retry. Same model that already works in paisa-diary.
 
 **Honest note:** with E2EE, React Server Components can't render your data, so Next.js here
 is an app shell + API host, not an SSR engine. That is a real trade-off of choosing Next.js

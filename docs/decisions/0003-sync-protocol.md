@@ -1,6 +1,6 @@
 # ADR-0003 — Encrypted sync protocol
 
-**Status:** Accepted · 2026-09-08
+**Status:** Accepted · 2026-09-08 · amended by [ADR-0045](0045-sync-versioning-cursor-limits.md) (LWW clock inside the plaintext, `seq` cursor, household-scoped routes)
 
 ## Context
 

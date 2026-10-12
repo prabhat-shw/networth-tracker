@@ -12,7 +12,7 @@
            │ sync: opaque blobs                                   ▲
 ┌──────────▼───────────────────────────────────────────┬──────────┴───────────────┐
 │  Sync API (thin, replaceable — see docs/api/CONTRACT) │  Price service           │
-│   /api/sync/pull · /api/sync/push · auth · key-wrap   │   AMFI NAVAll (daily)    │
+│   …/records pull·push · auth · key-wrap · vaults      │   AMFI NAVAll (daily)    │
 │   Postgres via Drizzle — ciphertext columns only      │   Yahoo universes · FX   │
 └───────────────────────────────────────────────────────┴──────────────────────────┘
 ```
@@ -24,7 +24,8 @@
   per-person), goal progress and projections, XIRR, loan amortisation, accrual calculators
   (EPF/PPF/NPS/SSY). Framework-free, exhaustively unit-tested. **This is the PR gate.**
 - **db** — Dexie stores encrypted records plus a local index; the sync queue lives here.
-- **sync** — pull/push with version vectors, tombstones, LWW merge (ADR-0003).
+- **sync** — pull by server `seq` cursor, push with per-record optimistic concurrency,
+  tombstones, LWW merge on `modifiedAt`/`modifiedBy` inside the plaintext (ADR-0003, ADR-0045).
 - **prices** — universe download, local lookup, staleness, manual overrides (ADR-0005).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.
