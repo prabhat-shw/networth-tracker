@@ -57,6 +57,13 @@
       "when": 1791741810295,
       "tag": "0007_server_owner",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791819060967,
+      "tag": "0008_record_seq",
+      "breakpoints": true
     }
   ]
 }

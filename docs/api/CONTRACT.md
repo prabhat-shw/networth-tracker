@@ -151,6 +151,8 @@ ascending by `seq`, at most 500, with `cache-control: no-store`. To page, pass t
 - Runs only after the guard: `409 {"error":"recovery-required"}` if the caller's vault has no
   passphrase, recovery-kit or passkey slot (ADR-0040), and nothing is written.
 - `400 {"error":"id taken"}` if any `id` belongs to another household, and nothing is written.
+- `400 {"error":"bad request"}` if a record has `version` > 1 but the server has no row for that
+  `id` (a base the server never had is a client bug, not a conflict), and nothing is written.
 - Otherwise `200`, applied in one transaction:
 
 ```json

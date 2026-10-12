@@ -190,6 +190,7 @@ describe("household member relay", () => {
       id: RECORD,
       householdId: hh,
       version: 1,
+      seq: 1,
       ciphertext: await seal(hdk.key, plaintext, recordAad(RECORD, 1), hdk.kid),
     });
 

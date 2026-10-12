@@ -10,6 +10,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -26,6 +27,8 @@ export const households = pgTable("households", {
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
     .notNull()
     .default(sql`now()`),
+  /** Last record `seq` handed out (ADR-0045). A push locks this row to serialise writes. */
+  recordSeq: bigint("record_seq", { mode: "number" }).notNull().default(0),
 });
 
 /**
@@ -63,13 +66,15 @@ export const records = pgTable(
       .notNull()
       .references(() => households.id, { onDelete: "cascade" }),
     version: bigint("version", { mode: "number" }).notNull(),
+    /** Household-wide pull cursor stamped by the server on every write (ADR-0045). */
+    seq: bigint("seq", { mode: "number" }).notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
       .notNull()
       .default(sql`now()`),
     ciphertext: bytea("ciphertext").notNull(),
     deleted: boolean("deleted").notNull().default(false),
   },
-  (t) => [index("records_household_version_idx").on(t.householdId, t.version)],
+  (t) => [uniqueIndex("records_household_seq_idx").on(t.householdId, t.seq)],
 );
 
 // --- Auth (ADR-0020) -----------------------------------------------------------------

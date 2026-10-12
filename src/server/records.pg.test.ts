@@ -83,18 +83,21 @@ beforeAll(async () => {
       id: crypto.randomUUID(),
       householdId: HH_A,
       version: 1,
+      seq: 1,
       ciphertext: new Uint8Array([1, 2, 3]),
     },
     {
       id: crypto.randomUUID(),
       householdId: HH_A,
       version: 2,
+      seq: 2,
       ciphertext: new Uint8Array([4]),
     },
     {
       id: crypto.randomUUID(),
       householdId: HH_B,
       version: 1,
+      seq: 1,
       ciphertext: new Uint8Array([9]),
     },
   ]);
@@ -116,13 +119,13 @@ const get = (householdId: string, cookie?: string, query = "") =>
   );
 
 describe("household records", () => {
-  it("returns a member's own records as base64url, in version order", async () => {
+  it("returns a member's own records as base64url, in seq order", async () => {
     const res = await get(HH_A, cookieA);
     expect(res.status).toBe(200);
     const { records } = (await res.json()) as {
-      records: { householdId: string; version: number; ciphertext: string }[];
+      records: { householdId: string; seq: number; ciphertext: string }[];
     };
-    expect(records.map((r) => r.version)).toEqual([1, 2]);
+    expect(records.map((r) => r.seq)).toEqual([1, 2]);
     expect(records.every((r) => r.householdId === HH_A)).toBe(true);
     expect(records[0].ciphertext).toBe("AQID");
   });
@@ -130,9 +133,9 @@ describe("household records", () => {
   it("honours ?since=", async () => {
     const res = await get(HH_A, cookieA, "?since=1");
     const { records } = (await res.json()) as {
-      records: { version: number }[];
+      records: { seq: number }[];
     };
-    expect(records.map((r) => r.version)).toEqual([2]);
+    expect(records.map((r) => r.seq)).toEqual([2]);
   });
 
   it("gives another household's member the same 404 as a missing household", async () => {
