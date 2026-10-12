@@ -232,8 +232,9 @@ ${r.postData() ?? ""}`),
 }
 
 /**
- * No secret a person typed or read appears in any request, in local or session storage, or
- * in any server table (as text or hex). IndexedDB may hold only the device slot's database.
+ * No secret a person typed or read appears in any request, in local or session storage, in
+ * the local record store, or in any server table (as text or hex). IndexedDB may hold only
+ * the device slot's database and the ciphertext-only record store (#116).
  * Private keys and the HDK are non-extractable CryptoKeys with no raw form to search for;
  * the unit suites assert they never leave (SECURITY.md).
  */
@@ -246,15 +247,45 @@ export async function expectNoLeaks(
     for (const s of secrets) expect(r, "request").not.toContain(s);
 
   for (const page of run.pages) {
-    const stored = await page.evaluate(async () => ({
-      local: JSON.stringify({ ...localStorage }),
-      session: JSON.stringify({ ...sessionStorage }),
-      idb: (await indexedDB.databases()).map((d) => d.name),
-    }));
-    for (const name of stored.idb) expect(name).toBe("nwt-device");
+    const stored = await page.evaluate(async () => {
+      const idb = (await indexedDB.databases()).map((d) => d.name);
+      // Every row of the record store, bytes as Latin-1 text. Opened only if it exists:
+      // opening it here would create it empty.
+      let records = "";
+      if (idb.includes("nwt-records")) {
+        const db = await new Promise<IDBDatabase>((resolve, reject) => {
+          const req = indexedDB.open("nwt-records");
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+        try {
+          for (const name of db.objectStoreNames) {
+            const rows = await new Promise<unknown[]>((resolve, reject) => {
+              const req = db.transaction(name).objectStore(name).getAll();
+              req.onsuccess = () => resolve(req.result);
+              req.onerror = () => reject(req.error);
+            });
+            records += JSON.stringify(rows, (_k, v) =>
+              v instanceof Uint8Array ? new TextDecoder("latin1").decode(v) : v,
+            );
+          }
+        } finally {
+          db.close();
+        }
+      }
+      return {
+        local: JSON.stringify({ ...localStorage }),
+        session: JSON.stringify({ ...sessionStorage }),
+        idb,
+        records,
+      };
+    });
+    for (const name of stored.idb)
+      expect(["nwt-device", "nwt-records"]).toContain(name);
     for (const s of secrets) {
       expect(stored.local).not.toContain(s);
       expect(stored.session).not.toContain(s);
+      expect(stored.records, "local record store").not.toContain(s);
     }
   }
 

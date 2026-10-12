@@ -57,6 +57,10 @@ what type, with which institutions).
   slot, and checks only envelope shape and 256-byte padding (PGlite, [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)). The record codec
   fails closed on a wrong household key, a swapped id or version, a replayed older envelope, a flipped
   `deleted` flag, a kid mismatch or any tampered byte ([ADR-0047](decisions/0047-record-plaintext-format.md))
+- Local record store ([ADR-0048](decisions/0048-local-record-store.md)): IndexedDB rows hold only sealed fields and routing (browser
+  test dumps every row and finds no plaintext); versions and the cursor never move backwards;
+  the in-memory plaintext cache empties on lock and auto-lock and refuses writes while locked;
+  the E2E leak scan searches the record store too
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under
