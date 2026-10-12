@@ -1,4 +1,4 @@
-_Last updated: 2026-10-12 (session 25: #115 record codec, PR open) · next session: start here_
+_Last updated: 2026-10-12 (session 26: #116 local store, PR open) · next session: start here_
 
 ## Where we are
 
@@ -15,12 +15,12 @@ _Last updated: 2026-10-12 (session 25: #115 record codec, PR open) · next sessi
 
 ## Next session picks up
 
-**#115** in review (branch `feat/record-codec`, `area:crypto`, so the owner approves the merge). [ADR-0047](decisions/0047-record-plaintext-format.md):
-`src/crypto/record-codec.ts` (`encodeRecord`/`decodeRecord`, `pad`/`unpad`) and `src/domain/lww.ts` (`mergeLww`, `compareStamps`).
-`decodeRecord(hdk, sealed, knownVersion)`: callers pass the highest version held, which is the replay check. `deleted` is sealed inside, and the kid must match.
-**#114** merged (PR #125): `POST …/records` in `src/server/records-push.ts`, pull by `seq`, migration `0008` (the owner ran Neon `db:migrate`).
-**#113** merged (PR #124, [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)). The spec is CONTRACT.md *Records*.
-Next: **#116** Dexie local store (add `dexie`; ciphertext only, outbox, cursor, and the highest version per id for replay). Then #117 → #118.
+**#116** in review (branch `feat/dexie-local-store`). [ADR-0048](decisions/0048-local-record-store.md): `src/db/local-store.ts` is `localStore(householdId)` over Dexie
+`nwt-records` (`envelopes`, `outbox`, `meta`). It is ciphertext-only, and its versions and cursor never move backwards; `knownVersion(id)` is the replay floor.
+`src/db/record-cache.ts` is `createRecordCache(session)`, plaintext in memory only, emptied on lock. Neither is wired into the app yet (#117/#118).
+**#115** merged (PR #126, [ADR-0047](decisions/0047-record-plaintext-format.md)): `record-codec.ts` and `domain/lww.ts`. **#114** merged (PR #125, migration `0008` on Neon). **#113** merged (PR #124, [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)).
+Next: **#117** sync engine, pure over an injected transport and `LocalStore`: pull → push outbox → on conflict re-pull, `mergeLww`, re-seal at server version + 1 (bounded).
+Then #118, which wires the session → engine and replaces the E2E SQL insert with a real push.
 The owner still has to redeploy the home server (H4, run on the server; this machine has no Tailscale/SSH to it). Open items: #112 social recovery (size:L, ADR first,
 no milestone yet), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household,
 ADR-0031 member names in the members API. Green on the branch: `pnpm test` · typecheck · check.

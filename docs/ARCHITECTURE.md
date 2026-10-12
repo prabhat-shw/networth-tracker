@@ -23,7 +23,8 @@
 - **domain** — pure functions over decrypted records: net worth by lens (mine / household /
   per-person), goal progress and projections, XIRR, loan amortisation, accrual calculators
   (EPF/PPF/NPS/SSY). Framework-free, exhaustively unit-tested. **This is the PR gate.**
-- **db** — Dexie stores encrypted records plus a local index; the sync queue lives here.
+- **db** — Dexie (`nwt-records`) stores sealed envelopes, the outbox and the pull cursor:
+  ciphertext only. Decrypted records live in an in-memory cache dropped on lock (ADR-0048).
 - **sync** — pull by server `seq` cursor, push with per-record optimistic concurrency,
   tombstones, LWW merge on `modifiedAt`/`modifiedBy` inside the plaintext (ADR-0003, ADR-0045).
 - **prices** — universe download, local lookup, staleness, manual overrides (ADR-0005).
