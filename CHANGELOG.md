@@ -6,6 +6,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 ## [Unreleased]
 
 ### Security
+- Encrypted record push (M2, #114): devices can now upload sealed records. Each one applies
+  only over the version it was based on, so an offline edit never silently overwrites a newer
+  one. The server checks size and padding only, and still can't read a byte.
 - The server refuses a sign-in-methods update that would leave no way back in (M1, #108),
   so a faulty app version can't strand your data on one device.
 - Identity vault v3 (M1, #88): groundwork for "email and done" sign-in. The key can live on

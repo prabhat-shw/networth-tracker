@@ -217,8 +217,8 @@ Run from your own machine against Neon. Repeat this **every time a new file appe
    into chat, an issue, or a commit.
 
 **Check:** `pnpm db:migrate` ends with `migrations applied successfully` and no red error.
-In Neon, **Tables** (left sidebar) shows `records` with 6 columns: `id`, `household_id`,
-`version`, `updated_at`, `ciphertext`, `deleted`.
+In Neon, **Tables** (left sidebar) shows `records` with 7 columns: `id`, `household_id`,
+`version`, `seq`, `updated_at`, `ciphertext`, `deleted` (`seq` from migration `0008`, ADR-0045).
 
 **If it fails:**
 - `password authentication failed` → you copied before clicking **Show password**.

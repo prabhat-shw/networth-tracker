@@ -1,4 +1,4 @@
-_Last updated: 2026-10-12 (session 23: #113 ADR-0045, PR open) · next session: start here_
+_Last updated: 2026-10-12 (session 24: #114 server push, PR open) · next session: start here_
 
 ## Where we are
 
@@ -15,16 +15,15 @@ _Last updated: 2026-10-12 (session 23: #113 ADR-0045, PR open) · next session: 
 
 ## Next session picks up
 
-**#113** in review (branch `docs/adr-0045-sync-contract`). [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md), owner-decided:
-the client sets `version = base + 1`, and the server-stamped household `seq` is the pull cursor
-(`households.record_seq` row lock serialises pushes). The LWW clock is `modifiedAt`/`modifiedBy` inside the plaintext.
-Routes are GET/POST `/api/households/:id/records`. Limits: 100 records/push, body ≤ 4 MiB, envelope ≤ 64 KiB, plaintext padded to 256 B.
-The spec is CONTRACT.md *Records*. **#120** merged (PR #121, [ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md)). Neon migrated through `0007`.
-Next: **#114** server push (migration `records.seq` + `households.record_seq`, so staging needs `db:migrate` before merge;
-also update DEPLOYMENT.md's "6 columns" check and the `records.ts` docstring) and **#115** codec (independent). Then #116 → #117 → #118.
+**#114** in review (branch `feat/server-record-push`): `POST …/records` in `src/server/records-push.ts` (guard → `requireRecoveryMethod`
+→ shape/padding → one transaction under the `households` row lock). Pull now pages by `seq`; `toEnvelope` is shared.
+Migration **`0008_record_seq`** backfills `seq` per household. **Neon must be migrated to `0008` before #114 merges.**
+**#113** merged (PR #124, [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)): client `version = base + 1`, server `seq` cursor, LWW inside the plaintext,
+100 records / 4 MiB / 64 KiB, 256 B padding. The spec is CONTRACT.md *Records*.
+Next: **#115** record codec (pad + seal, `mergeLww`; `area:crypto`, so the owner approves). Then #116 → #117 → #118.
 The owner still has to redeploy the home server (H4, run on the server; this machine has no Tailscale/SSH to it). Open items: #112 social recovery (size:L, ADR first,
 no milestone yet), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household,
-ADR-0031 member names in the members API. Green on `main` (1748842): `pnpm test` (267) · CI e2e · typecheck · check.
+ADR-0031 member names in the members API. Green on the branch: `pnpm test` (276) · typecheck · check; the E2E probe insert now sets `seq`.
 
 ## Also open
 

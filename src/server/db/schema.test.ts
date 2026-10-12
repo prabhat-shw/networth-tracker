@@ -9,11 +9,12 @@ const columnTypes = (table: PgTable) =>
 
 // Security invariant: the server stores ciphertext and routing metadata, nothing else.
 describe("server schema", () => {
-  it("records has exactly the ADR-0003 envelope columns", () => {
+  it("records has exactly the ADR-0003/0045 envelope columns", () => {
     expect(columnTypes(records)).toEqual({
       id: "uuid",
       household_id: "uuid",
       version: "bigint",
+      seq: "bigint",
       updated_at: "timestamp with time zone",
       ciphertext: "bytea",
       deleted: "boolean",
@@ -24,6 +25,7 @@ describe("server schema", () => {
     expect(columnTypes(households)).toEqual({
       id: "uuid",
       created_at: "timestamp with time zone",
+      record_seq: "bigint",
     });
     expect(columnTypes(householdMembers)).toEqual({
       household_id: "uuid",

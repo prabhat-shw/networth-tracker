@@ -54,8 +54,8 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
     };
     // M2 push stand-in: only the envelope's opaque bytes reach the server.
     await sql`
-      insert into records (id, household_id, version, ciphertext)
-      values (${sealed.id}, ${sealed.householdId}, ${sealed.version},
+      insert into records (id, household_id, version, seq, ciphertext)
+      values (${sealed.id}, ${sealed.householdId}, ${sealed.version}, 1,
               ${Buffer.from(sealed.ciphertext, "base64url")})`;
 
     // Home leads with the empty state; the household panel is a secondary action (#105).

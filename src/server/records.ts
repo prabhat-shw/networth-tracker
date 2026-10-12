@@ -1,7 +1,7 @@
 /**
- * Read side of the record envelope (ADR-0003, ADR-0021): a member pulls their household's
- * ciphertext by version. The server returns opaque bytes as base64url and never decodes
- * them. Push and the final `/api/sync/pull` shape arrive with the M2 sync engine.
+ * Read side of the record envelope (ADR-0003, ADR-0021, ADR-0045): a member pulls their
+ * household's ciphertext by the server's `seq` cursor. The server returns opaque bytes as
+ * base64url and never decodes them. Push lives in `records-push.ts`.
  */
 import { and, asc, eq, gt } from "drizzle-orm";
 import { records } from "./db/schema";
@@ -13,10 +13,21 @@ export interface RecordEnvelope {
   id: string;
   householdId: string;
   version: number;
+  seq: number;
   updatedAt: string;
   ciphertext: string;
   deleted: boolean;
 }
+
+export const toEnvelope = (r: typeof records.$inferSelect): RecordEnvelope => ({
+  id: r.id,
+  householdId: r.householdId,
+  version: r.version,
+  seq: r.seq,
+  updatedAt: r.updatedAt.toISOString(),
+  ciphertext: Buffer.from(r.ciphertext).toString("base64url"),
+  deleted: r.deleted,
+});
 
 export async function listRecords(
   deps: GuardDeps,
@@ -33,20 +44,9 @@ export async function listRecords(
   const rows = await deps.db
     .select()
     .from(records)
-    .where(
-      and(eq(records.householdId, householdId), gt(records.version, since)),
-    )
-    .orderBy(asc(records.version))
+    .where(and(eq(records.householdId, householdId), gt(records.seq, since)))
+    .orderBy(asc(records.seq))
     .limit(PAGE_SIZE);
-  const body: { records: RecordEnvelope[] } = {
-    records: rows.map((r) => ({
-      id: r.id,
-      householdId: r.householdId,
-      version: r.version,
-      updatedAt: r.updatedAt.toISOString(),
-      ciphertext: Buffer.from(r.ciphertext).toString("base64url"),
-      deleted: r.deleted,
-    })),
-  };
+  const body: { records: RecordEnvelope[] } = { records: rows.map(toEnvelope) };
   return Response.json(body, { headers: { "cache-control": "no-store" } });
 }

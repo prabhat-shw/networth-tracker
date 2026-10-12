@@ -27,15 +27,18 @@ const fail = (status: 409 | 413 | 415, error: string) =>
   Response.json({ error }, { status });
 const noStore = { "cache-control": "no-store" };
 
-/** Parses a small JSON object with exactly `keys`, or answers the error response. */
+/** Parses a JSON object with exactly `keys`, or answers the error response. */
 export async function readBody(
   request: Request,
   keys: string[],
+  maxBytes = MAX_BODY_BYTES,
 ): Promise<Record<string, unknown> | Response> {
   if (!request.headers.get("content-type")?.startsWith("application/json"))
     return fail(415, "content-type must be application/json");
+  if (Number(request.headers.get("content-length") ?? 0) > maxBytes)
+    return fail(413, "body too large");
   const text = await request.text();
-  if (new TextEncoder().encode(text).length > MAX_BODY_BYTES)
+  if (new TextEncoder().encode(text).length > maxBytes)
     return fail(413, "body too large");
   let body: unknown;
   try {
