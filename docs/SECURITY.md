@@ -53,6 +53,10 @@ what type, with which institutions).
 - Onboarding v2 E2E (#92, `e2e/onboarding-v2.spec.ts`): link sign-in lands in the app; with app
   lock off IndexedDB holds exactly one slot (a non-extractable AES-GCM key + public key + wrapped
   bytes), with it on, and on every new device, none; a fresh profile opens with the passphrase
+- Record sync: the server applies a push only over the stored version, refuses it (409) without a recovery
+  slot, and checks only envelope shape and 256-byte padding (PGlite, [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)). The record codec
+  fails closed on a wrong household key, a swapped id or version, a replayed older envelope, a flipped
+  `deleted` flag, a kid mismatch or any tampered byte ([ADR-0047](decisions/0047-record-plaintext-format.md))
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under

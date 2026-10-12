@@ -75,7 +75,10 @@ export function parseEnvelope(sealed: Bytes): Envelope {
   };
 }
 
-/** Throws `DecryptError` on any failure: wrong key, tampered AAD, IV, kid or ciphertext. */
+/**
+ * Throws `DecryptError` on any failure: wrong key, tampered AAD, IV or ciphertext. The kid is
+ * an unauthenticated label (not in the AAD): callers compare it to their key's (ADR-0047).
+ */
 export async function open(
   key: CryptoKey,
   sealed: Bytes,

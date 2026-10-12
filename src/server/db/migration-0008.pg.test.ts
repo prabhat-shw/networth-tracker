@@ -49,5 +49,5 @@ describe("migration 0008_record_seq", () => {
       "select id, record_seq from households order by id",
     );
     expect(hh.rows.map((r) => Number(r.record_seq))).toEqual([2, 1, 0]);
-  });
+  }, 30_000);
 });

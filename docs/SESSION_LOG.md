@@ -57,3 +57,4 @@ One line per session: date · issue · outcome.
 - 2026-10-12 · #120 merged (PR #121); Neon migrated through 0007; home-server redeploy left to the owner (no access from this machine)
 - 2026-10-12 · #113 ADR-0045 (owner decisions): client version + server `seq` cursor, LWW inside plaintext, household-scoped routes, 100/4 MiB/64 KiB limits, 256 B padding; CONTRACT.md Records section is the spec
 - 2026-10-12 · #114 server record push (ADR-0045): per-record optimistic concurrency in one transaction under the household row lock, `seq` pull cursor, migration 0008 with backfill; PGlite tests incl. concurrency and backfill
+- 2026-10-12 · #115 record codec + LWW (ADR-0047): JSON plaintext padded to 256 B, `deleted` sealed inside, kid checked (GCM does not authenticate it), replay refused via knownVersion; pure mergeLww with modifiedBy tie-break
