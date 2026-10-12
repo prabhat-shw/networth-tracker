@@ -1,4 +1,4 @@
-_Last updated: 2026-10-12 (session 26: #116 local store, PR open) · next session: start here_
+_Last updated: 2026-10-12 (session 27: #117 sync engine, PR open) · next session: start here_
 
 ## Where we are
 
@@ -15,12 +15,12 @@ _Last updated: 2026-10-12 (session 26: #116 local store, PR open) · next sessio
 
 ## Next session picks up
 
-**#116** in review (branch `feat/dexie-local-store`). [ADR-0048](decisions/0048-local-record-store.md): `src/db/local-store.ts` is `localStore(householdId)` over Dexie
-`nwt-records` (`envelopes`, `outbox`, `meta`). It is ciphertext-only, and its versions and cursor never move backwards; `knownVersion(id)` is the replay floor.
-`src/db/record-cache.ts` is `createRecordCache(session)`, plaintext in memory only, emptied on lock. Neither is wired into the app yet (#117/#118).
-**#115** merged (PR #126, [ADR-0047](decisions/0047-record-plaintext-format.md)): `record-codec.ts` and `domain/lww.ts`. **#114** merged (PR #125, migration `0008` on Neon). **#113** merged (PR #124, [ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)).
-Next: **#117** sync engine, pure over an injected transport and `LocalStore`: pull → push outbox → on conflict re-pull, `mergeLww`, re-seal at server version + 1 (bounded).
-Then #118, which wires the session → engine and replaces the E2E SQL insert with a real push.
+**#117** in review (branch `feat/sync-engine`). [ADR-0049](decisions/0049-sync-engine.md): `src/sync/engine.ts` `createSyncEngine({ transport, store, cache, hdk })`
+provides `hydrate`/`write`/`sync`. It merges on arrival (LWW), pushes at most 3 rounds, and skips undecryptable envelopes. `scheduler.ts` is `startSyncScheduler`
+(after unlock / `online` / 60 s while visible; stops on lock), and `http-transport.ts` is `httpTransport(householdId)`. **Tombstones are kept** (owner decision), so there is no purge yet.
+Merged: #116 (PR #127, [ADR-0048](decisions/0048-local-record-store.md), `src/db/`), #115 (PR #126, ADR-0047), #114 (PR #125), #113 (PR #124, ADR-0045).
+Next: **#118**, the last M2 issue. Wire the key session/household gate → `localStore` + `createRecordCache` + engine + scheduler, and make the E2E probe
+seal through `engine.write` + `sync` (drop the SQL insert, amend ADR-0036). E2E: offline write → B sees it; LWW conflict; leak scans.
 The owner still has to redeploy the home server (H4, run on the server; this machine has no Tailscale/SSH to it). Open items: #112 social recovery (size:L, ADR first,
 no milestone yet), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household,
 ADR-0031 member names in the members API. Green on the branch: `pnpm test` · typecheck · check.

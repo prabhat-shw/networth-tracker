@@ -61,6 +61,8 @@ what type, with which institutions).
   test dumps every row and finds no plaintext); versions and the cursor never move backwards;
   the in-memory plaintext cache empties on lock and auto-lock and refuses writes while locked;
   the E2E leak scan searches the record store too
+- Sync engine ([ADR-0049](decisions/0049-sync-engine.md)): an envelope that fails to decrypt is skipped and never stored or
+  shown; a locked session stops every run (`LockedError`); conflict retries are bounded
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under
