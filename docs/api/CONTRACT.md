@@ -17,14 +17,12 @@ same contract. Every endpoint here is exercised by the shared contract test suit
 | GET | `/api/health` | `{ status, app, db }`: 200 when Postgres answers, 503 otherwise. No auth, no secrets (ADR-0011) |
 | GET | `/api/version` | Build identity for the stale-build banner (ADR-0009) |
 | GET/POST | `/api/auth/*` | Better Auth; see *Auth* below |
-| GET | `/api/households/:householdId/records?since=N` | Member only; see *Authorisation* below |
+| GET/POST | `/api/households/:householdId/records` | Pull by cursor; push with optimistic concurrency. See *Records* below |
 | GET/PUT | `/api/identity/vault` | Own identity vault; see *Identity vault* below |
 | GET/POST | `/api/households` | My households and whether I'm invited; create a household with my own wrap. See *Household members* |
 | GET/POST | `/api/households/:householdId/members` | Own wrap + members' public keys; relay a wrap to an invitee |
 | GET/POST/DELETE | `/api/households/:householdId/invites` | List open invites; invite an email; cancel an invite |
 | DELETE | `/api/households/:householdId/invite` | The invitee declines their own invite |
-| POST | `/api/sync/pull` | `{ sinceVersion }` → `{ records[], serverVersion }` |
-| POST | `/api/sync/push` | `{ records[] }` → `{ applied[], conflicts[] }` (409 on stale version) |
 | PUT | `/api/blobs/:id` | Encrypted attachment upload (statements, receipts) |
 | GET | `/api/prices/universe/:kind/:date` | Public price universe (no auth-scoped filtering) |
 
@@ -115,11 +113,59 @@ Every household-scoped route runs the membership guard first. No or invalid sess
 `401 {"error":"unauthorized"}`. Not a member, no such household, or a malformed id → the
 same `404 {"error":"not found"}`, so ids cannot be probed.
 
-`GET /api/households/:householdId/records?since=N` (`N` a non-negative integer, default 0;
-otherwise `400`) → `200 { records: RecordEnvelope[] }` with `version > N`, ascending,
-at most 500; page by passing the last `version` seen. `cache-control: no-store`.
+## Records (ADR-0003, ADR-0045)
 
-Record envelope: `{ id, householdId, version, updatedAt, ciphertext, deleted }` —
-`updatedAt` ISO-8601, `ciphertext` base64url.
+Both routes run the guard above first. The server stores and relays opaque envelopes. It
+never merges, and it reads nothing from an envelope except its shape.
 
-Filled in properly during M2 — treat the table above as the shape, not the spec.
+**Record envelope:** `{ id, householdId, version, seq, updatedAt, ciphertext, deleted }`
+- `id`: a v4 UUID chosen by the client, globally unique.
+- `version`: an integer from 1 to 2^53−1, set by the client and bound into the AAD as
+  `recordAad(id, version)`.
+- `seq`: the server's pull cursor, unique and increasing within a household.
+- `updatedAt`: the server's apply time as ISO-8601. It is informational only and never used for merging.
+- `ciphertext`: the base64url ADR-0013 envelope.
+- `deleted`: `true` marks a sealed tombstone.
+
+**Envelope shape** (checked on push; `400` otherwise): decoded length ≤ 64 KiB; byte 0 is
+`0x01`; `len − 30 − kidLen` (`kidLen` = byte 1) is a positive multiple of 256. Clients pad
+the plaintext to the next multiple of 256 bytes before sealing (`0x80` then zeros, ≥ 1 byte).
+
+### Pull
+
+`GET …/records?since=N`, where `N` is a `seq` from 0 to 15 digits (default 0; otherwise
+`400`) → `200 { records: RecordEnvelope[] }`. It returns the envelopes with `seq > N`,
+ascending by `seq`, at most 500, with `cache-control: no-store`. To page, pass the last
+`seq` you saw. A page shorter than 500 means you are caught up.
+
+### Push
+
+`POST …/records`, `content-type: application/json` (`415`), body ≤ 4 MiB (`413`):
+
+```json
+{ "records": [ { "id": "<uuid>", "version": 3, "ciphertext": "<b64url>", "deleted": false } ] }
+```
+
+- Use 1–100 records with exactly these keys and no repeated `id`; anything else is `400 {"error":"bad request"}`.
+  `version` is the client's base version + 1, so a new record is `1`.
+- Runs only after the guard: `409 {"error":"recovery-required"}` if the caller's vault has no
+  passphrase, recovery-kit or passkey slot (ADR-0040), and nothing is written.
+- `400 {"error":"id taken"}` if any `id` belongs to another household, and nothing is written.
+- Otherwise `200`, applied in one transaction:
+
+```json
+{ "applied":   [ { "id": "<uuid>", "version": 3, "seq": 812, "updatedAt": "<iso>" } ],
+  "conflicts": [ RecordEnvelope ] }
+```
+
+  A record is **applied** when the stored version is `version − 1` (no row for `version`
+  1). It is then stored with a fresh `seq` and `updatedAt`. Otherwise it is a **conflict**,
+  returned as the server's current envelope, and that row is unchanged. To resolve a
+  conflict, the client merges with LWW (`modifiedAt`, then `modifiedBy`, both inside the
+  plaintext), re-seals at the conflict's `version + 1` and pushes again.
+- Pushes to one household are serialised, so concurrent pushes never share a `seq`, and
+  `seq` order is commit order.
+
+Contract tests (PGlite, #114): stale base → conflict; cross-household → `404`; no recovery
+slot → `409` with nothing written; oversized or unpadded envelope → `400`; concurrent pushes
+get distinct, ordered `seq` values.

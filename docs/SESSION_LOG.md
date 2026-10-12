@@ -55,3 +55,4 @@ One line per session: date · issue · outcome.
 - 2026-10-11 · #92 merged (PR #111), M1 milestone closed · M2 planned: docs/phases/M2.md, issues #113–#118 (ADR-0045 first); #112 social recovery filed
 - 2026-10-11 · #120 first sign-up on an empty server becomes the owner (ADR-0046): atomic one-row `server_owner` claim, mail gate opens only with no users; PGlite tests incl. race; migration 0007
 - 2026-10-12 · #120 merged (PR #121); Neon migrated through 0007; home-server redeploy left to the owner (no access from this machine)
+- 2026-10-12 · #113 ADR-0045 (owner decisions): client version + server `seq` cursor, LWW inside plaintext, household-scoped routes, 100/4 MiB/64 KiB limits, 256 B padding; CONTRACT.md Records section is the spec

@@ -13,7 +13,7 @@ what type, with which institutions).
 
 | Adversary | Capability | Mitigation |
 | --- | --- | --- |
-| Host / cloud operator | Full DB + disk read | Records are AES-256-GCM ciphertext; keys never leave devices |
+| Host / cloud operator | Full DB + disk read | Records are AES-256-GCM ciphertext padded to 256-byte buckets ([ADR-0045](decisions/0045-sync-versioning-cursor-limits.md)); keys never leave devices |
 | Network attacker | MITM, traffic analysis | TLS everywhere; Tailscale-only in production; whole-universe price downloads hide holdings |
 | Stolen unlocked laptop | Live session | Auto-lock, keys wiped from memory on lock, passphrase/passkey to unlock |
 | Stolen locked device | Disk read | IndexedDB holds ciphertext only; unlock key derived per session, never persisted. Built in #97 ([ADR-0041](decisions/0041-silent-first-run.md)). With app lock off ([ADR-0037](decisions/0037-onboarding-v2-key-on-device.md), [ADR-0038](decisions/0038-vault-v3-device-slot.md)), a non-extractable device key + the wrapped private key are kept in IndexedDB, so disk access yields the key (user's choice, banner [ADR-0042](decisions/0042-protection-banner.md); turning app lock off re-asks for the passphrase or a passkey, turning it on deletes the device key, [ADR-0043](decisions/0043-app-lock-and-slot-removal.md)); with app lock on, unchanged (E2E: no slot in IndexedDB, #92) |

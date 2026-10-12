@@ -1,6 +1,6 @@
 # ADR-0001 — Zero-knowledge architecture
 
-**Status:** Accepted · 2026-09-08
+**Status:** Accepted · 2026-09-08 · amended by [ADR-0045](0045-sync-versioning-cursor-limits.md) (adds the opaque `seq` pull cursor)
 
 ## Context
 

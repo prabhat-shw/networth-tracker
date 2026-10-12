@@ -18,9 +18,12 @@ That is exactly the arrangement here:
 | The warehouse | The server (your home machine, or a hosting provider) |
 | The key | Made on your device and kept there; never sent to the server |
 
-For each item, the server stores a random ID, a version number, a timestamp, and a blob of
-scrambled bytes. It does not even store the *type* of item. Someone who stole the entire
-database would learn roughly how many things you own, and nothing else.
+For each item, the server stores a random ID, a version number, a sync sequence number, a
+timestamp, and a blob of scrambled bytes. Before scrambling, each blob is padded to a
+multiple of 256 bytes, so its size doesn't give away what kind of item it is. The server
+does not even store the *type* of item. Someone who stole the entire database would learn
+roughly how many things you own and how often they change, and nothing else
+([ADR-0045](../decisions/0045-sync-versioning-cursor-limits.md)).
 
 ## Then how does it know share prices?
 

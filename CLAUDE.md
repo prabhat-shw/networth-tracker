@@ -42,7 +42,8 @@ Nothing else unless the issue needs it. [`docs/PLAN.md`](docs/PLAN.md) is the fu
 
 - **The server never sees plaintext.** Records are AES-256-GCM encrypted client-side under
   the household data key (HDK) before upload. Server columns: id, household, version,
-  updatedAt, ciphertext, deleted. Nothing else — not even the record type.
+  seq (pull cursor, ADR-0045), updatedAt, ciphertext, deleted. Nothing else — not even the
+  record type.
 - **Keys never leave the device.** HDK is wrapped per member via ECDH P-256. Passphrase →
   Argon2id → unlock key. Recovery kit + spouse re-wrap are the only recovery paths.
 - **Price requests must not leak holdings.** Download whole public universes (AMFI NAVAll,
