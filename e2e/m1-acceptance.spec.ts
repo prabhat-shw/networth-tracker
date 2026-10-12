@@ -3,9 +3,10 @@
 // first invite (ADR-0040) and later restores with it on a fresh profile; a third user in
 // another household gets 404; no secret appears in a request, in browser storage, or in any
 // server table. IndexedDB holds only the device slot with app lock off, and nothing on the
-// restored profile, where app lock is on (#92). Records are sealed and opened by the E2E-only
-// probe (ADR-0036) and inserted straight into Postgres, standing in for M2's push.
+// restored profile, where app lock is on (#92). Records go through the E2E-only probe
+// (ADR-0036) and the real sync engine: A's write is pushed once A has a recovery method.
 import { expect, test } from "@playwright/test";
+import { expectRecords, seal } from "./household";
 import {
   appHeading,
   codeUnder,
@@ -42,21 +43,9 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
     await expect(appHeading(a)).toBeVisible();
     // App lock off (first run): the device keeps only its slot (ADR-0038).
     expect(await deviceSlots(a)).toEqual([DEVICE_SLOT]);
-    await a.getByLabel("Probe text").fill(secret);
-    await a.getByRole("button", { name: "Seal" }).click();
-    const sealedOut = a.getByLabel("Sealed record");
-    await expect(sealedOut).toContainText("ciphertext");
-    const sealed = JSON.parse((await sealedOut.textContent()) ?? "") as {
-      id: string;
-      householdId: string;
-      version: number;
-      ciphertext: string;
-    };
-    // M2 push stand-in: only the envelope's opaque bytes reach the server.
-    await sql`
-      insert into records (id, household_id, version, seq, ciphertext)
-      values (${sealed.id}, ${sealed.householdId}, ${sealed.version}, 1,
-              ${Buffer.from(sealed.ciphertext, "base64url")})`;
+    // Sealed and queued on the device; the server refuses the push until A has a
+    // recovery method (ADR-0040), so it goes out after the kit below.
+    const sealed = await seal(a, secret);
 
     // Home leads with the empty state; the household panel is a secondary action (#105).
     await a.getByRole("button", { name: "Invite a member" }).click();
@@ -99,8 +88,7 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
     expect(await codeUnder(b, "Their code")).toBe(aCode);
     await b.getByRole("button", { name: "Yes — open household" }).click();
     await expect(appHeading(b)).toBeVisible();
-    await b.getByRole("button", { name: "Open records" }).click();
-    await expect(b.getByLabel("Opened records")).toHaveText(secret);
+    await expectRecords(b, [secret]);
 
     // A loses the device: a fresh profile restores with the kit chosen at the invite.
     const a2 = await run.open();
@@ -111,8 +99,7 @@ test("M1: invite, B decrypts A's record, restore on a fresh profile, isolation, 
     await a2.getByLabel("New passphrase").fill(PASS_A2);
     await a2.getByRole("button", { name: "Save and unlock" }).click();
     await expect(appHeading(a2)).toBeVisible({ timeout: 30_000 });
-    await a2.getByRole("button", { name: "Open records" }).click();
-    await expect(a2.getByLabel("Opened records")).toHaveText(secret);
+    await expectRecords(a2, [secret]);
     // A new device starts with app lock on: no slot, nothing to take from its disk.
     expect(await deviceSlots(a2)).toEqual([]);
 

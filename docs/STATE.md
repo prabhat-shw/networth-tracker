@@ -1,8 +1,8 @@
-_Last updated: 2026-10-12 (session 27: #117 sync engine, PR open) · next session: start here_
+_Last updated: 2026-10-13 (session 28: #118 sync wire-up, PR open) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M2 — Encrypted sync engine (brief: `docs/phases/M2.md`, issues #113–#118). M0 and M1 are closed.
+**Milestone:** M2 — Encrypted sync engine (brief: `docs/phases/M2.md`, issues #113–#118; all but #118 merged). M0 and M1 are closed.
 
 - **Merged in M1** (details in the ADRs): crypto primitives (0013), identity vault (0018),
   household key (0019), auth (0020, `src/server/auth.ts`), membership guard (0021), vault
@@ -15,15 +15,16 @@ _Last updated: 2026-10-12 (session 27: #117 sync engine, PR open) · next sessio
 
 ## Next session picks up
 
-**#117** in review (branch `feat/sync-engine`). [ADR-0049](decisions/0049-sync-engine.md): `src/sync/engine.ts` `createSyncEngine({ transport, store, cache, hdk })`
-provides `hydrate`/`write`/`sync`. It merges on arrival (LWW), pushes at most 3 rounds, and skips undecryptable envelopes. `scheduler.ts` is `startSyncScheduler`
-(after unlock / `online` / 60 s while visible; stops on lock), and `http-transport.ts` is `httpTransport(householdId)`. **Tombstones are kept** (owner decision), so there is no purge yet.
-Merged: #116 (PR #127, [ADR-0048](decisions/0048-local-record-store.md), `src/db/`), #115 (PR #126, ADR-0047), #114 (PR #125), #113 (PR #124, ADR-0045).
-Next: **#118**, the last M2 issue. Wire the key session/household gate → `localStore` + `createRecordCache` + engine + scheduler, and make the E2E probe
-seal through `engine.write` + `sync` (drop the SQL insert, amend ADR-0036). E2E: offline write → B sees it; LWW conflict; leak scans.
-The owner still has to redeploy the home server (H4, run on the server; this machine has no Tailscale/SSH to it). Open items: #112 social recovery (size:L, ADR first,
-no milestone yet), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household,
-ADR-0031 member names in the members API. Green on the branch: `pnpm test` · typecheck · check.
+**#118** in review (branch `feat/sync-wireup`, `area:security`: owner approval needed), the last M2 issue. [ADR-0050](decisions/0050-sync-wire-up.md):
+`startHouseholdSync({ session, userId })` (`src/sync/household-sync.ts`) wires store + cache + engine + scheduler; `SyncProvider`
+(`src/features/sync/`) mounts inside `HouseholdGate`; screens use `useHouseholdSync()` / `useRecords()`. The E2E probe writes through the
+engine (SQL insert gone, ADR-0036 amended); `e2e/m2-acceptance.spec.ts` covers offline → online push, LWW conflict, delete, padding, leaks.
+Shared E2E flows: `e2e/household.ts` (`pairHousehold`, `seal`, `expectRecords`); `support.ts` is at the 300-line cap.
+**Found:** a member without a recovery method (every joiner, silent first run) can edit but nothing pushes (`409`, ADR-0040); edits wait
+in the outbox with no visible signal. Fold into M3's sync indicator, or prompt joiners. After merge: close M2, run the milestone docs
+pass (kb/07 layer 4), then **write `docs/phases/M3.md`** (no brief yet; open M3 issues exist) before starting M3 work.
+The owner still has to redeploy the home server (H4). Open items: #112 social recovery (size:L, ADR first), #93 Google sign-in (M8),
+inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household, ADR-0031 member names. Green on the branch: `pnpm test` · typecheck · check · `pnpm e2e`.
 
 ## Also open
 

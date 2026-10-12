@@ -47,7 +47,7 @@ what type, with which institutions).
   Fast unlock (#75, [ADR-0034](decisions/0034-passkey-fast-unlock-ux.md)): the post-unlock enrol
   window closes on lock, use, dismissal and after 2 min, and never opens after a passkey unlock
 - M1 E2E (`e2e/m1-acceptance.spec.ts`, [ADR-0036](decisions/0036-e2e-record-probe.md)): B decrypts A's
-  record, restore on a fresh profile, cross-household 404, and no passphrase, recovery phrase or
+  record (pushed for real once A has a recovery method), restore on a fresh profile, cross-household 404, and no passphrase, recovery phrase or
   record plaintext in any request, browser storage or server table; the E2E-only record probe is
   asserted absent from a normal build
 - Onboarding v2 E2E (#92, `e2e/onboarding-v2.spec.ts`): link sign-in lands in the app; with app
@@ -63,6 +63,11 @@ what type, with which institutions).
   the E2E leak scan searches the record store too
 - Sync engine ([ADR-0049](decisions/0049-sync-engine.md)): an envelope that fails to decrypt is skipped and never stored or
   shown; a locked session stops every run (`LockedError`); conflict retries are bounded
+- M2 E2E (`e2e/m2-acceptance.spec.ts`, [ADR-0050](decisions/0050-sync-wire-up.md)): an offline write reaches the other member
+  after reconnecting; a stale-base conflict resolves LWW on both; a delete propagates; every
+  stored envelope is padded to 256-byte blocks; no record text or recovery phrase in any
+  request, browser storage (incl. the record store) or table. The sync handle holds no key and
+  its plaintext snapshot empties on lock (unit)
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under

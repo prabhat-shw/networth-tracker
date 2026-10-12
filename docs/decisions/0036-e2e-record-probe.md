@@ -9,6 +9,11 @@ arrives with M2) and no record UI, and the household key lives only in the brows
 session. The owner chose (2026-09-28) a probe compiled in only for E2E builds, over
 deferring the check to M2.
 
+*Amended by #118 ([ADR-0050](0050-sync-wire-up.md)):* the probe now writes, edits, deletes
+and syncs through the real engine (`engine.write` + push/pull). The spec's SQL insert is gone,
+and `e2e/m2-acceptance.spec.ts` covers offline writes, LWW conflicts and deletes. The bullets
+below describe the M1 version.
+
 ## Decision
 
 - **`src/features/e2e/record-probe.tsx`**: "Seal" encrypts a text under the session's
@@ -37,7 +42,7 @@ deferring the check to M2.
 
 ## Consequences
 
-- The probe goes away (or becomes a real record screen's test) once M2 has push.
+- The probe goes away (or becomes a real record screen's test) once M3 has record screens.
 - `E2E_ENV` sets `NEXT_PUBLIC_E2E=1` for the webServer build only. A local `pnpm e2e` that
   reuses a normal server on :3100 fails at the probe step, which is loud, not silent.
 - Passkey fast unlock stays a manual owner check on a real device (#75); headless has no
