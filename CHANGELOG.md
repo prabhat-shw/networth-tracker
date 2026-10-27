@@ -6,6 +6,8 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
 ## [Unreleased]
 
 ### Security
+- Patched sign-in library (#147): better-auth 1.7.12 closes a critical advisory where OAuth
+  state could be replayed as a magic link, and a high-severity OAuth proxy sign-in flaw.
 - Patched dependencies (#142): Next.js 16.4.2 closes two critical remote-code-execution
   advisories and a denial of service; zod and vite move past high-severity advisories.
 - Encrypted sync is live (M2, #118): records written on one device now reach every other

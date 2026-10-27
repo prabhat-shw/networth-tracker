@@ -18,7 +18,8 @@ On main: ADR-0051 (#130) record types/common fields/`readRecord`; ADR-0052 (#131
 (`ASSET_PLACEMENT`, `BALANCE_SHEET_CODECS`). #134 went before #132 because `useGoals()` needs `GOAL_CODEC`.
 Next: **#132** typed layer + `member` record (registry = `BALANCE_SHEET_CODECS` + `GOAL_CODEC` + member), then
 #133 net-worth engine (replace float `money.share` with bps; lens-weight earmarks too) → UI (#135–#139).
-**Redeploy staging and the home server** if not yet done: #142 moved Next.js to 16.4.2 (critical RCE, GHSA-p3m5-59mp-jv5r);
+Merged since: #148 (#147) better-auth/passkey/core 1.7.12 + utils 0.5.0 pinned exactly. **Redeploy staging and the home
+server** if not yet done: #147 (magic-link advisory GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2, critical RCE, GHSA-p3m5-59mp-jv5r);
 the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4.6.6. Open items: #112 social recovery
 (size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.
 
