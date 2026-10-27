@@ -65,3 +65,4 @@ One line per session: date · issue · outcome.
 - 2026-10-27 · M2 closed; M3 brief (`docs/phases/M3.md`) written and #130–#140 filed; M2 docs pass (CONTRACT header, kb/04 paths)
 - 2026-10-27 · #130 ADR-0051 record types: five envelope types with `data.kind`, bps shares, embedded allocations, strict schemas; `src/domain/records/` common fields + `readRecord`/`canOverwrite` evolution rules; zod direct dep
 - 2026-10-27 · #131 asset & liability kinds (ADR-0052): 29 + 3 strict kinds, decimal-string quantities, public-universe instrument keys, bucket/section placement typed exhaustively, v1 codecs
+- 2026-10-27 · #134 goals + Unallocated (ADR-0053): `goal` record v1; `earmarks.ts` claims scaled in proportion on overshoot (BigInt), per-goal net of liabilities, household Unallocated = net worth − earmarked

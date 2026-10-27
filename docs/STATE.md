@@ -1,4 +1,4 @@
-_Last updated: 2026-10-27 (session 31: #131 asset/liability kinds, PR open) · next session: start here_
+_Last updated: 2026-10-27 (session 32: #134 goals + Unallocated, PR open) · next session: start here_
 
 ## Where we are
 
@@ -10,14 +10,14 @@ M1 summary: crypto, vault, household key, auth, guard, relays, lock/unlock, onbo
 
 ## Next session picks up
 
-**#131** in review (branch `feat/asset-liability-kinds`). [ADR-0052](decisions/0052-asset-and-liability-kinds.md): 29 asset +
-3 liability kinds in `src/domain/records/asset.ts` / `liability.ts` (strict, refined per kind); `value` ≥ 0 paise for both
-(the engine applies the sign); quantities are decimal strings; `instrument.source` limited to public universes.
-`catalogue.ts`: `ASSET_PLACEMENT` / `LIABILITY_PLACEMENT` (7 buckets, 9 sections, compile-time exhaustive),
-`PRICED_KINDS`, `BALANCE_SHEET_CODECS` (v1). Shared helpers in `common.ts`: `text`, `quantity`, `instrument`, `rateBps`.
-Already on main: ADR-0051 (#130): five envelope types, bps shares, embedded allocations, `readRecord`/`canOverwrite`.
-Next: #132 typed layer + `member` record (adds its codec next to `BALANCE_SHEET_CODECS`) or #134 goals; then #133
-(replace float `money.share` with bps; liabilities subtract) → UI.
+**#134** in review (branch `feat/goals-unallocated`). [ADR-0053](decisions/0053-goals-and-unallocated.md): `goal` record
+(`src/domain/records/goal.ts`, `GOAL_CODEC` v1, `DEFAULT_INFLATION_BPS`); `src/domain/earmarks.ts`: `claims` (overshoot →
+all claims scaled in proportion, BigInt), `unallocatedOf`, `earmarks(sources, goalIds)` → per-goal (assets − liabilities)
+and household Unallocated (= net worth − earmarked; may be negative). Claims on unknown goals count as Unallocated.
+On main: ADR-0051 (#130) record types/common fields/`readRecord`; ADR-0052 (#131) kinds, `catalogue.ts`
+(`ASSET_PLACEMENT`, `BALANCE_SHEET_CODECS`). #134 went before #132 because `useGoals()` needs `GOAL_CODEC`.
+Next: **#132** typed layer + `member` record (registry = `BALANCE_SHEET_CODECS` + `GOAL_CODEC` + member), then
+#133 net-worth engine (replace float `money.share` with bps; lens-weight earmarks too) → UI (#135–#139).
 **Redeploy staging and the home server** if not yet done: #142 moved Next.js to 16.4.2 (critical RCE, GHSA-p3m5-59mp-jv5r);
 the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4.6.6. Open items: #112 social recovery
 (size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.
