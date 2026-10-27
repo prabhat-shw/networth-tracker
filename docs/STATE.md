@@ -1,4 +1,4 @@
-_Last updated: 2026-10-28 (session 33: #132 typed records + member profiles, PR open) · next session: start here_
+_Last updated: 2026-10-28 (session 33: #132 merged as #149) · next session: start here_
 
 ## Where we are
 
@@ -10,18 +10,19 @@ M1 summary: crypto, vault, household key, auth, guard, relays, lock/unlock, onbo
 
 ## Next session picks up
 
-**#132** in review (branch `feat/typed-records-members`). [ADR-0054](decisions/0054-typed-records-and-member-profiles.md):
-`src/domain/records/typed.ts` (`RECORD_CODECS`, `typeRecords` → per-type `Entry` lists incl. error/too-new entries +
-`unknown` + `profiles`, `prepareWrite` throws `InvalidRecordError`), `member.ts` (`{memberId,name,colour?}`, valid only
-if `memberId === modifiedBy`; `FORMER_MEMBER`). Hooks in `src/features/sync/typed-records.ts` (`useAssets`, `useGoals`,
-`useMembers`, `useOwnProfile`, `useRecordWriter` → `save`/`remove`). `sync.write` takes `schemaVersion` now; handle exposes
-`userId`. Name prompt: `src/features/household/member-name.tsx`, mounted in `src/app/page.tsx` above Home.
-On main: ADR-0051 (#130), ADR-0052 (#131) kinds/`catalogue.ts`, ADR-0053 (#134) `goal` + `earmarks.ts`.
-Next: **#133** net-worth engine (replace float `money.share` with bps; lens-weight earmarks too) → UI (#135–#139).
+**#133 net-worth engine** (`size:M`, pure, `src/domain/networth.ts`): per lens (Me · Household · each member),
+share-weighted assets − liabilities in paise, `includeInNetWorth`, unvested RSU and term cover at ₹0. Replace the
+float `money.share` with bps; lens-weight the earmarks too (ADR-0053's open point). Then the UI: #135–#139.
+Last: **#132** merged (PR #149, [ADR-0054](decisions/0054-typed-records-and-member-profiles.md)). Typed layer
+`src/domain/records/typed.ts` (`RECORD_CODECS`, `typeRecords`, `prepareWrite` → `InvalidRecordError`), `member.ts`
+(valid only if `memberId === modifiedBy`; `FORMER_MEMBER`), hooks `src/features/sync/typed-records.ts` (`useAssets`,
+`useGoals`, `useMembers`, `useOwnProfile`, `useRecordWriter`). `sync.write(id, type, data, deleted, schemaVersion)`;
+handle exposes `userId`. Name prompt `src/features/household/member-name.tsx`, mounted in `src/app/page.tsx`.
+Earlier on M3: ADR-0051 (#130), ADR-0052 (#131) kinds/`catalogue.ts`, ADR-0053 (#134) `goal` + `earmarks.ts`.
 **Redeploy staging and the home server** if not yet done: #147 (magic-link advisory GHSA-965c-763c-88jm) and #142
 (Next.js 16.4.2, critical RCE, GHSA-p3m5-59mp-jv5r); the zod override in `pnpm-workspace.yaml` can go once better-auth
 ships zod ≥4.6.6. Open items: #112 social recovery (size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge
-(UX.md §3.0, fits #138), ADR-0030 leave-household.
+(UX.md §3.0, fits #138), ADR-0030 leave-household. Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
 

@@ -43,7 +43,7 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | --- | --- |
 | Version | `0.1.0` |
 | Milestone | M3 — Data model & manual entry (brief: `docs/phases/M3.md`, issues #130–#140 plus #25–#27). |
-| Next up | #132 |
+| Next up | #133 net-worth engine |
 | Decisions recorded | 54 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every

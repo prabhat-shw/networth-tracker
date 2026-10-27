@@ -26,6 +26,7 @@ Finance and engineering terms in one place. Fuller explanations:
 | **NPS** | National Pension System — market-linked retirement account |
 | **NSDL / CDSL** | The two depositories holding Indian shares electronically |
 | **NSE / BSE** | India's two main stock exchanges |
+| **Member profile** | A member's display name (and chart colour), kept in an encrypted record each member writes for themselves; the server knows members only by id. An owner with no profile reads "Former member" ([ADR-0054](../decisions/0054-typed-records-and-member-profiles.md)) |
 | **Ownership share** | The percentage of an item belonging to a person |
 | **Paise** | 1/100 of a rupee. All money is stored as whole paise |
 | **PPF** | Public Provident Fund — 15-year tax-free government savings scheme |
