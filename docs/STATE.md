@@ -1,4 +1,4 @@
-_Last updated: 2026-10-27 (session 30: #130 ADR-0051 record types, PR open) · next session: start here_
+_Last updated: 2026-10-27 (session 31: #131 asset/liability kinds, PR open) · next session: start here_
 
 ## Where we are
 
@@ -10,13 +10,14 @@ M1 summary: crypto, vault, household key, auth, guard, relays, lock/unlock, onbo
 
 ## Next session picks up
 
-**#130** in review (branch `feat/record-schema-common`). [ADR-0051](decisions/0051-record-types-and-common-fields.md):
-five envelope types (`RECORD_TYPES`), kinds in `data.kind`; shares/percentages in **bps** (sum 10 000); allocations
-**embedded** (PLAN/ARCHITECTURE updated); strict schemas. `src/domain/records/common.ts` = common fields
-(`commonFields`, `allocatedPaise`/`allocationsFit`, nominees for #25); `evolution.ts` = `readRecord` →
-`ok | unknown-type | too-new | invalid` and `canOverwrite` (only `ok`). `zod` 4.6.7 is now a direct dependency.
-After merge: **#131** asset/liability kinds (extend `commonFields`, register codecs), #132 typed layer + `member`
-record, #134 goals: all three are independent. Then #133 (replace float `money.share` with bps) → UI.
+**#131** in review (branch `feat/asset-liability-kinds`). [ADR-0052](decisions/0052-asset-and-liability-kinds.md): 29 asset +
+3 liability kinds in `src/domain/records/asset.ts` / `liability.ts` (strict, refined per kind); `value` ≥ 0 paise for both
+(the engine applies the sign); quantities are decimal strings; `instrument.source` limited to public universes.
+`catalogue.ts`: `ASSET_PLACEMENT` / `LIABILITY_PLACEMENT` (7 buckets, 9 sections, compile-time exhaustive),
+`PRICED_KINDS`, `BALANCE_SHEET_CODECS` (v1). Shared helpers in `common.ts`: `text`, `quantity`, `instrument`, `rateBps`.
+Already on main: ADR-0051 (#130): five envelope types, bps shares, embedded allocations, `readRecord`/`canOverwrite`.
+Next: #132 typed layer + `member` record (adds its codec next to `BALANCE_SHEET_CODECS`) or #134 goals; then #133
+(replace float `money.share` with bps; liabilities subtract) → UI.
 **Redeploy staging and the home server** if not yet done: #142 moved Next.js to 16.4.2 (critical RCE, GHSA-p3m5-59mp-jv5r);
 the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4.6.6. Open items: #112 social recovery
 (size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.

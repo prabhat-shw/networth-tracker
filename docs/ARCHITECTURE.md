@@ -42,7 +42,8 @@
 liability · property · vehicle · insurancePolicy · receivable (money lent) · chitFund ·
 goal · allocation · valuationOverride · document · snapshot`
 
-Those are the *kinds*. They travel in five envelope types (`member`, `asset`, `liability`,
+Those are the *concepts*. Assets and liabilities are 29 + 3 kinds, placed in `src/domain/records/catalogue.ts`
+([ADR-0052](decisions/0052-asset-and-liability-kinds.md)). Records travel in five envelope types (`member`, `asset`, `liability`,
 `goal`, `transaction`), each a discriminated union on `data.kind`, versioned per type with
 in-memory upgrades; a record from a newer app is kept and never overwritten
 ([ADR-0051](decisions/0051-record-types-and-common-fields.md), `src/domain/records/`).

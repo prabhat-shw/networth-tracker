@@ -64,3 +64,4 @@ One line per session: date · issue · outcome.
 - 2026-10-27 · #142 dependency audit fix: next 16.4.2 (critical RCE), zod ≥4.6.6 override, vite 8.3.4; E2E now runs on dependency changes
 - 2026-10-27 · M2 closed; M3 brief (`docs/phases/M3.md`) written and #130–#140 filed; M2 docs pass (CONTRACT header, kb/04 paths)
 - 2026-10-27 · #130 ADR-0051 record types: five envelope types with `data.kind`, bps shares, embedded allocations, strict schemas; `src/domain/records/` common fields + `readRecord`/`canOverwrite` evolution rules; zod direct dep
+- 2026-10-27 · #131 asset & liability kinds (ADR-0052): 29 + 3 strict kinds, decimal-string quantities, public-universe instrument keys, bucket/section placement typed exhaustively, v1 codecs

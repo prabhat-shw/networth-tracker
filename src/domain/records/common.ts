@@ -23,7 +23,32 @@ export const bps = z.int().min(0).max(FULL_BPS);
 /** Integer paise; `z.int()` is already limited to safe integers. */
 export const paise = z.int();
 const shareBps = bps.min(1);
-const text = (max: number) => z.string().trim().min(1).max(max);
+/** Trimmed, non-empty text of at most `max` characters. */
+export const text = (max: number) => z.string().trim().min(1).max(max);
+
+/**
+ * Units held (MF units, shares, crypto), as a decimal string with up to 8 places: unit
+ * counts are not money, but floats would still drift (0.1 + 0.2 units). M4 multiplies them by
+ * a price with integer arithmetic.
+ */
+export const quantity = z
+  .string()
+  .regex(
+    /^(0|[1-9]\d{0,14})(\.\d{1,8})?$/,
+    "a number of units, up to 8 decimals",
+  );
+
+/**
+ * Where M4 finds a price, chosen from public universes only (CLAUDE.md: no per-symbol
+ * queries). The key is stored inside the ciphertext, never sent anywhere.
+ */
+export const instrument = z.strictObject({
+  source: z.enum(["amfi", "nse", "bse", "us", "crypto"]),
+  code: text(32),
+});
+
+/** An annual rate in basis points (7.1% = 710); up to 100%. */
+export const rateBps = bps;
 
 const sumBps = (list: readonly { shareBps: number }[]) =>
   list.reduce((total, x) => total + x.shareBps, 0);
