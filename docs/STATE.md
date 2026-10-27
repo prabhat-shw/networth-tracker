@@ -1,4 +1,4 @@
-_Last updated: 2026-10-27 (session 29: M2 closed, M3 brief, deps fix #142 merged) · next session: start here_
+_Last updated: 2026-10-27 (session 30: #130 ADR-0051 record types, PR open) · next session: start here_
 
 ## Where we are
 
@@ -10,14 +10,16 @@ M1 summary: crypto, vault, household key, auth, guard, relays, lock/unlock, onbo
 
 ## Next session picks up
 
-This branch `docs/m3-brief` (docs only, `no-changelog`) holds the M3 brief, the M2 docs pass (CONTRACT header,
-kb/04 paths) and this file. After it merges, start **#130 ADR-0051** (record types + common fields): it
-settles the brief's six design questions (type granularity, embedded allocations, shares in bps, schema
-evolution, `member` records, market kinds before M4). Then #131, #132, #134 in parallel → #133 → UI.
-PLAN.md and ARCHITECTURE.md disagree on allocations (separate record vs embedded): #130 fixes the loser.
-**Redeploy staging and the home server now**: #142 moved Next.js to 16.4.2 (critical RCE, GHSA-p3m5-59mp-jv5r);
-the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4.6.6. The home server redeploy (H4) is still pending. Open items: #112 social recovery (size:L, ADR first),
-#93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.
+**#130** in review (branch `feat/record-schema-common`). [ADR-0051](decisions/0051-record-types-and-common-fields.md):
+five envelope types (`RECORD_TYPES`), kinds in `data.kind`; shares/percentages in **bps** (sum 10 000); allocations
+**embedded** (PLAN/ARCHITECTURE updated); strict schemas. `src/domain/records/common.ts` = common fields
+(`commonFields`, `allocatedPaise`/`allocationsFit`, nominees for #25); `evolution.ts` = `readRecord` →
+`ok | unknown-type | too-new | invalid` and `canOverwrite` (only `ok`). `zod` 4.6.7 is now a direct dependency.
+After merge: **#131** asset/liability kinds (extend `commonFields`, register codecs), #132 typed layer + `member`
+record, #134 goals: all three are independent. Then #133 (replace float `money.share` with bps) → UI.
+**Redeploy staging and the home server** if not yet done: #142 moved Next.js to 16.4.2 (critical RCE, GHSA-p3m5-59mp-jv5r);
+the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4.6.6. Open items: #112 social recovery
+(size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.
 
 ## Also open
 

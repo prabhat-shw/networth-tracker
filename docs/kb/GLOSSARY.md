@@ -9,6 +9,7 @@ Finance and engineering terms in one place. Fuller explanations:
 | --- | --- |
 | **AMFI** | Industry body publishing every Indian mutual fund's NAV daily — the app's free price source |
 | **Asset / Liability** | What you own / what you owe |
+| **Basis point (bps)** | One hundredth of a percent. The app stores every share and percentage as whole basis points (50% = 5 000, 100% = 10 000) so no float touches money ([ADR-0051](../decisions/0051-record-types-and-common-fields.md)) |
 | **CAGR** | Smoothed annual growth rate of a lump sum |
 | **CAS** | Consolidated Account Statement — one PDF listing holdings across fund houses and demat accounts |
 | **CAMS / KFin** | Registrars that administer mutual fund folios |

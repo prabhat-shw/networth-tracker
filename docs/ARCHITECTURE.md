@@ -42,8 +42,13 @@
 liability · property · vehicle · insurancePolicy · receivable (money lent) · chitFund ·
 goal · allocation · valuationOverride · document · snapshot`
 
-Every asset/liability record carries `owners[] {memberId, sharePercent}` (sums to 100),
-`allocations[] {goalId, mode, value}`, `includeInNetWorth`, `tags[]`, `asOf`.
+Those are the *kinds*. They travel in five envelope types (`member`, `asset`, `liability`,
+`goal`, `transaction`), each a discriminated union on `data.kind`, versioned per type with
+in-memory upgrades; a record from a newer app is kept and never overwritten
+([ADR-0051](decisions/0051-record-types-and-common-fields.md), `src/domain/records/`).
+Every asset/liability record carries `owners[] {memberId, shareBps}` (basis points, sum
+10 000), embedded `allocations[] {goalId, mode, bps | amount}`, `includeInNetWorth`,
+`tags[]`, `asOf`, optional `nominees[]`.
 
 Server-side data tables: `records` (ADR-0003), `households` (id), `household_members`
 (public key + HDK wrapped to it, ADR-0019), `identity_vaults` (ADR-0022) and
