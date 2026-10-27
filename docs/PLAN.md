@@ -65,9 +65,10 @@ Views that INDMoney can't give you:
 - **Employer** — gratuity accrual, superannuation, unvested RSU (tracked separately, excluded from net worth by default)
 - **Liabilities** — home/car/personal/education loan with amortisation, credit card outstanding, loan against property/FD/gold, borrowings from family, EMI calendar
 
-Every record carries: `owners[] {member, sharePercent}`, `includeInNetWorth`, `institution`,
-`tags[]`, `notes`, `asOf`, an optional `document` (encrypted attachment), and
-`allocations[]` (see goals, below).
+Every record carries: `owners[] {memberId, shareBps}` (basis points, sum 10 000),
+`includeInNetWorth`, `institution`, `tags[]`, `notes`, `asOf`, an optional `document`
+(encrypted attachment), optional `nominees[]`, and `allocations[]` (see goals, below;
+[ADR-0051](decisions/0051-record-types-and-common-fields.md)).
 
 ### 1.1 Goals & earmarking — a first-class feature
 
@@ -75,14 +76,15 @@ Net worth answers "how much do I have". Goals answer "what is it *for*". Every r
 earmarked to a purpose — buying a house, the kids' education, retirement, emergency fund —
 and anything not earmarked shows up honestly as **Unallocated**.
 
-**Model.** Two record types:
+**Model.** A `goal` record type, plus allocations embedded in each funding record
+([ADR-0051](decisions/0051-record-types-and-common-fields.md)):
 
 - `goal` — name, kind (`house | education | retirement | emergency | vehicle | wedding |
   travel | custom`), `targetAmount` (in *today's* rupees), `targetDate`, `inflationRate`
   (default 6%, 10% for education), `expectedReturn`, `priority`, `owners[]`, `notes`
-- `allocation` — `{ goalId, sourceId (holding/account/property/…), mode: percent | fixed,
-  value }`. Invariant enforced client-side and unit-tested: allocations per source sum to
-  ≤ 100% / ≤ current value; the remainder is implicitly Unallocated.
+- `allocations[]` on the asset or liability — `{ goalId, mode: percent, bps } | { goalId,
+  mode: fixed, amount }`. Invariant enforced client-side and unit-tested: allocations per
+  record sum to ≤ 100% / ≤ current value; the remainder is implicitly Unallocated.
 
 **Rules & conveniences.** Auto-tag rules (e.g. *all NPS → retirement*, *Sukanya Samriddhi →
 Ananya's education*, *this FD → emergency fund*) so you don't hand-tag every record.
