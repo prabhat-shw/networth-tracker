@@ -21,9 +21,11 @@
     "auth:invite": "node scripts/invite.mjs"
   },
   "dependencies": {
-    "@better-auth/passkey": "1.7.6",
+    "@better-auth/core": "1.7.12",
+    "@better-auth/passkey": "1.7.12",
+    "@better-auth/utils": "0.5.0",
     "@scure/bip39": "^2.4.0",
-    "better-auth": "^1.7.6",
+    "better-auth": "1.7.12",
     "dexie": "^4.4.6",
     "drizzle-orm": "^0.45.3",
     "hash-wasm": "^4.12.0",

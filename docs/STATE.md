@@ -18,7 +18,9 @@ M1 summary: crypto, vault, household key, auth, guard, relays, lock/unlock, onbo
 Already on main: ADR-0051 (#130): five envelope types, bps shares, embedded allocations, `readRecord`/`canOverwrite`.
 Next: #132 typed layer + `member` record (adds its codec next to `BALANCE_SHEET_CODECS`) or #134 goals; then #133
 (replace float `money.share` with bps; liabilities subtract) → UI.
-**Redeploy staging and the home server** if not yet done: #142 moved Next.js to 16.4.2 (critical RCE, GHSA-p3m5-59mp-jv5r);
+**Deps fix #147** (`fix/better-auth-advisories`, `area:security`): better-auth, `@better-auth/passkey`, `/core` pinned 1.7.12,
+`/utils` 0.5.0 (one auth core copy); merge it, then merge `main` into #146 (#134). **Redeploy staging and the home server**
+after #147 (magic-link advisory GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2, critical RCE, GHSA-p3m5-59mp-jv5r);
 the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4.6.6. Open items: #112 social recovery
 (size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.
 
