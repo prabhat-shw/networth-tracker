@@ -413,6 +413,11 @@ visible.
 
 **Purpose:** answer "what's my number and is anything wrong" in one unscrolled screen.
 
+**Name prompt (#132):** until a member has set a name, Home opens with *"What should your
+household call you?"* (one field, ≤40 characters, "Encrypted: only your household sees it").
+Afterwards it shrinks to *"You appear as Asha · Change"*. Lens labels and ownership badges use
+this name ([ADR-0054](decisions/0054-typed-records-and-member-profiles.md)).
+
 **Layout (mobile):**
 ```
 ┌───────────────────────────┐
