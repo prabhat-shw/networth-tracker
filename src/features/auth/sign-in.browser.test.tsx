@@ -204,6 +204,8 @@ describe("sign in over the real Better Auth client", () => {
         });
       return Response.json({ success: true });
     });
+    // Spy rather than list databases: other browser-test files share this origin's IndexedDB.
+    const idbOpen = vi.spyOn(indexedDB, "open");
     const onSignedIn = vi.fn();
     const screen = await toCodeStep(betterAuthSignIn(), onSignedIn);
     await screen.getByLabelText("6-digit code").fill("482913");
@@ -218,7 +220,7 @@ describe("sign in over the real Better Auth client", () => {
       JSON.stringify({ ...sessionStorage });
     expect(stored).not.toContain("482913");
     expect(stored).not.toContain("asha@example.com");
-    expect(await indexedDB.databases()).toEqual([]);
+    expect(idbOpen).not.toHaveBeenCalled();
   });
 
   it("reads the retry delay from a 429", async () => {

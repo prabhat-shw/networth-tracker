@@ -1,4 +1,4 @@
-_Last updated: 2026-10-27 (session 29: M2 closed, M3 brief, PR open) · next session: start here_
+_Last updated: 2026-10-27 (session 29: M2 closed, M3 brief, deps fix #142 merged) · next session: start here_
 
 ## Where we are
 
@@ -15,7 +15,8 @@ kb/04 paths) and this file. After it merges, start **#130 ADR-0051** (record typ
 settles the brief's six design questions (type granularity, embedded allocations, shares in bps, schema
 evolution, `member` records, market kinds before M4). Then #131, #132, #134 in parallel → #133 → UI.
 PLAN.md and ARCHITECTURE.md disagree on allocations (separate record vs embedded): #130 fixes the loser.
-The owner still has to redeploy the home server (H4). Open items: #112 social recovery (size:L, ADR first),
+**Redeploy staging and the home server now**: #142 moved Next.js to 16.4.2 (critical RCE, GHSA-p3m5-59mp-jv5r);
+the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4.6.6. The home server redeploy (H4) is still pending. Open items: #112 social recovery (size:L, ADR first),
 #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.
 
 ## Also open

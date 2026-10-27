@@ -61,4 +61,5 @@ One line per session: date · issue · outcome.
 - 2026-10-12 · #116 Dexie local store (ADR-0048): `nwt-records` envelopes/outbox/meta, ciphertext only, no version or cursor regression; in-memory record cache cleared on lock; E2E leak scan reads the record store
 - 2026-10-12 · #117 sync engine (ADR-0049): pure engine (pull → push, merge on arrival, 3 bounded rounds, fail-closed skip), scheduler (unlock/online/interval while visible, stops on lock), HTTP transport; tombstones kept per owner; fake-server tests incl. two-device convergence
 - 2026-10-13 · #118 sync wire-up (ADR-0050): `startHouseholdSync` + `SyncProvider` in the household gate; E2E probe writes through the engine (SQL insert removed); M2 acceptance E2E (offline → online push, LWW conflict, delete, padding, leak scan); found: a member without a recovery method has edits stuck in the outbox
+- 2026-10-27 · #142 dependency audit fix: next 16.4.2 (critical RCE), zod ≥4.6.6 override, vite 8.3.4; E2E now runs on dependency changes
 - 2026-10-27 · M2 closed; M3 brief (`docs/phases/M3.md`) written and #130–#140 filed; M2 docs pass (CONTRACT header, kb/04 paths)
