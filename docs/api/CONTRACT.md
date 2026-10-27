@@ -1,4 +1,4 @@
-# API contract (v0 — draft, finalised in M2)
+# API contract (v1 — records section finalised in M2, ADR-0045)
 
 The server surface is deliberately tiny so it can be reimplemented in Rust (M9) behind the
 same contract. Every endpoint here is exercised by the shared contract test suite
@@ -95,7 +95,7 @@ listed (`400`). Member public keys always come from the member's stored vault.
 - `POST …/:householdId/invites` `{ email }` → `204`. Creates or extends a 14-day household
   invite and the sign-up invite for that address. `409 { "error": "recovery-required" }`
   while the caller's vault has no passphrase, recovery-kit or passkey slot (nothing is
-  written; [ADR-0040](../decisions/0040-recovery-method-before-first-data.md)). The M2 record push will answer the same.
+  written; [ADR-0040](../decisions/0040-recovery-method-before-first-data.md)). The record push answers the same (ADR-0045).
 - `GET …/:householdId/invites` → `200 { invites: [{ emailHash, expiresAt, invitee }] }`.
   `invitee` is `{ userId, email, publicKey }` once that address has an account and a
   vault, else `null`; `no-store`. Check the key's fingerprint out of band before wrapping.

@@ -1,30 +1,22 @@
-_Last updated: 2026-10-13 (session 28: #118 sync wire-up, PR open) · next session: start here_
+_Last updated: 2026-10-27 (session 29: M2 closed, M3 brief, PR open) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M2 — Encrypted sync engine (brief: `docs/phases/M2.md`, issues #113–#118; all but #118 merged). M0 and M1 are closed.
-
-- **Merged in M1** (details in the ADRs): crypto primitives (0013), identity vault (0018),
-  household key (0019), auth (0020, `src/server/auth.ts`), membership guard (0021), vault
-  relay (0022), member relay + invites (0023), key session + unlock (0024, `src/features/lock/`),
-  onboarding spec (0025, UX.md §3.0), sign-in + gate (0026, `src/features/auth/`), first run
-  (0027, `src/features/onboarding/`), `GET /api/households` (#56). Neon migrated through `0007`.
-- Also merged in M1: restore, join API, household gate/panel, docs enforcement, passkey slots + fast unlock, E2E harness +
-  probe, vault v3 + device slot, magic link, recovery before first data, silent first run, banner, app lock, Settings → Security,
-  onboarding-v2 E2E (ADRs 0028–0044; `e2e/support.ts` has shared `profiles`/`expectNoLeaks`). **M2 push must call `requireRecoveryMethod`** (ADR-0040).
+**Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`, issues #130–#140 plus #25–#27).
+M0, M1 and M2 are closed. M2 (ADRs 0045–0050) shipped the encrypted sync engine: `startHouseholdSync`
+(`src/sync/household-sync.ts`), `SyncProvider` / `useRecords()` (`src/features/sync/`), Dexie store (`src/db/`).
+M1 summary: crypto, vault, household key, auth, guard, relays, lock/unlock, onboarding v2 (ADRs 0013–0044).
+**Push needs a recovery method** (ADR-0040): a member without one has edits stuck in the outbox; #138 surfaces it.
 
 ## Next session picks up
 
-**#118** in review (branch `feat/sync-wireup`, `area:security`: owner approval needed), the last M2 issue. [ADR-0050](decisions/0050-sync-wire-up.md):
-`startHouseholdSync({ session, userId })` (`src/sync/household-sync.ts`) wires store + cache + engine + scheduler; `SyncProvider`
-(`src/features/sync/`) mounts inside `HouseholdGate`; screens use `useHouseholdSync()` / `useRecords()`. The E2E probe writes through the
-engine (SQL insert gone, ADR-0036 amended); `e2e/m2-acceptance.spec.ts` covers offline → online push, LWW conflict, delete, padding, leaks.
-Shared E2E flows: `e2e/household.ts` (`pairHousehold`, `seal`, `expectRecords`); `support.ts` is at the 300-line cap.
-**Found:** a member without a recovery method (every joiner, silent first run) can edit but nothing pushes (`409`, ADR-0040); edits wait
-in the outbox with no visible signal. Fold into M3's sync indicator, or prompt joiners. After merge: close M2, run the milestone docs
-pass (kb/07 layer 4), then **write `docs/phases/M3.md`** (no brief yet; open M3 issues exist) before starting M3 work.
-The owner still has to redeploy the home server (H4). Open items: #112 social recovery (size:L, ADR first), #93 Google sign-in (M8),
-inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household, ADR-0031 member names. Green on the branch: `pnpm test` · typecheck · check · `pnpm e2e`.
+This branch `docs/m3-brief` (docs only, `no-changelog`) holds the M3 brief, the M2 docs pass (CONTRACT header,
+kb/04 paths) and this file. After it merges, start **#130 ADR-0051** (record types + common fields): it
+settles the brief's six design questions (type granularity, embedded allocations, shares in bps, schema
+evolution, `member` records, market kinds before M4). Then #131, #132, #134 in parallel → #133 → UI.
+PLAN.md and ARCHITECTURE.md disagree on allocations (separate record vs embedded): #130 fixes the loser.
+The owner still has to redeploy the home server (H4). Open items: #112 social recovery (size:L, ADR first),
+#93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.
 
 ## Also open
 
