@@ -1,4 +1,4 @@
-_Last updated: 2026-10-27 (session 32: #134 goals + Unallocated, PR open) · next session: start here_
+_Last updated: 2026-10-28 (session 33: #132 typed records + member profiles, PR open) · next session: start here_
 
 ## Where we are
 
@@ -10,18 +10,18 @@ M1 summary: crypto, vault, household key, auth, guard, relays, lock/unlock, onbo
 
 ## Next session picks up
 
-**#134** in review (branch `feat/goals-unallocated`). [ADR-0053](decisions/0053-goals-and-unallocated.md): `goal` record
-(`src/domain/records/goal.ts`, `GOAL_CODEC` v1, `DEFAULT_INFLATION_BPS`); `src/domain/earmarks.ts`: `claims` (overshoot →
-all claims scaled in proportion, BigInt), `unallocatedOf`, `earmarks(sources, goalIds)` → per-goal (assets − liabilities)
-and household Unallocated (= net worth − earmarked; may be negative). Claims on unknown goals count as Unallocated.
-On main: ADR-0051 (#130) record types/common fields/`readRecord`; ADR-0052 (#131) kinds, `catalogue.ts`
-(`ASSET_PLACEMENT`, `BALANCE_SHEET_CODECS`). #134 went before #132 because `useGoals()` needs `GOAL_CODEC`.
-Next: **#132** typed layer + `member` record (registry = `BALANCE_SHEET_CODECS` + `GOAL_CODEC` + member), then
-#133 net-worth engine (replace float `money.share` with bps; lens-weight earmarks too) → UI (#135–#139).
-Merged since: #148 (#147) better-auth/passkey/core 1.7.12 + utils 0.5.0 pinned exactly. **Redeploy staging and the home
-server** if not yet done: #147 (magic-link advisory GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2, critical RCE, GHSA-p3m5-59mp-jv5r);
-the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4.6.6. Open items: #112 social recovery
-(size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge (UX.md §3.0, fits #138), ADR-0030 leave-household.
+**#132** in review (branch `feat/typed-records-members`). [ADR-0054](decisions/0054-typed-records-and-member-profiles.md):
+`src/domain/records/typed.ts` (`RECORD_CODECS`, `typeRecords` → per-type `Entry` lists incl. error/too-new entries +
+`unknown` + `profiles`, `prepareWrite` throws `InvalidRecordError`), `member.ts` (`{memberId,name,colour?}`, valid only
+if `memberId === modifiedBy`; `FORMER_MEMBER`). Hooks in `src/features/sync/typed-records.ts` (`useAssets`, `useGoals`,
+`useMembers`, `useOwnProfile`, `useRecordWriter` → `save`/`remove`). `sync.write` takes `schemaVersion` now; handle exposes
+`userId`. Name prompt: `src/features/household/member-name.tsx`, mounted in `src/app/page.tsx` above Home.
+On main: ADR-0051 (#130), ADR-0052 (#131) kinds/`catalogue.ts`, ADR-0053 (#134) `goal` + `earmarks.ts`.
+Next: **#133** net-worth engine (replace float `money.share` with bps; lens-weight earmarks too) → UI (#135–#139).
+**Redeploy staging and the home server** if not yet done: #147 (magic-link advisory GHSA-965c-763c-88jm) and #142
+(Next.js 16.4.2, critical RCE, GHSA-p3m5-59mp-jv5r); the zod override in `pnpm-workspace.yaml` can go once better-auth
+ships zod ≥4.6.6. Open items: #112 social recovery (size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge
+(UX.md §3.0, fits #138), ADR-0030 leave-household.
 
 ## Also open
 
@@ -69,5 +69,5 @@ the zod override in `pnpm-workspace.yaml` can go once better-auth ships zod ≥4
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue list -m "M2 Encrypted sync engine" -s open
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue list -m "M3 Data model & manual entry" -s open
 ```

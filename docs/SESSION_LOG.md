@@ -67,3 +67,4 @@ One line per session: date · issue · outcome.
 - 2026-10-27 · #131 asset & liability kinds (ADR-0052): 29 + 3 strict kinds, decimal-string quantities, public-universe instrument keys, bucket/section placement typed exhaustively, v1 codecs
 - 2026-10-27 · #147 better-auth advisory fix: better-auth/passkey/core 1.7.12 + utils 0.5.0 pinned exactly (critical magic-link GHSA-965c-763c-88jm, high OAuth proxy)
 - 2026-10-27 · #134 goals + Unallocated (ADR-0053): `goal` record v1; `earmarks.ts` claims scaled in proportion on overshoot (BigInt), per-goal net of liabilities, household Unallocated = net worth − earmarked
+- 2026-10-27 · #132 typed records + member profiles (ADR-0054): `RECORD_CODECS`, `typeRecords` fail-soft per record, `prepareWrite` validates before `sync.write` (schemaVersion now passed), self-written `member` record + Home name prompt

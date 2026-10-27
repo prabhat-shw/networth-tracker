@@ -16,6 +16,8 @@ const NONE: PlainRecord[] = [];
 
 export interface HouseholdSync {
   householdId: string;
+  /** The signed-in member, who is `modifiedBy` on every write. */
+  userId: string;
   /**
    * Decrypted live records (tombstones excluded), in memory only. The same array until the
    * next notification, so it can back `useSyncExternalStore`; empty once locked or stopped.
@@ -27,6 +29,7 @@ export interface HouseholdSync {
     type: string,
     data: unknown,
     deleted?: boolean,
+    schemaVersion?: number,
   ): Promise<PlainRecord>;
   /** Runs a sync now (shares a run already in flight). */
   sync(): Promise<SyncResult>;
@@ -98,11 +101,12 @@ export function startHouseholdSync({
 
   return {
     householdId,
+    userId,
     records: () => snapshot,
-    async write(id, type, data, deleted = false) {
+    async write(id, type, data, deleted = false, schemaVersion = 1) {
       const content: RecordContent = {
         type,
-        schemaVersion: 1,
+        schemaVersion,
         data,
         modifiedAt: now().toISOString(),
         modifiedBy: userId,

@@ -35,6 +35,8 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Your name (M3, #132): Home asks what your household should call you. The name is stored
+  encrypted, so only your household sees it, and you can change it at any time.
 - Settings → Security (M1, #103): see your ways back in, add or remove them (one always
   stays), switch app lock on or off, and Lock now. Turning app lock off asks for your
   passkey or passphrase first. The protection banner's **Fix** opens it.
