@@ -93,7 +93,7 @@ export const PRICED_KINDS: ReadonlySet<AssetKind> = new Set([
   "rsu",
 ]);
 
-/** The codecs for the two types this file covers; the others join in #132 and #134. */
+/** The codecs for the two types this file covers; `RECORD_CODECS` (typed.ts) adds the rest. */
 export const BALANCE_SHEET_CODECS = {
   asset: { current: ASSET_SCHEMA_VERSION, schema: assetData, upgrades: {} },
   liability: {

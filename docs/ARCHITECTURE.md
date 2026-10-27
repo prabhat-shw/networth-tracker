@@ -49,7 +49,9 @@ in-memory upgrades; a record from a newer app is kept and never overwritten
 ([ADR-0051](decisions/0051-record-types-and-common-fields.md), `src/domain/records/`).
 Every asset/liability record carries `owners[] {memberId, shareBps}` (basis points, sum
 10 000), embedded `allocations[] {goalId, mode, bps | amount}`, `includeInNetWorth`,
-`tags[]`, `asOf`, optional `nominees[]`.
+`tags[]`, `asOf`, optional `nominees[]`. Screens read typed lists (`useAssets()` etc.) and
+save through `useRecordWriter()`, which validates before sealing; member names live in
+self-written encrypted `member` records ([ADR-0054](decisions/0054-typed-records-and-member-profiles.md)).
 
 Server-side data tables: `records` (ADR-0003), `households` (id), `household_members`
 (public key + HDK wrapped to it, ADR-0019), `identity_vaults` (ADR-0022) and
