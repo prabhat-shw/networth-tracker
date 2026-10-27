@@ -74,7 +74,9 @@ exhaustively, and their unit tests are the gate every pull request must pass.
 | `src/app/` | Routes and API handlers (Next.js App Router) |
 | `src/domain/` | Money maths — pure, framework-free, heavily tested |
 | `src/crypto/` | Encryption and key handling |
-| `src/db/` | Local (browser) storage |
+| `src/db/` | Local (browser) storage: encrypted envelopes, outbox, cursor |
+| `src/sync/` | Sync engine: pull, push, merge, retry |
+| `src/server/` | Server-side route logic (guard, records, vault relay) |
 | `src/features/` | Screens and components, grouped by feature |
 | `src/lib/` | Small shared utilities, e.g. build version |
 | `docs/` | Everything explaining the above |
