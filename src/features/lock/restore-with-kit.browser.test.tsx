@@ -105,6 +105,8 @@ describe("kitProblem", () => {
 describe("restore from the unlock screen (#54 acceptance)", () => {
   it("re-wraps under a new passphrase, uploads only the vault, and unlocks", async () => {
     const bodies = fakeServer();
+    // Spy rather than list databases: other browser-test files share this origin's IndexedDB.
+    const idbOpen = vi.spyOn(indexedDB, "open");
     const { screen, session, onVaultChanged } = await openRestore();
     await enterKit(screen, code.toUpperCase().replace(/ /g, "\n"));
     await expect
@@ -131,7 +133,7 @@ describe("restore from the unlock screen (#54 acceptance)", () => {
       JSON.stringify({ ...localStorage }) +
       JSON.stringify({ ...sessionStorage });
     for (const word of code.split(" ")) expect(stored).not.toContain(word);
-    expect(await indexedDB.databases()).toEqual([]);
+    expect(idbOpen).not.toHaveBeenCalled();
   }, 30_000);
 
   it("names a mistyped word and stays on the words step", async () => {

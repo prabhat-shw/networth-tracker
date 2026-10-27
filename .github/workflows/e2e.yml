@@ -15,6 +15,9 @@ on:
       - "next.config.ts"
       - "e2e/**"
       - "playwright.config.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
       - "drizzle/**"
       # Dependency bumps (Next.js, Better Auth, …) change what the specs exercise.
       - "package.json"

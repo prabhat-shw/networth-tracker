@@ -23,7 +23,9 @@ Shared E2E flows: `e2e/household.ts` (`pairHousehold`, `seal`, `expectRecords`);
 **Found:** a member without a recovery method (every joiner, silent first run) can edit but nothing pushes (`409`, ADR-0040); edits wait
 in the outbox with no visible signal. Fold into M3's sync indicator, or prompt joiners. After merge: close M2, run the milestone docs
 pass (kb/07 layer 4), then **write `docs/phases/M3.md`** (no brief yet; open M3 issues exist) before starting M3 work.
-The owner still has to redeploy the home server (H4). Open items: #112 social recovery (size:L, ADR first), #93 Google sign-in (M8),
+**Deps fix #142** (`fix/deps-audit`, `area:security`): next 16.4.2, zod floor override, vite 8.3.4 devDep; merge it
+first, then merge `main` into #141 so its `security` job goes green. **Redeploy staging and the home server after #142**
+(Next.js RCE, GHSA-p3m5-59mp-jv5r). The owner still has to redeploy the home server (H4). Open items: #112 social recovery (size:L, ADR first), #93 Google sign-in (M8),
 inviter's Home nudge (UX.md §3.0), ADR-0030 leave-household, ADR-0031 member names. Green on the branch: `pnpm test` · typecheck · check · `pnpm e2e`.
 
 ## Also open
