@@ -105,7 +105,10 @@ it a headline, because it is the difference between "I saved hard" and "the mark
 **Earmarking (allocation)** — tagging money to a purpose. ₹8 lakh of your mutual funds might
 be earmarked for a house and the rest for retirement.
 
-**Unallocated** — money not tagged to any goal. Shown plainly rather than hidden.
+**Unallocated** — money not tagged to any goal. Shown plainly rather than hidden. Loans count
+too: a home loan tagged to the house goal reduces that goal (you hold the *equity*, not the flat's
+full price), and untagged debt reduces Unallocated, which can therefore go below zero. Goals plus
+Unallocated always add up to net worth ([ADR-0053](../decisions/0053-goals-and-unallocated.md)).
 
 **Inflated target** — what a goal will actually cost when you get there. ₹50 lakh of education
 in 2038, at 10% education inflation, needs far more than ₹50 lakh.
