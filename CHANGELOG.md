@@ -35,6 +35,10 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Add anything (#135): add an account, deposit, property, policy or loan from Home in three
+  steps (category, type, details), with search. "Owned by" defaults to just you; split a
+  joint record between members, and Save waits until the shares add up to 100%. A few types
+  that need more details (mutual funds, RDs, money lent) arrive in the next update.
 - Your name (M3, #132): Home asks what your household should call you. The name is stored
   encrypted, so only your household sees it, and you can change it at any time.
 - Settings → Security (M1, #103): see your ways back in, add or remove them (one always

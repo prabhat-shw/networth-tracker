@@ -1,4 +1,4 @@
-_Last updated: 2026-10-30 (session 34: #133 net-worth engine) · next session: start here_
+_Last updated: 2026-10-30 (session 35: #135 add anything) · next session: start here_
 
 ## Where we are
 
@@ -16,13 +16,13 @@ Ship a usable **manual-entry** app: M3 only. M4+ (prices, charts, import) and #2
 
 ## Next session picks up
 
-**#135 Add anything** (`size:M`, UI): sheet/dialog, 7 buckets from `catalogue.ts`, search, six-field skeleton,
-"Owned by" split in bps with a live remainder chip. Write through `useRecordWriter` (`prepareWrite` validates).
-Last: **#133** ([ADR-0055](decisions/0055-networth-lenses-and-rounding.md)). `src/domain/networth.ts`:
-`assetItem`/`liabilityItem` → `BalanceItem`, `netWorth(items, lens)`, `allLenses(items, memberIds)` →
-`{ household, byMember, formerMembers }`; lens = `"household" | { memberId }` (Me = `handle.userId`).
-`money.splitByWeight` (largest remainder, BigInt) replaced the float `share`. `earmarks(sources, goalIds, lens)`
-is lens-weighted; `EarmarkSource` now needs `owners`.
+**#136 per-kind fields + edit** (`size:M`): replace `defaults` in `src/features/add/kinds.ts` with real inputs
+(UX §4.2 table) and enable the `defaults: null` kinds; edit + delete via `useRecordWriter`; "Save & add another"
+(back to step 1 with the bucket open); "Tag to goal" combobox (`useGoals`).
+Last: **#135** ([ADR-0056](decisions/0056-add-anything-skeleton.md)). `src/features/add/`: `add-anything.tsx`
+(native `<dialog>`: picker → `KindList` → `CommonForm`), `owned-by.tsx` (`OwnedBy`, `evenShares`, `remainder`),
+`kinds.ts` (`KIND_OPTIONS`, `searchKinds`, `parseRupees`, `parsePercent`). Home takes an `add` slot (`page.tsx`).
+Engine (#133, ADR-0055): `netWorth`/`allLenses` in `src/domain/networth.ts`, for #138.
 **Redeploy staging and the home server** if not yet done: #147 (GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2,
 GHSA-p3m5-59mp-jv5r). Known gap (ADR-0054): a member can tombstone another's profile.
 
