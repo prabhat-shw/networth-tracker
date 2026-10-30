@@ -23,6 +23,7 @@ Finance and engineering terms in one place. Fuller explanations:
 | **Inflated target** | What a goal will cost by its target date, after inflation |
 | **Liquidity** | How fast an asset becomes spendable money |
 | **NAV** | Net Asset Value — price of one mutual fund unit, published daily |
+| **Ownership lens** | Whose view the figures take: *Household* counts everything in full; *Me* or a named member counts only that person's share of each record (half of a 50/50 joint FD). Toggled on Home ([ADR-0055](../decisions/0055-networth-lenses-and-rounding.md), [ADR-0059](../decisions/0059-home-hero-and-sync-status.md)) |
 | **NPS** | National Pension System — market-linked retirement account |
 | **NSDL / CDSL** | The two depositories holding Indian shares electronically |
 | **NSE / BSE** | India's two main stock exchanges |
