@@ -1,4 +1,4 @@
-_Last updated: 2026-10-30 (session 35: #135 add anything) · next session: start here_
+_Last updated: 2026-10-31 (session 36: #136 per-kind fields + edit) · next session: start here_
 
 ## Where we are
 
@@ -16,12 +16,13 @@ Ship a usable **manual-entry** app: M3 only. M4+ (prices, charts, import) and #2
 
 ## Next session picks up
 
-**#136 per-kind fields + edit** (`size:M`): replace `defaults` in `src/features/add/kinds.ts` with real inputs
-(UX §4.2 table) and enable the `defaults: null` kinds; edit + delete via `useRecordWriter`; "Save & add another"
-(back to step 1 with the bucket open); "Tag to goal" combobox (`useGoals`).
-Last: **#135** ([ADR-0056](decisions/0056-add-anything-skeleton.md)). `src/features/add/`: `add-anything.tsx`
-(native `<dialog>`: picker → `KindList` → `CommonForm`), `owned-by.tsx` (`OwnedBy`, `evenShares`, `remainder`),
-`kinds.ts` (`KIND_OPTIONS`, `searchKinds`, `parseRupees`, `parsePercent`). Home takes an `add` slot (`page.tsx`).
+**#137 Accounts list** (`size:M`, UI): UX §3.4 grouped list by `SECTIONS` (`catalogue.ts` placement), ownership
+badge per row (`◐ 50/50 with Bala`), search, empty + error rows (fail-soft entries from `useAssets`/`useLiabilities`).
+Tap a row → `<AddAnything label=… editing={{ id, data }} />` opens its edit form with Delete.
+Last: **#136** ([ADR-0057](decisions/0057-kind-fields-as-data-and-edit.md)). `src/features/add/`: `field-specs.ts`
+(`KIND_FIELDS`, `KIND_BASE`), `fields.ts` (`readFields`, `fieldInputs`, `paiseToInput`), `kind-fields.tsx`,
+`record-form.tsx` (schema-driven Save, edit = stored ⊕ form, Delete, Save & add another), `goal-tags.tsx`.
+Not built: property↔loan link inputs (kept on edit). #135 (ADR-0056): `add-anything.tsx`, `owned-by.tsx`, `kinds.ts`.
 Engine (#133, ADR-0055): `netWorth`/`allLenses` in `src/domain/networth.ts`, for #138.
 **Redeploy staging and the home server** if not yet done: #147 (GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2,
 GHSA-p3m5-59mp-jv5r). Known gap (ADR-0054): a member can tombstone another's profile.

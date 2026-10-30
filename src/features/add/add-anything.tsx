@@ -1,20 +1,16 @@
 "use client";
 
-import { type FormEvent, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { Bucket } from "@/domain/records/catalogue";
-import { InvalidRecordError } from "@/domain/records/typed";
-import { useHouseholdSync } from "@/features/sync/sync-provider";
-import { useMembers, useRecordWriter } from "@/features/sync/typed-records";
 import {
   BUCKET_LABEL,
   BUCKETS,
   type KindOption,
+  optionFor,
   optionsIn,
-  parseRupees,
   searchKinds,
-  today,
 } from "./kinds";
-import { OwnedBy, remainder, type Share } from "./owned-by";
+import { type Editing, RecordForm } from "./record-form";
 
 const field =
   "rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700";
@@ -24,14 +20,24 @@ const primary =
 /**
  * "Add anything" (UX.md §3.5, §4): what is it (7 buckets or search) → which one → the common
  * form. A bottom sheet on mobile and a centred dialog from `sm` up, as a native `<dialog>`
- * so focus, Escape and the scrim come from the browser.
+ * so focus, Escape and the scrim come from the browser. With `editing`, it opens straight at
+ * that record's form, with Delete.
  */
-export function AddAnything({ label = "Add" }: { label?: string }) {
+export function AddAnything({
+  label = "Add",
+  editing,
+}: {
+  label?: string;
+  editing?: Editing;
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const [bucket, setBucket] = useState<Bucket | null>(null);
   const [option, setOption] = useState<KindOption | null>(null);
+  const [notice, setNotice] = useState("");
   const titleId = useId();
+  const editOption = editing ? optionFor(String(editing.data.kind)) : undefined;
+  const current = editOption ?? option;
 
   useEffect(() => {
     const d = ref.current;
@@ -43,21 +49,37 @@ export function AddAnything({ label = "Add" }: { label?: string }) {
     setOpen(false);
     setBucket(null);
     setOption(null);
+    setNotice("");
   };
-  const title = option
-    ? option.label
-    : bucket
-      ? BUCKET_LABEL[bucket]
-      : "What is it?";
-  const back = option
-    ? () => setOption(null)
-    : bucket
-      ? () => setBucket(null)
-      : null;
+  /** Save & add another goes back to the same bucket: most batches are same-type (UX §4.2). */
+  const saved = (name: string, again: boolean) => {
+    if (!again) return close();
+    setNotice(`Saved ${name}`);
+    setBucket(option?.bucket ?? null);
+    setOption(null);
+  };
+  const title = editOption
+    ? `Edit ${editOption.label}`
+    : option
+      ? option.label
+      : bucket
+        ? BUCKET_LABEL[bucket]
+        : "What is it?";
+  const back = editOption
+    ? null
+    : option
+      ? () => setOption(null)
+      : bucket
+        ? () => setBucket(null)
+        : null;
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className={primary}>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className={editing ? "underline" : primary}
+      >
         {label}
       </button>
       <dialog
@@ -81,8 +103,16 @@ export function AddAnything({ label = "Add" }: { label?: string }) {
                 ✕
               </button>
             </header>
-            {option ? (
-              <CommonForm option={option} onSaved={close} />
+            {notice && (
+              <output className="text-sm text-neutral-600">{notice}</output>
+            )}
+            {current ? (
+              <RecordForm
+                key={current.kind}
+                option={current}
+                editing={editing}
+                onSaved={saved}
+              />
             ) : bucket ? (
               <KindList options={optionsIn(bucket)} onPick={setOption} />
             ) : (
@@ -170,16 +200,10 @@ function KindList({
                 <li key={o.kind}>
                   <button
                     type="button"
-                    disabled={!o.defaults}
                     onClick={() => onPick(o)}
                     className="flex w-full justify-between rounded-md px-2 py-2 text-left hover:bg-neutral-100 disabled:opacity-50 dark:hover:bg-neutral-800"
                   >
                     {o.label}
-                    {!o.defaults && (
-                      <span className="text-xs text-neutral-500">
-                        coming soon
-                      </span>
-                    )}
                   </button>
                 </li>
               ))}
@@ -188,133 +212,5 @@ function KindList({
         ),
       )}
     </div>
-  );
-}
-
-/** The six-field skeleton (UX §4.2). Per-kind fields and Tag to goal come in #136. */
-function CommonForm({
-  option,
-  onSaved,
-}: {
-  option: KindOption;
-  onSaved: () => void;
-}) {
-  const sync = useHouseholdSync();
-  const profiles = useMembers();
-  const { save } = useRecordWriter();
-  const me = sync?.userId ?? "";
-  const [name, setName] = useState("");
-  const [value, setValue] = useState("");
-  const [shares, setShares] = useState<Share[]>([
-    { memberId: me, input: "100", bps: 10_000 },
-  ]);
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const paise = parseRupees(value);
-  const valid = name.trim() !== "" && paise !== null && remainder(shares) === 0;
-  const people = [...profiles].map(([memberId, p]) => ({
-    memberId,
-    name: p.name,
-  }));
-
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!valid || paise === null) return;
-    const form = new FormData(event.currentTarget);
-    const optional = (key: string) => {
-      const v = String(form.get(key) ?? "").trim();
-      return v ? v : undefined;
-    };
-    const data = {
-      kind: option.kind,
-      name: name.trim(),
-      value: paise,
-      institution: optional("institution"),
-      asOf: String(form.get("asOf")),
-      notes: optional("notes"),
-      owners: shares.map((s) => ({
-        memberId: s.memberId,
-        shareBps: s.bps ?? 0,
-      })),
-      includeInNetWorth: true,
-      tags: [],
-      allocations: [],
-      ...option.defaults,
-    };
-    setBusy(true);
-    setError("");
-    try {
-      // The kind's fields are checked at runtime by prepareWrite, not by the compiler here.
-      await save(option.type, data as never);
-      onSaved();
-    } catch (e) {
-      setError(
-        e instanceof InvalidRecordError
-          ? "Some details aren't valid. Check the fields above."
-          : "Couldn't save. Try again.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <form onSubmit={submit} className="flex flex-col gap-3 text-sm">
-      <label className="flex flex-col gap-1">
-        Name
-        <input
-          name="name"
-          required
-          maxLength={80}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={field}
-        />
-      </label>
-      <label className="flex flex-col gap-1">
-        Institution (optional)
-        <input name="institution" maxLength={80} className={field} />
-      </label>
-      <label className="flex flex-col gap-1">
-        {option.type === "liability" ? "Outstanding ₹" : "Current value ₹"}
-        <input
-          name="value"
-          inputMode="decimal"
-          required
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          aria-invalid={value !== "" && paise === null}
-          className={field}
-        />
-      </label>
-      <label className="flex flex-col gap-1">
-        As of
-        <input
-          name="asOf"
-          type="date"
-          required
-          defaultValue={today()}
-          className={field}
-        />
-      </label>
-      <OwnedBy me={me} people={people} shares={shares} onChange={setShares} />
-      <details>
-        <summary className="cursor-pointer">Notes (optional)</summary>
-        <textarea
-          name="notes"
-          aria-label="Notes"
-          maxLength={2000}
-          className={`${field} mt-1 w-full`}
-        />
-      </details>
-      {error && (
-        <p role="alert" className="text-red-600">
-          {error}
-        </p>
-      )}
-      <button type="submit" disabled={!valid || busy} className={primary}>
-        Save
-      </button>
-    </form>
   );
 }
