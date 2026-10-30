@@ -2,10 +2,11 @@
  * How much of the household's money is earmarked to each goal, and how much is Unallocated
  * (PLAN.md §1.1, ADR-0053). Pure and integer-only: every amount is paise.
  *
- * Household view: full values, no ownership lens. The lens arithmetic lives in the
- * net-worth engine (#133).
+ * Household view by default; under a member's lens each claim and the remainder are split
+ * by ownership share like the value itself (ADR-0055).
  */
 import type { Paise } from "./money";
+import { type Lens, lensAmount, type Owner } from "./networth";
 import { type Allocation, allocatedPaise } from "./records/common";
 
 export interface EarmarkSource {
@@ -14,6 +15,7 @@ export interface EarmarkSource {
   value: Paise;
   includeInNetWorth: boolean;
   allocations: readonly Allocation[];
+  owners: readonly Owner[];
 }
 
 /**
@@ -66,6 +68,7 @@ export interface Earmarks {
 export function earmarks(
   sources: readonly EarmarkSource[],
   goalIds: ReadonlySet<string>,
+  lens: Lens = "household",
 ): Earmarks {
   const byGoal = new Map<string, Paise>();
   let unallocated = 0;
@@ -75,10 +78,12 @@ export function earmarks(
     let claimed = 0;
     for (const [goalId, claim] of claims(s.allocations, s.value)) {
       if (!goalIds.has(goalId)) continue;
-      claimed += claim;
-      byGoal.set(goalId, (byGoal.get(goalId) ?? 0) + sign * claim);
+      const part = lensAmount(claim, s.owners, lens);
+      claimed += part;
+      byGoal.set(goalId, (byGoal.get(goalId) ?? 0) + sign * part);
     }
-    unallocated += sign * (s.value - claimed);
+    // The lens's share of the value, less its share of the claims: Unallocated per lens.
+    unallocated += sign * (lensAmount(s.value, s.owners, lens) - claimed);
   }
   return { byGoal, unallocated };
 }
