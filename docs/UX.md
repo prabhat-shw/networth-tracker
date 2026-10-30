@@ -233,6 +233,7 @@ when not in the default state (mobile, to avoid permanent chrome tax on a small 
 | Synced | *(no banner)* | `⏱ Synced 2 min ago` (muted) | default, invisible when nothing to report |
 | Syncing | thin top progress hairline | `⟳ Syncing…` | background push/pull in flight |
 | Offline | banner: `You're offline — changes save locally` | `⚡ Offline · will sync` | Info tone, not alarm — offline is a supported state, not an error |
+| Waiting for recovery | warning banner: `Changes are waiting: add a recovery method` + link | same, warning tone | push refused with `409 recovery-required` (ADR-0040); edits stay on this device until a method exists ([ADR-0059](decisions/0059-home-hero-and-sync-status.md)) |
 | Sync conflict (rare) | banner with "Review" action | badge on sync icon | 409 → re-pull → merge happened automatically; only surfaced if it touched a value the user is currently viewing |
 
 Price staleness is per-instrument, not global: any market-priced figure (MF NAV, stock,

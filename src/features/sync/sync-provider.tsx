@@ -13,6 +13,7 @@ import type { KeySession } from "@/features/lock/key-session";
 import {
   type HouseholdSync,
   type HouseholdSyncOptions,
+  type SyncStatus,
   startHouseholdSync,
 } from "@/sync/household-sync";
 
@@ -60,5 +61,22 @@ export function useRecords(): PlainRecord[] {
     sync ? sync.subscribe : idle,
     sync ? sync.records : none,
     none,
+  );
+}
+
+const NOT_STARTED: SyncStatus = {
+  state: "syncing",
+  lastSyncedAt: null,
+  pending: false,
+};
+const notStarted = () => NOT_STARTED;
+
+/** The sync indicator's state (UX.md §2.3); "syncing" until the sync starts. */
+export function useSyncStatus(): SyncStatus {
+  const sync = useHouseholdSync();
+  return useSyncExternalStore(
+    sync ? sync.subscribe : idle,
+    sync ? sync.status : notStarted,
+    notStarted,
   );
 }

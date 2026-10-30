@@ -91,6 +91,7 @@ function fakeSync(initial: PlainRecord[]) {
       for (const l of listeners) l();
       return r;
     },
+    status: () => ({ state: "synced", lastSyncedAt: null, pending: false }),
     sync: async () => ({}) as never,
     subscribe(l) {
       listeners.add(l);

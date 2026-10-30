@@ -1,4 +1,4 @@
-_Last updated: 2026-10-31 (session 37: #137 accounts list) · next session: start here_
+_Last updated: 2026-10-31 (session 38: #138 Home net worth + sync status) · next session: start here_
 
 ## Where we are
 
@@ -16,20 +16,21 @@ Ship a usable **manual-entry** app: M3 only. M4+ (prices, charts, import) and #2
 
 ## Next session picks up
 
-Day 1 of the deadline plan is done (#135, #136, #137). **Day 2 starts with #138 Home** (`size:M`, UI + sync):
-net-worth hero from `allLenses` (`src/domain/networth.ts`, ADR-0055) with the Me · Household · member lens toggle
-(UX §2.1), replace the zero-state once records exist, sync indicator (UX §2.3) incl. "Changes are waiting: add a
-recovery method" for the ADR-0040 `409`, settle #34 "Home fits one screen". Make the Accounts badge follow the lens.
-Last: **#137** ([ADR-0058](decisions/0058-accounts-list.md)). `src/features/accounts/accounts.tsx` (`Accounts`,
-`SECTION_LABEL`, `BrokenRows`), `badge.ts` (`ownershipBadge`, `taggedPercent`); route `src/app/accounts/page.tsx`,
-Home nav links Accounts. Add flow (ADR-0056/0057): `src/features/add/` — `AddAnything` with `editing={{ id, data }}`.
+Day 2 is under way: #138 done. **Next: #139 Goals screen (basic)** (`size:S`): create/edit/delete a goal
+(`goal` schema, ADR-0053), list with earmarked total and Unallocated; then **#140 E2E** (`area:security`,
+owner approval), then redeploy staging + home.
+Last: **#138** ([ADR-0059](decisions/0059-home-hero-and-sync-status.md)). `src/features/home/net-worth.tsx`
+(`summarize`, `useNetWorth`, `NetWorthHero`), `sync-status.tsx` (`SyncIndicator`, `ago`); `HouseholdSync.status()`
++ `useSyncStatus()` (states `syncing`/`synced`/`offline`/`recovery`). Lens members = viewer + profiles.
+Deferred: Accounts badge/values following the lens (needs a shared lens store across routes), count-up animation.
+Accounts (ADR-0058): `src/features/accounts/`; add flow (ADR-0056/0057): `src/features/add/` (`AddAnything`).
 **Redeploy staging and the home server** if not yet done: #147 (GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2,
 GHSA-p3m5-59mp-jv5r). Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
 
 - Insights UX: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)), tap budgets
-  ([ADR-0017](decisions/0017-tap-budgets.md)). Leftovers in #34 (settle "Home fits one screen" before M3).
+  ([ADR-0017](decisions/0017-tap-budgets.md)). #34's "Home fits one screen" settled in ADR-0059.
 - Issue #14 decided: all six ideas accepted as #25–#32 on M3/M5/M7/M8
   ([ADR-0016](decisions/0016-features-borrowed-from-other-apps.md)); licence AGPL-3.0-only
   ([ADR-0015](decisions/0015-agpl-licence.md)). New deps must be AGPL-compatible.
@@ -65,7 +66,8 @@ GHSA-p3m5-59mp-jv5r). Known gap (ADR-0054): a member can tombstone another's pro
 - Two PRs in flight both append `SESSION_LOG.md` and regenerate the README block: after the first
   merges, merge `main` into the second, keep both log lines, `pnpm docs:sync`.
 - New issues are not auto-added to the Kanban: `gh project item-add 2 --owner prabhat-shw --url …`.
-- Browser tests: `render()` from vitest-browser-react is async; await it. Python edits on Windows:
+- Browser tests: `render()` from vitest-browser-react is async; await it. `toHaveTextContent` timed out on
+  matching text here: assert with `getByText(/…/)` instead. Python edits on Windows:
   open with `newline=''` or files turn CRLF.
 - **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).
 

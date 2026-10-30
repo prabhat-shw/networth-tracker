@@ -9,10 +9,30 @@ import { type LocalStore, localStore } from "@/db/local-store";
 import { createRecordCache } from "@/db/record-cache";
 import type { KeySession } from "@/features/lock/key-session";
 import { createSyncEngine, type SyncResult, type Transport } from "./engine";
-import { httpTransport } from "./http-transport";
+import { httpTransport, SyncHttpError } from "./http-transport";
 import { browserEnv, type SyncEnv, startSyncScheduler } from "./scheduler";
 
 const NONE: PlainRecord[] = [];
+
+/**
+ * What the sync indicator shows (UX.md §2.3). `recovery` is the ADR-0040 `409`: this member
+ * has no recovery method yet, so their edits stay in the outbox until they add one.
+ */
+export type SyncState = "syncing" | "synced" | "offline" | "recovery";
+
+export interface SyncStatus {
+  state: SyncState;
+  /** When a run last finished cleanly; null until one does. */
+  lastSyncedAt: Date | null;
+  /** Edits on this device that the server doesn't have yet. */
+  pending: boolean;
+}
+
+/** A failed run: a push refused for want of a recovery method, or anything else (offline). */
+const failedState = (error: unknown): SyncState =>
+  error instanceof SyncHttpError && error.status === 409
+    ? "recovery"
+    : "offline";
 
 export interface HouseholdSync {
   householdId: string;
@@ -31,9 +51,11 @@ export interface HouseholdSync {
     deleted?: boolean,
     schemaVersion?: number,
   ): Promise<PlainRecord>;
+  /** The latest sync status; the same object until it changes, like `records()`. */
+  status(): SyncStatus;
   /** Runs a sync now (shares a run already in flight). */
   sync(): Promise<SyncResult>;
-  /** Fires after hydrate, after every local write and after every sync run. */
+  /** Fires after hydrate, after every local write, and when a sync run starts and ends. */
   subscribe(listener: () => void): () => void;
   stop(): void;
 }
@@ -76,14 +98,46 @@ export function startHouseholdSync({
   });
   const listeners = new Set<() => void>();
   let snapshot: PlainRecord[] = NONE;
+  const emit = () => {
+    for (const listener of listeners) listener();
+  };
   const notify = () => {
     snapshot = cache.size() ? cache.all() : NONE;
-    for (const listener of listeners) listener();
+    emit();
   };
   // A lock empties the cache; the snapshot must not outlive it.
   const unfollow = session.subscribe(() => {
     if (session.state().status !== "unlocked") notify();
   });
+  let status: SyncStatus = {
+    state: "syncing",
+    lastSyncedAt: null,
+    pending: false,
+  };
+  const setStatus = (next: Partial<SyncStatus>) => {
+    status = { ...status, ...next };
+  };
+  // Every run goes through here, so the indicator sees the scheduler's runs as well as ours.
+  const run = async (): Promise<SyncResult> => {
+    if (status.state !== "syncing") {
+      setStatus({ state: "syncing" });
+      emit(); // records are unchanged, so the snapshot stays the same array
+    }
+    try {
+      const result = await engine.sync();
+      setStatus({
+        state: "synced",
+        lastSyncedAt: now(),
+        pending: result.pending,
+      });
+      return result;
+    } catch (error) {
+      setStatus({ state: failedState(error) });
+      throw error;
+    } finally {
+      notify();
+    }
+  };
   let stopScheduler: (() => void) | null = null;
   let stopped = false;
 
@@ -92,9 +146,8 @@ export function startHouseholdSync({
     if (stopped) return;
     stopScheduler = startSyncScheduler({
       session,
-      engine,
+      engine: { sync: run },
       env,
-      onResult: notify,
       onError,
     });
   }, onError);
@@ -112,17 +165,13 @@ export function startHouseholdSync({
         modifiedBy: userId,
       };
       const record = await engine.write(id, content, deleted);
+      setStatus({ pending: true });
       notify();
-      engine.sync().then(notify, onError);
+      run().catch(onError);
       return record;
     },
-    async sync() {
-      try {
-        return await engine.sync();
-      } finally {
-        notify();
-      }
-    },
+    status: () => status,
+    sync: run,
     subscribe(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);

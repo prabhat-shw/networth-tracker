@@ -73,3 +73,4 @@ One line per session: date · issue · outcome.
 - 2026-10-30 · #135 Add anything skeleton (ADR-0056): native `<dialog>` sheet, 7 buckets + search, common form, Owned-by split with remainder chip, Home CTA live; kinds needing details staged as "coming soon"
 - 2026-10-31 · #136 per-kind fields, edit, delete, Save & add another, Tag to goal (ADR-0057): `KIND_FIELDS` specs + generic `KindFields`, schema-driven Save, edit merges over stored record
 - 2026-10-31 · #137 Accounts list (ADR-0058): `/accounts`, 9 sections as responsive tables, ownership badge + tagged %, search, error rows (invalid → Remove, too-new → kept), tap name to edit
+- 2026-10-31 · #138 Home net worth + sync status (ADR-0059): hero per lens (Me/Household/member) from `allLenses`, zero-state until records exist, unreadable count; `HouseholdSync.status()` + `useSyncStatus()`, indicator incl. 409 "Changes are waiting"; #34 one-screen settled
