@@ -42,9 +42,9 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M3 — Data model & manual entry (brief: `docs/phases/M3.md`, issues #130–#140 plus #25–#27). |
-| Next up | #133 net-worth engine |
-| Decisions recorded | 54 ADRs |
+| Milestone | M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed (M2: encrypted sync, |
+| Next up | #135 Add anything |
+| Decisions recorded | 55 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.

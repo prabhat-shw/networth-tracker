@@ -1,28 +1,30 @@
-_Last updated: 2026-10-28 (session 33: #132 merged as #149) · next session: start here_
+_Last updated: 2026-10-30 (session 34: #133 net-worth engine) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`, issues #130–#140 plus #25–#27).
-M0, M1 and M2 are closed. M2 (ADRs 0045–0050) shipped the encrypted sync engine: `startHouseholdSync`
-(`src/sync/household-sync.ts`), `SyncProvider` / `useRecords()` (`src/features/sync/`), Dexie store (`src/db/`).
-M1 summary: crypto, vault, household key, auth, guard, relays, lock/unlock, onboarding v2 (ADRs 0013–0044).
+**Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed (M2: encrypted sync,
+`startHouseholdSync`, `useRecords()`, Dexie). M3 pure layer is done: kinds (ADR-0052), goals/earmarks (ADR-0053),
+typed records + member profiles (ADR-0054), **net-worth engine (ADR-0055)**. What's left on M3 is UI + the E2E.
 **Push needs a recovery method** (ADR-0040): a member without one has edits stuck in the outbox; #138 surfaces it.
+
+## Deadline plan (owner: app due 2026-11-01, 2 days)
+
+Ship a usable **manual-entry** app: M3 only. M4+ (prices, charts, import) and #25–#27, #112, #93 wait.
+- **Day 1:** #135 add-anything skeleton → #136 per-kind fields/edit → #137 Accounts list.
+- **Day 2:** #138 Home net worth + lens + sync status → #139 Goals (basic) → #140 E2E → redeploy staging/home.
+- Several sessions a day, still one issue per branch/PR. Keep UI lean: shadcn defaults, no animation polish.
 
 ## Next session picks up
 
-**#133 net-worth engine** (`size:M`, pure, `src/domain/networth.ts`): per lens (Me · Household · each member),
-share-weighted assets − liabilities in paise, `includeInNetWorth`, unvested RSU and term cover at ₹0. Replace the
-float `money.share` with bps; lens-weight the earmarks too (ADR-0053's open point). Then the UI: #135–#139.
-Last: **#132** merged (PR #149, [ADR-0054](decisions/0054-typed-records-and-member-profiles.md)). Typed layer
-`src/domain/records/typed.ts` (`RECORD_CODECS`, `typeRecords`, `prepareWrite` → `InvalidRecordError`), `member.ts`
-(valid only if `memberId === modifiedBy`; `FORMER_MEMBER`), hooks `src/features/sync/typed-records.ts` (`useAssets`,
-`useGoals`, `useMembers`, `useOwnProfile`, `useRecordWriter`). `sync.write(id, type, data, deleted, schemaVersion)`;
-handle exposes `userId`. Name prompt `src/features/household/member-name.tsx`, mounted in `src/app/page.tsx`.
-Earlier on M3: ADR-0051 (#130), ADR-0052 (#131) kinds/`catalogue.ts`, ADR-0053 (#134) `goal` + `earmarks.ts`.
-**Redeploy staging and the home server** if not yet done: #147 (magic-link advisory GHSA-965c-763c-88jm) and #142
-(Next.js 16.4.2, critical RCE, GHSA-p3m5-59mp-jv5r); the zod override in `pnpm-workspace.yaml` can go once better-auth
-ships zod ≥4.6.6. Open items: #112 social recovery (size:L, ADR first), #93 Google sign-in (M8), inviter's Home nudge
-(UX.md §3.0, fits #138), ADR-0030 leave-household. Known gap (ADR-0054): a member can tombstone another's profile.
+**#135 Add anything** (`size:M`, UI): sheet/dialog, 7 buckets from `catalogue.ts`, search, six-field skeleton,
+"Owned by" split in bps with a live remainder chip. Write through `useRecordWriter` (`prepareWrite` validates).
+Last: **#133** ([ADR-0055](decisions/0055-networth-lenses-and-rounding.md)). `src/domain/networth.ts`:
+`assetItem`/`liabilityItem` → `BalanceItem`, `netWorth(items, lens)`, `allLenses(items, memberIds)` →
+`{ household, byMember, formerMembers }`; lens = `"household" | { memberId }` (Me = `handle.userId`).
+`money.splitByWeight` (largest remainder, BigInt) replaced the float `share`. `earmarks(sources, goalIds, lens)`
+is lens-weighted; `EarmarkSource` now needs `owners`.
+**Redeploy staging and the home server** if not yet done: #147 (GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2,
+GHSA-p3m5-59mp-jv5r). Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
 

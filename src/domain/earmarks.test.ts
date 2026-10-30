@@ -5,6 +5,7 @@ import {
   earmarks,
   unallocatedOf,
 } from "./earmarks";
+import type { Owner } from "./networth";
 import type { Allocation } from "./records/common";
 
 const HOUSE = "9a000000-0000-4000-8000-000000000001";
@@ -22,12 +23,16 @@ const fixed = (goalId: string, amount: number): Allocation => ({
   mode: "fixed",
   amount,
 });
+const ASHA = "1a000000-0000-4000-8000-000000000001";
+const RAVI = "1a000000-0000-4000-8000-000000000002";
+const SOLO: Owner[] = [{ memberId: ASHA, shareBps: 10_000 }];
 const src = (
   side: EarmarkSource["side"],
   value: number,
   allocations: Allocation[] = [],
   includeInNetWorth = true,
-): EarmarkSource => ({ side, value, allocations, includeInNetWorth });
+  owners: Owner[] = SOLO,
+): EarmarkSource => ({ side, value, allocations, includeInNetWorth, owners });
 
 const L = 1_00_000_00; // ₹1 lakh in paise
 
@@ -119,5 +124,58 @@ describe("earmarks", () => {
       GOALS,
     );
     expect(e).toEqual({ byGoal: new Map(), unallocated: 0 });
+  });
+});
+
+describe("earmarks under a member's lens", () => {
+  const joint = (a: number): Owner[] => [
+    { memberId: ASHA, shareBps: a },
+    { memberId: RAVI, shareBps: 10_000 - a },
+  ];
+
+  it("splits a fixed claim by ownership share, like the value", () => {
+    // A 60/40 flat worth ₹80L, ₹20L of it fixed toward the house.
+    const flat = src(
+      "asset",
+      80 * L,
+      [fixed(HOUSE, 20 * L)],
+      true,
+      joint(6000),
+    );
+    const asha = earmarks([flat], GOALS, { memberId: ASHA });
+    expect(asha.byGoal.get(HOUSE)).toBe(12 * L);
+    expect(asha.unallocated).toBe(36 * L);
+    const ravi = earmarks([flat], GOALS, { memberId: RAVI });
+    expect(ravi.byGoal.get(HOUSE)).toBe(8 * L);
+    expect(ravi.unallocated).toBe(24 * L);
+  });
+
+  it("gives a member nothing from a record they don't own", () => {
+    const e = earmarks([src("asset", L, [pct(EDU, 5000)])], GOALS, {
+      memberId: RAVI,
+    });
+    expect(e.byGoal.get(EDU)).toBe(0);
+    expect(e.unallocated).toBe(0);
+  });
+
+  it("adds up across members to the household view, to the paisa", () => {
+    const sources = [
+      src(
+        "asset",
+        7 * L + 33,
+        [pct(HOUSE, 3333), fixed(EDU, 1001)],
+        true,
+        joint(5000),
+      ),
+      src("liability", 3 * L + 1, [pct(HOUSE, 5000)], true, joint(3333)),
+    ];
+    const hh = earmarks(sources, GOALS);
+    const a = earmarks(sources, GOALS, { memberId: ASHA });
+    const r = earmarks(sources, GOALS, { memberId: RAVI });
+    expect(a.unallocated + r.unallocated).toBe(hh.unallocated);
+    for (const goal of GOALS)
+      expect((a.byGoal.get(goal) ?? 0) + (r.byGoal.get(goal) ?? 0)).toBe(
+        hh.byGoal.get(goal) ?? 0,
+      );
   });
 });

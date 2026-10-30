@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { formatINR, paiseToRupees, rupeesToPaise, share, sum } from "./money";
+import {
+  formatINR,
+  paiseToRupees,
+  rupeesToPaise,
+  splitByWeight,
+  sum,
+} from "./money";
 
 describe("paise conversion", () => {
   it("round-trips rupees without float drift", () => {
@@ -14,13 +20,70 @@ describe("paise conversion", () => {
   });
 });
 
-describe("ownership share", () => {
+describe("splitByWeight", () => {
+  const halves = [
+    { key: "a", weight: 5000 },
+    { key: "b", weight: 5000 },
+  ];
+
   it("splits a joint account in half", () => {
-    expect(share(rupeesToPaise(100000), 50)).toBe(rupeesToPaise(50000));
+    expect(splitByWeight(rupeesToPaise(100000), halves)).toEqual(
+      new Map([
+        ["a", rupeesToPaise(50000)],
+        ["b", rupeesToPaise(50000)],
+      ]),
+    );
   });
 
-  it("rounds to the nearest paisa", () => {
-    expect(share(101, 50)).toBe(51);
+  it("gives an odd paisa to the lowest key on a tie, so parts always add up", () => {
+    expect(splitByWeight(101, halves)).toEqual(
+      new Map([
+        ["a", 51],
+        ["b", 50],
+      ]),
+    );
+  });
+
+  it("gives leftover paise to the largest remainders", () => {
+    const thirds = [
+      { key: "a", weight: 3333 },
+      { key: "b", weight: 3334 },
+      { key: "c", weight: 3333 },
+    ];
+    const parts = splitByWeight(100, thirds);
+    expect(parts).toEqual(
+      new Map([
+        ["a", 33],
+        ["b", 34],
+        ["c", 33],
+      ]),
+    );
+    expect(splitByWeight(2, thirds)).toEqual(
+      new Map([
+        ["a", 1],
+        ["b", 1],
+        ["c", 0],
+      ]),
+    );
+  });
+
+  it("stays exact past 2^53 intermediate products", () => {
+    const amount = 90_000 * 1_00_00_000 * 100; // ₹90,000 crore in paise
+    const parts = splitByWeight(amount, [
+      { key: "a", weight: 3333 },
+      { key: "b", weight: 6667 },
+    ]);
+    expect((parts.get("a") ?? 0) + (parts.get("b") ?? 0)).toBe(amount);
+    expect(parts.get("a")).toBe(29_997_000_000_000);
+  });
+
+  it("splits negative amounts so they still add up", () => {
+    const parts = splitByWeight(-101, halves);
+    expect((parts.get("a") ?? 0) + (parts.get("b") ?? 0)).toBe(-101);
+  });
+
+  it("returns nothing for zero total weight", () => {
+    expect(splitByWeight(100, []).size).toBe(0);
   });
 });
 

@@ -15,9 +15,41 @@ export function paiseToRupees(paise: Paise): number {
   return paise / PAISE_PER_RUPEE;
 }
 
-/** Applies an ownership share (percent) to an amount, rounded to the nearest paisa. */
-export function share(amount: Paise, sharePercent: number): Paise {
-  return Math.round((amount * sharePercent) / 100);
+/**
+ * Splits an amount by integer weights (ownership shares in basis points) so the parts add
+ * up to the amount exactly: each part rounds down, then the leftover paise go one each to
+ * the largest remainders, ties to the lowest key. Deterministic on every device, and a
+ * household total always equals the sum of its members' lenses (ADR-0055). BigInt because
+ * amount × weight can pass 2^53 for crore-sized records.
+ */
+export function splitByWeight(
+  amount: Paise,
+  weights: readonly { key: string; weight: number }[],
+): Map<string, Paise> {
+  const total = weights.reduce((t, w) => t + w.weight, 0);
+  const out = new Map<string, Paise>();
+  if (total <= 0) return out;
+  const big = BigInt(amount);
+  const zero = BigInt(0);
+  const one = BigInt(1);
+  const parts = weights.map((w) => {
+    const scaled = big * BigInt(w.weight);
+    const floor = scaled / BigInt(total);
+    // Truncating division rounds toward zero; step down for negative amounts.
+    const down = scaled % BigInt(total) < zero ? floor - one : floor;
+    return { key: w.key, part: down, rest: scaled - down * BigInt(total) };
+  });
+  let leftover = big - parts.reduce((t, p) => t + p.part, zero);
+  const byRest = [...parts].sort((a, b) =>
+    a.rest === b.rest ? (a.key < b.key ? -1 : 1) : a.rest > b.rest ? -1 : 1,
+  );
+  for (const p of byRest) {
+    if (leftover <= zero) break;
+    p.part += one;
+    leftover -= one;
+  }
+  for (const p of parts) out.set(p.key, (out.get(p.key) ?? 0) + Number(p.part));
+  return out;
 }
 
 export function sum(amounts: readonly Paise[]): Paise {
