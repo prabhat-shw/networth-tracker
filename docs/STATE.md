@@ -1,4 +1,4 @@
-_Last updated: 2026-10-31 (session 38: #138 Home net worth + sync status) · next session: start here_
+_Last updated: 2026-10-31 (session 38: #138 Home, #139 Goals) · next session: start here_
 
 ## Where we are
 
@@ -16,16 +16,15 @@ Ship a usable **manual-entry** app: M3 only. M4+ (prices, charts, import) and #2
 
 ## Next session picks up
 
-Day 2 is under way: #138 done. **Next: #139 Goals screen (basic)** (`size:S`): create/edit/delete a goal
-(`goal` schema, ADR-0053), list with earmarked total and Unallocated; then **#140 E2E** (`area:security`,
-owner approval), then redeploy staging + home.
-Last: **#138** ([ADR-0059](decisions/0059-home-hero-and-sync-status.md)). `src/features/home/net-worth.tsx`
-(`summarize`, `useNetWorth`, `NetWorthHero`), `sync-status.tsx` (`SyncIndicator`, `ago`); `HouseholdSync.status()`
-+ `useSyncStatus()` (states `syncing`/`synced`/`offline`/`recovery`). Lens members = viewer + profiles.
-Deferred: Accounts badge/values following the lens (needs a shared lens store across routes), count-up animation.
-Accounts (ADR-0058): `src/features/accounts/`; add flow (ADR-0056/0057): `src/features/add/` (`AddAnything`).
-**Redeploy staging and the home server** if not yet done: #147 (GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2,
-GHSA-p3m5-59mp-jv5r). Known gap (ADR-0054): a member can tombstone another's profile.
+Day 2: #138 and #139 done. **Next: #140 M3 acceptance E2E** (`size:S`, `area:security`: owner approves, never
+self-merge): two members, joint FD 50/50 + solo PPF, right Me/Household on both devices (Home hero:
+`group "Whose net worth"`), DB plaintext scan, isolation. Then **redeploy staging + home** (#147, #142 advisories).
+Last: **#139** ([ADR-0060](decisions/0060-goals-screen-basic.md)). `src/features/goals/` — `Goals` (cards +
+dashed Unallocated, `earmarks()`), `GoalDialog` (CRUD form), `goal-kinds.ts`; route `/goals`, Home nav links it.
+#138 ([ADR-0059](decisions/0059-home-hero-and-sync-status.md)): `src/features/home/net-worth.tsx`, `sync-status.tsx`,
+`HouseholdSync.status()` + `useSyncStatus()`. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation.
+Add flow: `src/features/add/` (`AddAnything`); Accounts: `src/features/accounts/`.
+Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
 
@@ -55,6 +54,8 @@ GHSA-p3m5-59mp-jv5r). Known gap (ADR-0054): a member can tombstone another's pro
   the Better Auth memory adapter, which hides schema bugs.
 - Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`).
 - Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
+- **Merging:** the `protect-main` ruleset has "extra approval for unattributed changes" and no bypass actors, so
+  `gh pr merge` (even `--admin`) is blocked for our unattributed commits; the owner merges or relaxes the rule.
 - Merge policy (owner): merge when CI is green **and the owner says so** in the session
   (the auto-mode classifier blocks unrequested merges). `area:crypto`/`area:security` always wait for approval.
 - `docs/` is excluded from Biome; `next dev` appends an agent-rules block to `CLAUDE.md` (committed on purpose).

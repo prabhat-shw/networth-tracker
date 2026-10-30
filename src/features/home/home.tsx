@@ -55,6 +55,9 @@ export function Home({
         <Link href="/accounts" className="underline">
           Accounts
         </Link>
+        <Link href="/goals" className="underline">
+          Goals
+        </Link>
         <Link href="/settings" className="underline">
           Settings
         </Link>
