@@ -55,9 +55,14 @@ export function Home({
           {household}
         </div>
       )}
-      <Link href="/settings" className="text-sm underline">
-        Settings
-      </Link>
+      <nav className="flex gap-4 text-sm">
+        <Link href="/accounts" className="underline">
+          Accounts
+        </Link>
+        <Link href="/settings" className="underline">
+          Settings
+        </Link>
+      </nav>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-_Last updated: 2026-10-31 (session 36: #136 per-kind fields + edit) · next session: start here_
+_Last updated: 2026-10-31 (session 37: #137 accounts list) · next session: start here_
 
 ## Where we are
 
@@ -16,14 +16,13 @@ Ship a usable **manual-entry** app: M3 only. M4+ (prices, charts, import) and #2
 
 ## Next session picks up
 
-**#137 Accounts list** (`size:M`, UI): UX §3.4 grouped list by `SECTIONS` (`catalogue.ts` placement), ownership
-badge per row (`◐ 50/50 with Bala`), search, empty + error rows (fail-soft entries from `useAssets`/`useLiabilities`).
-Tap a row → `<AddAnything label=… editing={{ id, data }} />` opens its edit form with Delete.
-Last: **#136** ([ADR-0057](decisions/0057-kind-fields-as-data-and-edit.md)). `src/features/add/`: `field-specs.ts`
-(`KIND_FIELDS`, `KIND_BASE`), `fields.ts` (`readFields`, `fieldInputs`, `paiseToInput`), `kind-fields.tsx`,
-`record-form.tsx` (schema-driven Save, edit = stored ⊕ form, Delete, Save & add another), `goal-tags.tsx`.
-Not built: property↔loan link inputs (kept on edit). #135 (ADR-0056): `add-anything.tsx`, `owned-by.tsx`, `kinds.ts`.
-Engine (#133, ADR-0055): `netWorth`/`allLenses` in `src/domain/networth.ts`, for #138.
+Day 1 of the deadline plan is done (#135, #136, #137). **Day 2 starts with #138 Home** (`size:M`, UI + sync):
+net-worth hero from `allLenses` (`src/domain/networth.ts`, ADR-0055) with the Me · Household · member lens toggle
+(UX §2.1), replace the zero-state once records exist, sync indicator (UX §2.3) incl. "Changes are waiting: add a
+recovery method" for the ADR-0040 `409`, settle #34 "Home fits one screen". Make the Accounts badge follow the lens.
+Last: **#137** ([ADR-0058](decisions/0058-accounts-list.md)). `src/features/accounts/accounts.tsx` (`Accounts`,
+`SECTION_LABEL`, `BrokenRows`), `badge.ts` (`ownershipBadge`, `taggedPercent`); route `src/app/accounts/page.tsx`,
+Home nav links Accounts. Add flow (ADR-0056/0057): `src/features/add/` — `AddAnything` with `editing={{ id, data }}`.
 **Redeploy staging and the home server** if not yet done: #147 (GHSA-965c-763c-88jm) and #142 (Next.js 16.4.2,
 GHSA-p3m5-59mp-jv5r). Known gap (ADR-0054): a member can tombstone another's profile.
 
