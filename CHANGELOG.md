@@ -35,6 +35,10 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Goals (#139): create, edit and delete goals (house, education, retirement and more) with a
+  target, date, priority and owners. Each goal shows how much your accounts earmark to it,
+  and an Unallocated card shows the rest of your net worth. Deleting a goal frees its money
+  back to Unallocated.
 - Home shows your net worth (#138): one figure for the household, for you, or for each
   member, switched with a toggle; joint records count by each owner's share. A sync line
   says when you last synced, when you're offline, and when your changes are waiting because
