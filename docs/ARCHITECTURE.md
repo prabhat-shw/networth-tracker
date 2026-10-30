@@ -31,7 +31,8 @@
   runs after unlock, on `online` and on an interval while visible (ADR-0003, 0045, 0049).
   `startHouseholdSync` wires one household's store, cache, engine and scheduler; the
   `SyncProvider` inside the household gate owns its lifetime, and screens read
-  `useRecords()` (ADR-0050).
+  `useRecords()` (ADR-0050). The handle's `status()` (`useSyncStatus()`) drives the sync
+  indicator, including `recovery` for pushes refused with ADR-0040's 409 (ADR-0059).
 - **prices** — universe download, local lookup, staleness, manual overrides (ADR-0005).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.

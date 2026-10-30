@@ -15,6 +15,7 @@ export default function Home() {
         <HomeScreen
           household={<HouseholdPanel />}
           add={<AddAnything label="Add your first account" />}
+          addMore={<AddAnything />}
         />
         {/* A stub (renders nothing) except in NEXT_PUBLIC_E2E=1 builds; ADR-0036. */}
         <RecordProbe />

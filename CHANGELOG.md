@@ -35,6 +35,10 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Home shows your net worth (#138): one figure for the household, for you, or for each
+  member, switched with a toggle; joint records count by each owner's share. A sync line
+  says when you last synced, when you're offline, and when your changes are waiting because
+  you haven't added a recovery method yet.
 - Accounts list (#137): every asset and liability, grouped by category with a total per
   section, ownership badges for joint and partner-owned records, how much is tagged to
   goals, and search. Tap a name to edit it. A record that can't be read shows as its own

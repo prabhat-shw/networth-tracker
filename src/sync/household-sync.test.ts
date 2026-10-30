@@ -4,6 +4,7 @@ import { generateDataKey, generateIdentityKeyPair } from "@/crypto/keys";
 import { createKeySession } from "@/features/lock/key-session";
 import { type FakeServer, fakeServer, memoryStore } from "./fakes";
 import { type HouseholdSync, startHouseholdSync } from "./household-sync";
+import { SyncHttpError } from "./http-transport";
 import type { SyncEnv } from "./scheduler";
 
 const ASHA = "0a000000-0000-4000-8000-0000000000a1";
@@ -45,12 +46,15 @@ function quietEnv(): SyncEnv & { online(): void; timers: number } {
 
 async function device(
   userId: string,
-  { clock = "10:00:00", store = memoryStore() } = {},
+  {
+    clock = "10:00:00",
+    store = memoryStore(),
+    transport = server.connect(),
+  } = {},
 ) {
   const session = createKeySession({ autoLockMs: 3_600_000 });
   session.start(await generateIdentityKeyPair());
   session.setHouseholdKey(hdk);
-  const transport = server.connect();
   const env = quietEnv();
   const at = { clock };
   const sync = startHouseholdSync({
@@ -132,6 +136,48 @@ describe("household sync", () => {
     expect(again.sync.records()).toEqual([]);
     expect(heard).toHaveBeenCalled();
     expect(again.env.timers).toBe(0); // scheduler stopped with the lock
+  });
+
+  it("reports synced, offline and the time of the last clean run", async () => {
+    const a = await device(ASHA);
+    await vi.waitFor(() => expect(a.sync.status().state).toBe("synced"));
+    expect(a.sync.status()).toMatchObject({ pending: false });
+    expect(a.sync.status().lastSyncedAt?.toISOString()).toBe(
+      "2026-10-12T10:00:00.000Z",
+    );
+
+    a.transport.offline();
+    a.at.clock = "10:05:00";
+    await a.sync.write(R1, "note", { text: "later" });
+    await vi.waitFor(() => expect(a.sync.status().state).toBe("offline"));
+    expect(a.sync.status().pending).toBe(true);
+    expect(a.sync.status().lastSyncedAt?.toISOString()).toBe(
+      "2026-10-12T10:00:00.000Z",
+    );
+
+    a.transport.online();
+    await a.sync.sync();
+    expect(a.sync.status()).toMatchObject({ state: "synced", pending: false });
+  });
+
+  it("says edits are waiting when a push needs a recovery method (409)", async () => {
+    const base = server.connect();
+    const transport = Object.assign(base, {
+      push: async () => {
+        throw new SyncHttpError(409);
+      },
+    });
+    const a = await device(ASHA, { transport });
+    await a.sync.write(R1, "note", { text: "stuck" });
+    await vi.waitFor(() => expect(a.sync.status().state).toBe("recovery"));
+    expect(a.sync.status().pending).toBe(true);
+    expect(texts(a.sync)).toEqual(["stuck"]); // still shown locally
+  });
+
+  it("keeps the status object stable between changes", async () => {
+    const a = await device(ASHA);
+    await vi.waitFor(() => expect(a.sync.status().state).toBe("synced"));
+    expect(a.sync.status()).toBe(a.sync.status());
   });
 
   it("refuses to start without a household key", async () => {
