@@ -1,41 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { assetData } from "@/domain/records/asset";
-import { liabilityData } from "@/domain/records/liability";
 import {
   BUCKETS,
   bpsToPercent,
   KIND_OPTIONS,
+  optionFor,
   optionsIn,
   parsePercent,
   parseRupees,
   searchKinds,
 } from "./kinds";
 
-const ASHA = "0a000000-0000-4000-8000-0000000000a1";
-
 describe("kind options", () => {
-  it("gives every bucket at least one kind that can be saved today", () => {
-    for (const b of BUCKETS)
-      expect(optionsIn(b).some((o) => o.defaults !== null)).toBe(true);
-  });
-
-  it("has defaults that make a valid record with the common fields", () => {
-    for (const o of KIND_OPTIONS) {
-      if (!o.defaults) continue;
-      const data = {
-        kind: o.kind,
-        name: "Test",
-        value: 100,
-        owners: [{ memberId: ASHA, shareBps: 10_000 }],
-        includeInNetWorth: true,
-        tags: [],
-        asOf: "2026-10-30",
-        allocations: [],
-        ...o.defaults,
-      };
-      const schema = o.type === "asset" ? assetData : liabilityData;
-      expect(schema.safeParse(data).success, o.kind).toBe(true);
-    }
+  it("places every kind in a bucket, with a label", () => {
+    for (const b of BUCKETS) expect(optionsIn(b).length).toBeGreaterThan(0);
+    expect(KIND_OPTIONS).toHaveLength(32);
+    expect(optionFor("creditCard")?.type).toBe("liability");
   });
 });
 

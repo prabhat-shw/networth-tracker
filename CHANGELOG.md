@@ -35,6 +35,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Every kind can now be added, edited and deleted (#136): each type gets its own fields
+  (maturity and rate for an FD, units and scheme code for a mutual fund, EMI for a loan),
+  "Save & add another" keeps you in the same category, and you can tag a record to a goal.
 - Add anything (#135): add an account, deposit, property, policy or loan from Home in three
   steps (category, type, details), with search. "Owned by" defaults to just you; split a
   joint record between members, and Save waits until the shares add up to 100%. A few types

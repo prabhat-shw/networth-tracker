@@ -1,8 +1,6 @@
 /**
- * What the add flow shows (UX.md §4.1–4.2): a label per kind, the bucket it sits in, and the
- * defaults its required kind-specific fields take until #136 adds their inputs. A kind with
- * `defaults: null` needs details no default can guess (units, a counterparty), so it is listed
- * but can't be saved yet.
+ * What the add flow shows (UX.md §4.1): a label per kind and the bucket it sits in. Each
+ * kind's own fields are in `fields.ts`.
  */
 import type { Paise } from "@/domain/money";
 import type { AssetKind } from "@/domain/records/asset";
@@ -25,81 +23,65 @@ export const BUCKET_LABEL: Readonly<Record<Bucket, string>> = {
 };
 
 export type KindOption =
-  | {
-      type: "asset";
-      kind: AssetKind;
-      label: string;
-      bucket: Bucket;
-      defaults: object | null;
-    }
-  | {
-      type: "liability";
-      kind: LiabilityKind;
-      label: string;
-      bucket: Bucket;
-      defaults: object | null;
-    };
+  | { type: "asset"; kind: AssetKind; label: string; bucket: Bucket }
+  | { type: "liability"; kind: LiabilityKind; label: string; bucket: Bucket };
 
-const ASSETS: Readonly<Record<AssetKind, [string, object | null]>> = {
-  bankAccount: ["Bank account", { accountType: "savings" }],
-  cash: ["Cash in hand", {}],
-  wallet: ["UPI / wallet balance", {}],
-  foreignBank: ["Foreign bank account", null],
-  fixedDeposit: [
-    "Fixed deposit",
-    { issuer: "bank", payout: "cumulative", taxSaver: false, autoRenew: false },
-  ],
-  recurringDeposit: ["Recurring deposit", null],
-  mutualFund: ["Mutual fund", null],
-  stock: ["Indian stocks", null],
-  bond: ["Bonds / SGB", { bondType: "government" }],
-  unlisted: ["Unlisted shares", {}],
-  crypto: ["Crypto", null],
-  usStock: ["US stocks", null],
-  rsu: ["RSU / ESPP", null],
-  ppf: ["PPF", {}],
-  epf: ["EPF / VPF", { includesVpf: false }],
-  nps: ["NPS", { tier: 1 }],
-  sukanyaSamriddhi: ["Sukanya Samriddhi", null],
-  smallSavings: ["NSC / KVP / SCSS", { scheme: "nsc" }],
-  employerBenefit: ["Gratuity / superannuation", { benefit: "gratuity" }],
-  realEstate: ["Real estate", { linkedLiabilityIds: [] }],
-  vehicle: ["Vehicle", {}],
-  preciousMetal: ["Gold / silver", { metal: "gold", form: "jewellery" }],
-  valuable: ["Other valuable", {}],
-  insurance: [
-    "Life insurance policy",
-    { policyType: "endowment", sumAssured: 0 },
-  ],
-  moneyLent: ["Money lent", null],
-  securityDeposit: ["Security deposit", null],
-  reimbursement: ["Reimbursement due", null],
-  chitFund: ["Chit fund", null],
-  p2pLending: ["P2P lending", {}],
+const ASSETS: Readonly<Record<AssetKind, string>> = {
+  bankAccount: "Bank account",
+  cash: "Cash in hand",
+  wallet: "UPI / wallet balance",
+  foreignBank: "Foreign bank account",
+  fixedDeposit: "Fixed deposit",
+  recurringDeposit: "Recurring deposit",
+  mutualFund: "Mutual fund",
+  stock: "Indian stocks",
+  bond: "Bonds / SGB",
+  unlisted: "Unlisted shares",
+  crypto: "Crypto",
+  usStock: "US stocks",
+  rsu: "RSU / ESPP",
+  ppf: "PPF",
+  epf: "EPF / VPF",
+  nps: "NPS",
+  sukanyaSamriddhi: "Sukanya Samriddhi",
+  smallSavings: "NSC / KVP / SCSS",
+  employerBenefit: "Gratuity / superannuation",
+  realEstate: "Real estate",
+  vehicle: "Vehicle",
+  preciousMetal: "Gold / silver",
+  valuable: "Other valuable",
+  insurance: "Life insurance policy",
+  moneyLent: "Money lent",
+  securityDeposit: "Security deposit",
+  reimbursement: "Reimbursement due",
+  chitFund: "Chit fund",
+  p2pLending: "P2P lending",
 };
 
-const LIABILITIES: Readonly<Record<LiabilityKind, [string, object | null]>> = {
-  loan: ["Loan", { loanType: "other" }],
-  creditCard: ["Credit card", {}],
-  borrowing: ["Borrowed from family / friends", null],
+const LIABILITIES: Readonly<Record<LiabilityKind, string>> = {
+  loan: "Loan",
+  creditCard: "Credit card",
+  borrowing: "Borrowed from family / friends",
 };
 
 export const KIND_OPTIONS: readonly KindOption[] = [
-  ...Object.entries(ASSETS).map(([kind, [label, defaults]]) => ({
+  ...Object.entries(ASSETS).map(([kind, label]) => ({
     type: "asset" as const,
     kind: kind as AssetKind,
     label,
     bucket: ASSET_PLACEMENT[kind as AssetKind].bucket,
-    defaults,
   })),
-  ...Object.entries(LIABILITIES).map(([kind, [label, defaults]]) => ({
+  ...Object.entries(LIABILITIES).map(([kind, label]) => ({
     type: "liability" as const,
     kind: kind as LiabilityKind,
     label,
     bucket: LIABILITY_PLACEMENT[kind as LiabilityKind].bucket,
-    defaults,
   })),
 ];
+
+/** The option for a stored record's kind (edit opens straight at its form). */
+export const optionFor = (kind: string) =>
+  KIND_OPTIONS.find((o) => o.kind === kind);
 
 export const optionsIn = (bucket: Bucket) =>
   KIND_OPTIONS.filter((o) => o.bucket === bucket);
