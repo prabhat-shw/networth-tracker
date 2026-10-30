@@ -43,8 +43,8 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | --- | --- |
 | Version | `0.1.0` |
 | Milestone | M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed (M2: encrypted sync, |
-| Next up | #135 Add anything |
-| Decisions recorded | 55 ADRs |
+| Next up | #136 per-kind fields + edit |
+| Decisions recorded | 56 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.

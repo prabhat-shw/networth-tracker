@@ -70,3 +70,4 @@ One line per session: date · issue · outcome.
 - 2026-10-27 · #132 typed records + member profiles (ADR-0054): `RECORD_CODECS`, `typeRecords` fail-soft per record, `prepareWrite` validates before `sync.write` (schemaVersion now passed), self-written `member` record + Home name prompt
 - 2026-10-28 · handoff #132: GLOSSARY *Member profile*, UX §3.2 name prompt, STATE → next #133
 - 2026-10-30 · #133 net-worth engine (ADR-0055): `netWorth`/`allLenses` per lens, largest-remainder `splitByWeight` replaces float `share`, former-member bucket, lens-weighted `earmarks`
+- 2026-10-30 · #135 Add anything skeleton (ADR-0056): native `<dialog>` sheet, 7 buckets + search, common form, Owned-by split with remainder chip, Home CTA live; kinds needing details staged as "coming soon"
