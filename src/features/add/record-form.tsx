@@ -2,7 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 import { assetData } from "@/domain/records/asset";
-import { type Allocation, FULL_BPS } from "@/domain/records/common";
+import { type Allocation, FULL_BPS, type Lot } from "@/domain/records/common";
 import { liabilityData } from "@/domain/records/liability";
 import { InvalidRecordError } from "@/domain/records/typed";
 import { useHouseholdSync } from "@/features/sync/sync-provider";
@@ -13,6 +13,7 @@ import {
 } from "@/features/sync/typed-records";
 import { KIND_BASE, KIND_FIELDS } from "./field-specs";
 import { fieldInputs, paiseToInput, readFields } from "./fields";
+import { FormActions } from "./form-actions";
 import { GoalTags, type Tag } from "./goal-tags";
 import { KindFields } from "./kind-fields";
 import {
@@ -22,6 +23,7 @@ import {
   parseRupees,
   today,
 } from "./kinds";
+import { type LotInput, Lots, lotsFromStored, lotsToStored } from "./lots";
 import {
   fromStored,
   type NomineeInput,
@@ -33,10 +35,6 @@ import { OwnedBy, type Share } from "./owned-by";
 
 const field =
   "rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700";
-const primary =
-  "rounded-md bg-neutral-900 px-3 py-2 font-medium text-white disabled:opacity-50 dark:bg-white dark:text-neutral-900";
-const secondary =
-  "rounded-md border border-neutral-300 px-3 py-2 font-medium disabled:opacity-50 dark:border-neutral-700";
 
 export interface Editing {
   id: string;
@@ -101,10 +99,12 @@ export function RecordForm({
   const [nominees, setNominees] = useState<NomineeInput[]>(() =>
     fromStored((stored.nominees as StoredNominee[] | undefined) ?? []),
   );
+  const [lots, setLots] = useState<LotInput[]>(() =>
+    lotsFromStored((stored.lots as Lot[] | undefined) ?? []),
+  );
   const [inputs, setInputs] = useState(() => fieldInputs(specs, stored));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [confirming, setConfirming] = useState(false);
 
   const people = [...profiles].map(([memberId, p]) => ({
     memberId,
@@ -112,6 +112,10 @@ export function RecordForm({
   }));
   const goalIds = new Set(goals.map((g) => g.id));
   const kindFields = readFields(specs, inputs);
+  // Priced holdings (those listed on an exchange or AMFI) carry tax lots (#26).
+  const hasLots =
+    option.type === "asset" && specs.some((s) => s.input === "instrument");
+  const held = inputs.quantity;
   const paise = parseRupees(value);
   const allocations: Allocation[] = [
     // Fixed earmarks are edited in M5; dangling ones are dropped here (ADR-0053).
@@ -140,6 +144,7 @@ export function RecordForm({
     allocations,
     // Nominees are an asset's (#25); a liability keeps whatever it stored.
     ...(option.type === "asset" ? { nominees: toStored(nominees) } : {}),
+    ...(hasLots ? { lots: lotsToStored(lots) } : {}),
   };
   for (const k of Object.keys(data)) if (data[k] === undefined) delete data[k];
   const parsed = (
@@ -224,6 +229,13 @@ export function RecordForm({
       {text("As of", asOf, setAsOf, { type: "date", required: true })}
       <OwnedBy me={me} people={people} shares={shares} onChange={setShares} />
       <GoalTags goals={goals} tags={tags} onChange={setTags} />
+      {hasLots && (
+        <Lots
+          held={typeof held === "string" ? held : undefined}
+          rows={lots}
+          onChange={setLots}
+        />
+      )}
       {option.type === "asset" && (
         <Nominees
           me={me}
@@ -248,45 +260,12 @@ export function RecordForm({
           {error}
         </p>
       )}
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="submit"
-          value="done"
-          disabled={!parsed.success || busy}
-          className={primary}
-        >
-          Save
-        </button>
-        {!editing && (
-          <button
-            type="submit"
-            value="again"
-            disabled={!parsed.success || busy}
-            className={secondary}
-          >
-            Save &amp; add another
-          </button>
-        )}
-        {editing &&
-          (confirming ? (
-            <button
-              type="button"
-              onClick={del}
-              disabled={busy}
-              className={`${secondary} text-red-600`}
-            >
-              Yes, delete for everyone
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setConfirming(true)}
-              className={`${secondary} text-red-600`}
-            >
-              Delete
-            </button>
-          ))}
-      </div>
+      <FormActions
+        canSave={parsed.success}
+        busy={busy}
+        editing={!!editing}
+        onDelete={del}
+      />
     </form>
   );
 }

@@ -5,10 +5,12 @@
  * carry `quantity` + `instrument`, which M4 values from public price universes.
  */
 import { z } from "zod";
+import { isQuantity, sumUnits, toUnits } from "../units";
 import {
   commonFields,
   instrument,
   isoDate,
+  lots,
   paise,
   quantity,
   rateBps,
@@ -27,7 +29,18 @@ const asset = commonFields.extend({
 const kind = <K extends string, S extends z.ZodRawShape>(k: K, shape: S) =>
   asset.extend({ kind: z.literal(k), ...shape });
 
-const priced = { quantity, instrument };
+/** Priced holdings may carry tax lots (#26); M6's statement import fills them too. */
+const priced = { quantity, instrument, lots: lots.optional() };
+/** Lots, when given, account for every unit held. */
+const lotsMatch = (a: { quantity: string; lots?: { quantity: string }[] }) =>
+  !a.lots ||
+  // A malformed quantity already failed its own check; don't throw converting it.
+  ![a, ...a.lots].every((x) => isQuantity(x.quantity)) ||
+  sumUnits(a.lots) === toUnits(a.quantity);
+const lotsAddUp = {
+  message: "lots must add up to the units held",
+  path: ["lots"],
+};
 const interest = { interestBps: rateBps.optional() };
 const term = {
   startDate: isoDate.optional(),
@@ -90,8 +103,8 @@ export const assetKinds = [
     folio: text(32).optional(),
     plan: z.enum(["direct", "regular"]),
     sip: paise.min(1).optional(),
-  }),
-  kind("stock", { ...priced }),
+  }).refine(lotsMatch, lotsAddUp),
+  kind("stock", { ...priced }).refine(lotsMatch, lotsAddUp),
   kind("bond", {
     bondType: z.enum([
       "government",
@@ -104,10 +117,10 @@ export const assetKinds = [
     maturityDate: isoDate.optional(),
   }),
   kind("unlisted", { units: quantity.optional() }),
-  kind("crypto", { ...priced }),
+  kind("crypto", { ...priced }).refine(lotsMatch, lotsAddUp),
 
   // Foreign
-  kind("usStock", { ...priced }),
+  kind("usStock", { ...priced }).refine(lotsMatch, lotsAddUp),
   kind("rsu", {
     ...priced,
     plan: z.enum(["rsu", "espp"]),
@@ -115,7 +128,7 @@ export const assetKinds = [
     schedule: z.enum(["monthly", "quarterly", "yearly"]),
     /** Not yet vested; outside net worth by default and shown separately (UX §4.2). */
     unvested: quantity,
-  }),
+  }).refine(lotsMatch, lotsAddUp),
   kind("foreignBank", {
     currency: z.string().regex(/^[A-Z]{3}$/),
     /** The balance in that currency's minor units (cents); `value` holds it in paise. */

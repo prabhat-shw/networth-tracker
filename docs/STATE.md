@@ -1,19 +1,20 @@
-_Last updated: 2026-10-31 (session 41: #27 linked transfers) · next session: start here_
+_Last updated: 2026-10-31 (session 41: #27 linked transfers, #26 tax lots) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed. M3's deadline scope is
 merged (pure layer ADR-0052–0055, Add anything, Accounts, Home + lens, Goals, E2E #140). Staging is live on main.
-#25 nominees merged (ADR-0061). **#27 linked transfers** (ADR-0062, pure only): `transaction` type
-(`src/domain/records/transaction.ts`, one `in`/`out` leg, `transferId` links a pair) and `src/domain/contributions.ts`
-(per lens; Household ignores transfers, member lenses see the share moved; `transferIssues()` flags broken pairs).
-No transaction UI yet (M5/M6). **Push needs a recovery method** (ADR-0040).
+#25 nominees and #27 linked transfers merged (ADR-0061, ADR-0062: `transaction` legs + `src/domain/contributions.ts`,
+no UI yet). **#26 tax lots** (ADR-0063): optional `lots` on priced kinds summing to `quantity` (units as bigint 10⁻⁸ in
+`src/domain/units.ts`), `consumeFifo` in `src/domain/lots.ts`, "Tax lots (optional)" in `src/features/add/lots.tsx`;
+form buttons moved to `form-actions.tsx`. Every M3 issue is now done. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. If #27's PR is still open: merge when CI is green and the owner says so.
+1. If #26's PR is still open: merge when CI is green and the owner says so. Then close M3 (all issues done) and
+   write the M4 brief (`docs/phases/M4.md`, prices from public universes).
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
-3. Last M3 leftover: #26 tax lots (`size:M`), or close M3 and move it on (owner call). Then M4 (prices).
+3. Sells don't rewrite lots yet: the M5/M6 sell flow calls `consumeFifo`.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs.
 Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert).
 Known gap (ADR-0054): a member can tombstone another's profile.
@@ -65,6 +66,7 @@ Known gap (ADR-0054): a member can tombstone another's profile.
 - Browser tests: `render()` from vitest-browser-react is async; await it. `toHaveTextContent` timed out on
   matching text here: assert with `getByText(/…/)` instead. Python edits on Windows:
   open with `newline=''` or files turn CRLF.
+- `src/server/records.pg.test.ts` can time out in a full local `pnpm test` under load; it passes alone.
 - **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).
 
 ## Resume command
