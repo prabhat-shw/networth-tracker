@@ -1,6 +1,6 @@
 # ADR-0005 — Public price feeds without leaking holdings
 
-**Status:** Accepted · 2026-09-08
+**Status:** Accepted · 2026-09-08 · sources amended by [ADR-0064](0064-prices-and-valuation.md) (2026-10-31)
 
 ## Context
 
@@ -15,9 +15,10 @@ full set and looks up locally. Verified sources (all reachable, checked 2026-09-
 | Data | Source | Notes |
 | --- | --- | --- |
 | All MF NAVs | `https://portal.amfiindia.com/spages/NAVAll.txt` | ~1.5 MB/day, scheme code + ISIN |
-| Indian equity / ETF / US stocks / crypto | Yahoo Finance chart API | universe file, not per-symbol |
+| Indian equity / ETF | NSE and BSE daily bhavcopy (ADR-0064) | one official file per exchange |
+| US stocks / crypto | Yahoo `spark` over a fixed top-N list; CoinGecko top 500 (ADR-0064) | lists fixed in the repo, not per holding |
 | FX (USD→INR etc.) | `https://api.frankfurter.dev/v1/latest` | free, no key |
-| Gold / silver | Gold ETF + published rates | manual override always available |
+| Gold / silver | IBJA daily rates per gram (ADR-0064) | manual override always available |
 | EPF/PPF/NPS/SSY rates | Config table in repo | updated by ADR when rates change |
 
 Long-tail symbols not in a universe fall back to a per-symbol fetch **only with an explicit

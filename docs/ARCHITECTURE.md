@@ -13,7 +13,7 @@
 ┌──────────▼───────────────────────────────────────────┬──────────┴───────────────┐
 │  Sync API (thin, replaceable — see docs/api/CONTRACT) │  Price service           │
 │   …/records pull·push · auth · key-wrap · vaults      │   AMFI NAVAll (daily)    │
-│   Postgres via Drizzle — ciphertext columns only      │   Yahoo universes · FX   │
+│   Postgres via Drizzle — ciphertext columns only      │   Bhavcopy·US·crypto·FX  │
 └───────────────────────────────────────────────────────┴──────────────────────────┘
 ```
 
@@ -33,7 +33,9 @@
   `SyncProvider` inside the household gate owns its lifetime, and screens read
   `useRecords()` (ADR-0050). The handle's `status()` (`useSyncStatus()`) drives the sync
   indicator, including `recovery` for pushes refused with ADR-0040's 409 (ADR-0059).
-- **prices** — universe download, local lookup, staleness, manual overrides (ADR-0005).
+- **prices** — universe download, local lookup, staleness, manual overrides (ADR-0005). Pure maths in
+  `src/domain/prices/`: decimal-string prices, `marketValue` in bigint rounded once to paise, values derived on
+  read and never written back ([ADR-0064](decisions/0064-prices-and-valuation.md)).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.
 
