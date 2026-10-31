@@ -1,27 +1,20 @@
-_Last updated: 2026-10-31 (session 39: #140 M3 acceptance E2E) · next session: start here_
+_Last updated: 2026-10-31 (session 40: #25 nominees) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed. M3's deadline scope is
-done once #140 merges: pure layer (ADR-0052–0055), Add anything (#135/#136), Accounts (#137), Home + lens + sync
-status (#138), Goals (#139), and the acceptance E2E (#140, `e2e/m3-acceptance.spec.ts`).
-**Push needs a recovery method** (ADR-0040): a member without one has edits stuck in the outbox; Home surfaces it.
-
-## Deadline plan (owner: app due 2026-11-01)
-
-Ship a usable **manual-entry** app: M3 only. M4+ (prices, charts, import) and #25–#27, #112, #93 wait.
-Day 2 left: **redeploy staging + home** (#147, #142 advisories). Run staging `pnpm db:migrate` first if needed.
+merged (pure layer ADR-0052–0055, Add anything, Accounts, Home + lens, Goals, E2E #140). Staging is live on main.
+**#25 nominees** (ADR-0061): `src/features/add/nominees.tsx` in the asset form; `ShareChip` now shared with
+`OwnedBy`; Add-flow browser tests share `test-sync.tsx`. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. If #140's PR is still open: it is `area:security`, so the owner approves before merge.
-2. **Redeploy staging + home** (#147, #142). Smoke-test add FD → Home figure on a real phone (passkey PRF too).
-3. Then M3 leftovers #25 nominees (`size:S`), #27 linked transfers (`size:S`), #26 tax lots (`size:M`), or close M3
-   and move them to a later milestone (owner call).
-#140 E2E: two named members, joint FD 50/50 + solo PPF via Add anything; asserts each lens on both devices
-(A: Me ₹1,00,000, B: Me ₹1,50,000, Household ₹2,50,000), padding, leak scan of names/amounts/kinds, C gets 404.
-It nudges sync with the probe's "Open records"; "Owned by" lists another member only after their profile syncs.
-Deferred: a lens store shared by Home/Accounts/Goals, count-up animation.
+1. If #25's PR is still open: merge when CI is green and the owner says so.
+2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
+3. M3 leftovers: #27 linked transfers (`size:S`, ADR first: the `transaction` type), #26 tax lots (`size:M`), or
+   close M3 and move them on (owner call).
+#140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs.
+Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert).
 Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
@@ -66,6 +59,8 @@ Known gap (ADR-0054): a member can tombstone another's profile.
 - Two PRs in flight both append `SESSION_LOG.md` and regenerate the README block: after the first
   merges, merge `main` into the second, keep both log lines, `pnpm docs:sync`.
 - New issues are not auto-added to the Kanban: `gh project item-add 2 --owner prabhat-shw --url …`.
+- **Vitest browser port:** Hyper-V can reserve 63315 (`EACCES`); add `api: { port: 51733 }` to the browser project
+  in `vitest.config.mts` locally (Vitest 5 ignores CLI/`browser.api`), and don't commit it.
 - Browser tests: `render()` from vitest-browser-react is async; await it. `toHaveTextContent` timed out on
   matching text here: assert with `getByText(/…/)` instead. Python edits on Windows:
   open with `newline=''` or files turn CRLF.

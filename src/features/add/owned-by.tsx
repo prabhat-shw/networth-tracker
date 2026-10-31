@@ -138,23 +138,38 @@ export function OwnedBy({
           Invite a member to share ownership with them.
         </p>
       )}
-      <p
-        id={id}
-        aria-live="polite"
-        className={`self-start rounded-full px-2 py-0.5 text-xs ${
-          left === 0
-            ? "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
-            : "bg-amber-100 text-amber-900 dark:bg-amber-900 dark:text-amber-100"
-        }`}
-      >
-        {left === null
-          ? "Enter a share for each owner"
-          : left === 0
-            ? "Shares add up to 100%"
-            : left > 0
-              ? `${bpsToPercent(left)}% left to assign`
-              : `Over by ${bpsToPercent(-left)}%`}
-      </p>
+      <ShareChip id={id} left={left} unread="Enter a share for each owner" />
     </fieldset>
+  );
+}
+
+/** The live remainder chip under a split; `unread` is shown while a share is unreadable. */
+export function ShareChip({
+  id,
+  left,
+  unread,
+}: {
+  id: string;
+  left: number | null;
+  unread: string;
+}) {
+  return (
+    <p
+      id={id}
+      aria-live="polite"
+      className={`self-start rounded-full px-2 py-0.5 text-xs ${
+        left === 0
+          ? "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
+          : "bg-amber-100 text-amber-900 dark:bg-amber-900 dark:text-amber-100"
+      }`}
+    >
+      {left === null
+        ? unread
+        : left === 0
+          ? "Shares add up to 100%"
+          : left > 0
+            ? `${bpsToPercent(left)}% left to assign`
+            : `Over by ${bpsToPercent(-left)}%`}
+    </p>
   );
 }

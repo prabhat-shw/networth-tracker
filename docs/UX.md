@@ -816,7 +816,7 @@ Step 1: What is it?          Step 2: Which one?              Step 3: Tell us abo
 ```
 
 **Step 3 is always the same 6-field skeleton** — Name, Institution, Value, As-of date, Owned
-by, Tag to goal, (collapsed) Notes — with **0–3 type-specific fields** inserted directly below
+by, Tag to goal, (collapsed) Nominees on assets ([ADR-0061](decisions/0061-nominees-field.md)), (collapsed) Notes — with **0–3 type-specific fields** inserted directly below
 Value, never elsewhere, so the eye always knows where "the normal stuff" ends and "the specific
 stuff" begins:
 
