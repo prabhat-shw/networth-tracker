@@ -34,6 +34,8 @@ Finance and engineering terms in one place. Fuller explanations:
 | **PPF** | Public Provident Fund — 15-year tax-free government savings scheme |
 | **Required SIP** | Monthly investment needed to close a goal's gap |
 | **RSU** | Restricted Stock Unit — employer shares that vest over time |
+| **Tax lot** | One purchase of a holding: units, what they cost and when. A sell uses up the oldest lots first (FIFO), which decides the gain and whether it is short- or long-term ([ADR-0063](../decisions/0063-tax-lots.md)) |
+| **Grandfathering (2018)** | Equity and equity funds bought by 31 Jan 2018 count their gain only from that day's market value, so each such lot can store it |
 | **SGB** | Sovereign Gold Bond — government bond priced to gold |
 | **SIP** | Systematic Investment Plan — fixed monthly investing |
 | **SSY** | Sukanya Samriddhi Yojana — savings scheme for a girl child |

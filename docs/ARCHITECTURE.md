@@ -51,6 +51,9 @@ in-memory upgrades; a record from a newer app is kept and never overwritten
 A `transaction` is one leg (`in`/`out` on one account); a transfer between own accounts is two legs
 sharing a `transferId`, which `src/domain/contributions.ts` never counts as new money
 ([ADR-0062](decisions/0062-linked-transfers.md)).
+Priced holdings may carry `lots[] {quantity, cost, acquired, fmv2018?}` that add up to `quantity`; units are
+summed as integers of 10⁻⁸ (`src/domain/units.ts`) and sells consume lots FIFO (`src/domain/lots.ts`,
+[ADR-0063](decisions/0063-tax-lots.md)).
 Every asset/liability record carries `owners[] {memberId, shareBps}` (basis points, sum
 10 000), embedded `allocations[] {goalId, mode, bps | amount}`, `includeInNetWorth`,
 `tags[]`, `asOf`, optional `nominees[]`. Screens read typed lists (`useAssets()` etc.) and

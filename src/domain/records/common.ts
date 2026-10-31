@@ -7,6 +7,7 @@
  */
 import { z } from "zod";
 import type { Paise } from "../money";
+import { isQuantity, QUANTITY, toUnits } from "../units";
 
 /** 100% in basis points. */
 export const FULL_BPS = 10_000;
@@ -33,10 +34,7 @@ export const text = (max: number) => z.string().trim().min(1).max(max);
  */
 export const quantity = z
   .string()
-  .regex(
-    /^(0|[1-9]\d{0,14})(\.\d{1,8})?$/,
-    "a number of units, up to 8 decimals",
-  );
+  .regex(QUANTITY, "a number of units, up to 8 decimals");
 
 /**
  * Where M4 finds a price, chosen from public universes only (CLAUDE.md: no per-symbol
@@ -148,6 +146,33 @@ export const tags = z
   .array(text(32))
   .max(20)
   .refine((list) => unique(list, (t) => t.toLowerCase()), "a tag is repeated");
+
+/** 31 Jan 2018: listed equity and equity funds bought by then are grandfathered at this FMV. */
+export const GRANDFATHER_DATE = "2018-01-31";
+
+/**
+ * One purchase of a holding (#26, ADR-0063): units, what they cost in all (paise, incl.
+ * charges), and when. `fmv2018` is the lot's whole market value on 31 Jan 2018, for lots
+ * bought by then. Sells consume lots FIFO (`src/domain/lots.ts`).
+ */
+export const lot = z
+  .strictObject({
+    quantity: quantity.refine(
+      (q) => !isQuantity(q) || toUnits(q) > BigInt(0),
+      "units must be more than 0",
+    ),
+    cost: paise.min(0),
+    acquired: isoDate,
+    fmv2018: paise.min(0).optional(),
+  })
+  .refine((l) => l.fmv2018 === undefined || l.acquired <= GRANDFATHER_DATE, {
+    message: "only lots bought by 31 Jan 2018 have a grandfathered value",
+    path: ["fmv2018"],
+  });
+
+export const lots = z.array(lot).min(1).max(500);
+
+export type Lot = z.infer<typeof lot>;
 
 /** The shared shape; each kind (#131) extends it with its own fields. */
 export const commonFields = z.strictObject({
