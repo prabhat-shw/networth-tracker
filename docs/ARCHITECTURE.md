@@ -37,6 +37,7 @@
   `src/domain/prices/`: decimal-string prices, `marketValue` in bigint rounded once to paise, values derived on
   read and never written back ([ADR-0064](decisions/0064-prices-and-valuation.md)). One pure parser per
   feed there; the server's only network code for feeds is `src/server/price-feeds.ts`, with fixed URLs.
+  `src/server/prices.ts` ingests into `price_universes` and serves them ([ADR-0065](decisions/0065-price-store-and-route.md)).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.
 

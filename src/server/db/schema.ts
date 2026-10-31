@@ -4,6 +4,7 @@ import {
   boolean,
   check,
   customType,
+  date,
   index,
   integer,
   pgTable,
@@ -234,3 +235,26 @@ export const identityVaults = pgTable("identity_vaults", {
   vault: text("vault").notNull(),
   updatedAt: ts("updated_at").notNull().default(sql`now()`),
 });
+
+/**
+ * Public price universes (ADR-0064): one row per kind per trading day, the gzipped JSON the
+ * route serves byte for byte. Public data, so plaintext is fine here, and this table is never
+ * joined to households or users. `ingest` keeps 400 days per kind.
+ */
+export const priceUniverses = pgTable(
+  "price_universes",
+  {
+    kind: text("kind").notNull(),
+    date: date("date", { mode: "string" }).notNull(),
+    gzip: bytea("gzip").notNull(),
+    etag: text("etag").notNull(),
+    count: integer("count").notNull(),
+    /** Codes that moved more than 50% day on day: kept and served, but logged (Q7). */
+    flagged: integer("flagged").notNull().default(0),
+    fetchedAt: timestamp("fetched_at", {
+      withTimezone: true,
+      mode: "date",
+    }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.kind, t.date] })],
+);

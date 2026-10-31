@@ -3,17 +3,18 @@ import { describe, expect, it } from "vitest";
 import { US_TICKERS } from "@/domain/prices/us-tickers";
 import {
   FEED_URLS,
+  fetchBse,
   fetchCrypto,
   fetchFx,
   fetchMetal,
+  fetchUniverse,
   fetchUs,
 } from "./price-feeds";
+import { firstZipEntry } from "./unzip";
 
-const fixture = (name: string) =>
-  readFileSync(
-    new URL(`../domain/prices/fixtures/${name}`, import.meta.url),
-    "utf8",
-  );
+const path = (name: string) =>
+  new URL(`../domain/prices/fixtures/${name}`, import.meta.url);
+const fixture = (name: string) => readFileSync(path(name), "utf8");
 
 /** A fake fetch that records every URL and answers from `reply`. */
 function recorder(reply: (url: string) => Response) {
@@ -62,6 +63,51 @@ describe("price feeds at the network edge", () => {
     const { f } = recorder(() => new Response("", { status: 429 }));
     await expect(fetchCrypto(f)).rejects.toThrow(
       "api.coingecko.com answered 429",
+    );
+  });
+});
+
+describe("Indian feeds at the network edge", () => {
+  const zip = new Uint8Array(
+    readFileSync(path("nse-bhavcopy-2026-10-30.csv.zip")),
+  );
+
+  it("unzips NSE's bhavcopy for the asked trading day", async () => {
+    const { f, urls } = recorder(() => new Response(zip));
+    const { universe } = await fetchUniverse("nse", "2026-10-30", f);
+    expect(urls).toEqual([
+      "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261030_F_0000.csv.zip",
+    ]);
+    expect(universe).toMatchObject({ kind: "nse", date: "2026-10-30" });
+  });
+
+  it("sends BSE a Referer and AMFI a fixed URL", async () => {
+    let referer: string | null = null;
+    const bse = async (url: string, init?: RequestInit) => {
+      referer = new Headers(init?.headers).get("referer");
+      expect(url).toBe(FEED_URLS.bse("2026-10-30"));
+      return new Response(fixture("bse-bhavcopy-2026-10-30.csv"));
+    };
+    expect((await fetchBse("2026-10-30", bse)).universe.kind).toBe("bse");
+    expect(referer).toBe("https://www.bseindia.com/");
+
+    const a = recorder(
+      () => new Response(fixture("amfi-navall-2026-10-30.txt")),
+    );
+    expect((await fetchUniverse("amfi", "2026-10-30", a.f)).universe.kind).toBe(
+      "amfi",
+    );
+    expect(a.urls).toEqual([FEED_URLS.amfi]);
+  });
+
+  it("reads the first zip entry and refuses anything else", () => {
+    const csv = fixture("nse-bhavcopy-2026-10-30.csv");
+    expect(new TextDecoder().decode(firstZipEntry(zip))).toBe(csv);
+    expect(() => firstZipEntry(new TextEncoder().encode(csv))).toThrow(
+      RangeError,
+    );
+    expect(() => firstZipEntry(zip.subarray(0, zip.length - 30))).toThrow(
+      RangeError,
     );
   });
 });

@@ -24,7 +24,7 @@ same contract. Every endpoint here is exercised by the shared contract test suit
 | GET/POST/DELETE | `/api/households/:householdId/invites` | List open invites; invite an email; cancel an invite |
 | DELETE | `/api/households/:householdId/invite` | The invitee declines their own invite |
 | PUT | `/api/blobs/:id` | Encrypted attachment upload (statements, receipts) |
-| GET | `/api/prices/universe/:kind/:date` | Public price universe (no auth-scoped filtering) |
+| GET | `/api/prices/universe/:kind/:date` | Public price universe, same bytes for everyone. See *Prices* below |
 
 ## Auth (ADR-0020)
 
@@ -171,3 +171,20 @@ ascending by `seq`, at most 500, with `cache-control: no-store`. To page, pass t
 Contract tests (PGlite, #114): stale base → conflict; cross-household → `404`; no recovery
 slot → `409` with nothing written; oversized or unpadded envelope → `400`; concurrent pushes
 get distinct, ordered `seq` values.
+
+## Prices (ADR-0064, ADR-0065)
+
+`GET /api/prices/universe/:kind/:date`, `kind` one of `amfi nse bse us crypto fx metal`, `date`
+a trading day (`YYYY-MM-DD`) or `latest`. The body is the `universe` file
+(`src/domain/prices/universe.ts`). The same bytes go to every caller: the route needs a
+session, but never reads whose it is.
+
+- No session → `401`. Unknown kind or no file for that day → `404`. Malformed date → `400`.
+- `200` with `ETag`, `Vary: Accept-Encoding`, and the stored gzip as `Content-Encoding: gzip`
+  when the client accepts it (plain JSON otherwise).
+- A day before today (IST) → `Cache-Control: private, max-age=31536000, immutable`. Today's
+  or `latest` → `private, no-cache`; `If-None-Match` with the ETag → `304`.
+
+Contract tests (PGlite, #166): same bytes and ETag for two users; `401` signed out; `304` on a
+match; immutable vs no-cache; ingest rejects a file under half the previous count, flags moves
+over 50%, writes nothing on a failed fetch, replaces a same-day retry, keeps 400 days.
