@@ -1,29 +1,27 @@
-_Last updated: 2026-10-31 (session 38: #138 Home, #139 Goals) · next session: start here_
+_Last updated: 2026-10-31 (session 39: #140 M3 acceptance E2E) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed (M2: encrypted sync,
-`startHouseholdSync`, `useRecords()`, Dexie). M3 pure layer is done: kinds (ADR-0052), goals/earmarks (ADR-0053),
-typed records + member profiles (ADR-0054), **net-worth engine (ADR-0055)**. What's left on M3 is UI + the E2E.
-**Push needs a recovery method** (ADR-0040): a member without one has edits stuck in the outbox; #138 surfaces it.
+**Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed. M3's deadline scope is
+done once #140 merges: pure layer (ADR-0052–0055), Add anything (#135/#136), Accounts (#137), Home + lens + sync
+status (#138), Goals (#139), and the acceptance E2E (#140, `e2e/m3-acceptance.spec.ts`).
+**Push needs a recovery method** (ADR-0040): a member without one has edits stuck in the outbox; Home surfaces it.
 
-## Deadline plan (owner: app due 2026-11-01, 2 days)
+## Deadline plan (owner: app due 2026-11-01)
 
 Ship a usable **manual-entry** app: M3 only. M4+ (prices, charts, import) and #25–#27, #112, #93 wait.
-- **Day 1:** #135 add-anything skeleton → #136 per-kind fields/edit → #137 Accounts list.
-- **Day 2:** #138 Home net worth + lens + sync status → #139 Goals (basic) → #140 E2E → redeploy staging/home.
-- Several sessions a day, still one issue per branch/PR. Keep UI lean: shadcn defaults, no animation polish.
+Day 2 left: **redeploy staging + home** (#147, #142 advisories). Run staging `pnpm db:migrate` first if needed.
 
 ## Next session picks up
 
-Day 2: #138 and #139 done. **Next: #140 M3 acceptance E2E** (`size:S`, `area:security`: owner approves, never
-self-merge): two members, joint FD 50/50 + solo PPF, right Me/Household on both devices (Home hero:
-`group "Whose net worth"`), DB plaintext scan, isolation. Then **redeploy staging + home** (#147, #142 advisories).
-Last: **#139** ([ADR-0060](decisions/0060-goals-screen-basic.md)). `src/features/goals/` — `Goals` (cards +
-dashed Unallocated, `earmarks()`), `GoalDialog` (CRUD form), `goal-kinds.ts`; route `/goals`, Home nav links it.
-#138 ([ADR-0059](decisions/0059-home-hero-and-sync-status.md)): `src/features/home/net-worth.tsx`, `sync-status.tsx`,
-`HouseholdSync.status()` + `useSyncStatus()`. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation.
-Add flow: `src/features/add/` (`AddAnything`); Accounts: `src/features/accounts/`.
+1. If #140's PR is still open: it is `area:security`, so the owner approves before merge.
+2. **Redeploy staging + home** (#147, #142). Smoke-test add FD → Home figure on a real phone (passkey PRF too).
+3. Then M3 leftovers #25 nominees (`size:S`), #27 linked transfers (`size:S`), #26 tax lots (`size:M`), or close M3
+   and move them to a later milestone (owner call).
+#140 E2E: two named members, joint FD 50/50 + solo PPF via Add anything; asserts each lens on both devices
+(A: Me ₹1,00,000, B: Me ₹1,50,000, Household ₹2,50,000), padding, leak scan of names/amounts/kinds, C gets 404.
+It nudges sync with the probe's "Open records"; "Owned by" lists another member only after their profile syncs.
+Deferred: a lens store shared by Home/Accounts/Goals, count-up animation.
 Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
@@ -44,7 +42,9 @@ Known gap (ADR-0054): a member can tombstone another's profile.
   Env vars need a **Redeploy** to take effect. `APP_ORIGIN` = the staging URL (used from M1 auth).
 - **Docker on Windows:** the image only builds because of the new `.dockerignore`; never
   remove `node_modules` from it. Docker Desktop must be running (`docker info`).
-- **E2E (ADR-0035):** `docker compose -f compose.e2e.yml -p nwt-e2e up -d --wait`, `pnpm e2e`, then `down -v`
+- **E2E (ADR-0035):** Playwright's 300 s webServer timeout can expire on a cold `next build`: build with the E2E env
+  (`e2e/env.ts`) and `pnpm start -p 3100` first; `reuseExistingServer` picks it up locally.
+  `docker compose -f compose.e2e.yml -p nwt-e2e up -d --wait`, `pnpm e2e`, then `down -v`
   (Docker Desktop running). CI: `.github/workflows/e2e.yml`, path-filtered. Windows reserved port 55432?
   Remap db via a local compose override (`ports: !override`) and set `E2E_DATABASE_URL`.
 - **Social recovery (spouse re-wrap to a new identity) is not built:** the server refuses a vault
@@ -54,8 +54,7 @@ Known gap (ADR-0054): a member can tombstone another's profile.
   the Better Auth memory adapter, which hides schema bugs.
 - Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`).
 - Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
-- **Merging:** the `protect-main` ruleset has "extra approval for unattributed changes" and no bypass actors, so
-  `gh pr merge` (even `--admin`) is blocked for our unattributed commits; the owner merges or relaxes the rule.
+- **Merging:** `gh pr merge <N> --squash` works from this machine (runs as the owner's account) once checks are green.
 - Merge policy (owner): merge when CI is green **and the owner says so** in the session
   (the auto-mode classifier blocks unrequested merges). `area:crypto`/`area:security` always wait for approval.
 - `docs/` is excluded from Biome; `next dev` appends an agent-rules block to `CLAUDE.md` (committed on purpose).

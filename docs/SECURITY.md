@@ -68,6 +68,10 @@ what type, with which institutions).
   stored envelope is padded to 256-byte blocks; no record text or recovery phrase in any
   request, browser storage (incl. the record store) or table. The sync handle holds no key and
   its plaintext snapshot empties on lock (unit)
+- M3 E2E (`e2e/m3-acceptance.spec.ts`, #140): two named members add a joint FD (50/50) and a solo
+  PPF through Add anything; both devices show the hand-computed Me/Household/member figures;
+  every envelope is padded; no member name, record name, amount (`"value":…`), share or kind
+  in any request, browser storage (incl. the record store) or table; another household gets 404
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under

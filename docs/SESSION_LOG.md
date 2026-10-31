@@ -75,3 +75,4 @@ One line per session: date · issue · outcome.
 - 2026-10-31 · #137 Accounts list (ADR-0058): `/accounts`, 9 sections as responsive tables, ownership badge + tagged %, search, error rows (invalid → Remove, too-new → kept), tap name to edit
 - 2026-10-31 · #138 Home net worth + sync status (ADR-0059): hero per lens (Me/Household/member) from `allLenses`, zero-state until records exist, unreadable count; `HouseholdSync.status()` + `useSyncStatus()`, indicator incl. 409 "Changes are waiting"; #34 one-screen settled
 - 2026-10-31 · #139 Goals screen basic (ADR-0060): `/goals`, cards by priority with earmarked of target, dashed Unallocated card, GoalDialog CRUD (kind-default inflation, 10% return), delete frees earmark
+- 2026-10-31 · #140 M3 acceptance E2E: `e2e/m3-acceptance.spec.ts`, two named members, joint FD 50/50 + solo PPF via Add anything, lens figures on both devices, padding, DB/IndexedDB/request leak scan (names, amounts, kinds), cross-household 404
