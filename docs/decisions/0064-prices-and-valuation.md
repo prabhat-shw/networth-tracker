@@ -29,9 +29,8 @@ still works.
    by symbol, larger cap wins; FX as EUR crosses (`ratio`, 12 dp); JSON numbers become prices
    via their shortest spelling (`priceFromNumber`), never float maths.
 4. **Metals.** A `metal` universe holds rupees per gram for `gold999` and `silver999` from
-   IBJA's daily rates (latest PM row, else AM; per 10 g and per kg ÷ to grams). Other karats are prorated (`karat/24`). It is an HTML page, so the
-   parser is the most fragile one: on failure the universe goes stale, and the manual value
-   is always there.
+   IBJA's daily rates (latest PM row, else AM). Other karats are prorated (`karat/24`). The
+   HTML parser is the most fragile: on failure the universe goes stale; manual value stays.
 5. **Universe file.** One per kind per day: `{ kind, date, fetchedAt, source, currency,
    prices: { code: price } }`, validated by `universe` in `src/domain/prices/universe.ts`.
    Optional maps carry `names` (picker), `isins` (ISIN → code, M6 import) and `dates`

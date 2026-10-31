@@ -20,8 +20,7 @@ ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, am
    #171 snapshots is `area:crypto` (HMAC id under the HDK): owner approval before merge.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
-the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6).
-Known gap (ADR-0054): a member can tombstone another's profile.
+the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
 
