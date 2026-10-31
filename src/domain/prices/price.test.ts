@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { isPrice, marketValue } from "./price";
-import { fxRate, lookup, type Universe, universe } from "./universe";
+import { isPrice, marketValue, priceFromNumber, ratio } from "./price";
+import {
+  fxRate,
+  lookup,
+  settleDates,
+  type Universe,
+  universe,
+} from "./universe";
 
 describe("marketValue", () => {
   it("values fractional MF units at a 4-decimal NAV", () => {
@@ -78,5 +84,43 @@ describe("universe", () => {
     expect(fxRate({ fx }, "USD")).toBe("94.95");
     expect(fxRate({ fx }, "EUR")).toBe(undefined);
     expect(fxRate({}, "USD")).toBe(undefined);
+  });
+});
+
+describe("priceFromNumber and ratio", () => {
+  it("spells a JSON number exactly, expanding exponents", () => {
+    expect(priceFromNumber(344.63)).toBe("344.63");
+    expect(priceFromNumber(77614)).toBe("77614");
+    expect(priceFromNumber(0)).toBe("0");
+    expect(priceFromNumber(3.53699e-7)).toBe("0.000000353699");
+    expect(priceFromNumber(1.5e-12)).toBe("0.000000000002");
+    expect(priceFromNumber(1.4e-12)).toBe("0.000000000001");
+    expect(priceFromNumber(1.2e21)).toBe(undefined);
+    expect(priceFromNumber(1e14)).toBe("100000000000000");
+  });
+
+  it("refuses negatives, non-numbers and non-finite values", () => {
+    for (const n of [-1, Number.NaN, Number.POSITIVE_INFINITY, "1", null])
+      expect(priceFromNumber(n)).toBe(undefined);
+  });
+
+  it("divides at 12 decimals, rounding half-up, and refuses 0", () => {
+    expect(ratio("106.084", "1.1172")).toBe("94.955245255997");
+    expect(ratio("2", "3")).toBe("0.666666666667");
+    expect(ratio("181344", "1000")).toBe("181.344");
+    expect(() => ratio("1", "0")).toThrow(RangeError);
+  });
+});
+
+describe("settleDates", () => {
+  it("picks the most common date, the latest on a tie, and lists the rest", () => {
+    expect(
+      settleDates({ A: "2026-10-30", B: "2026-10-30", C: "2026-10-27" }),
+    ).toEqual({ date: "2026-10-30", dates: { C: "2026-10-27" } });
+    expect(settleDates({ A: "2026-10-29", B: "2026-10-30" })).toEqual({
+      date: "2026-10-30",
+      dates: { A: "2026-10-29" },
+    });
+    expect(settleDates({})).toBe(undefined);
   });
 });

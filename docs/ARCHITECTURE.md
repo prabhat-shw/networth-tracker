@@ -35,7 +35,8 @@
   indicator, including `recovery` for pushes refused with ADR-0040's 409 (ADR-0059).
 - **prices** — universe download, local lookup, staleness, manual overrides (ADR-0005). Pure maths in
   `src/domain/prices/`: decimal-string prices, `marketValue` in bigint rounded once to paise, values derived on
-  read and never written back ([ADR-0064](decisions/0064-prices-and-valuation.md)).
+  read and never written back ([ADR-0064](decisions/0064-prices-and-valuation.md)). One pure parser per
+  feed there; the server's only network code for feeds is `src/server/price-feeds.ts`, with fixed URLs.
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.
 

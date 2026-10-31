@@ -24,11 +24,13 @@ still works.
    the server through Yahoo `spark` batches. `crypto`: CoinGecko `coins/markets`, top 500 by
    market cap, in USD. `fx`: Frankfurter (ECB rates) for the currencies the catalogue allows.
    No source depends on what any household holds. Both bhavcopies (UDiFF CSV) are keyed by
-   ticker symbol (not BSE's numeric scrip code) and priced at the close (#164).
+   ticker symbol (not BSE's numeric scrip code) and priced at the close (#164). #165: `us` is
+   S&P 500 + held ETFs/ADRs (`us-tickers.ts`, refreshed by PR), 20 per spark call; coins keyed
+   by symbol, larger cap wins; FX as EUR crosses (`ratio`, 12 dp); JSON numbers become prices
+   via their shortest spelling (`priceFromNumber`), never float maths.
 4. **Metals.** A `metal` universe holds rupees per gram for `gold999` and `silver999` from
-   IBJA's daily rates. Other karats are prorated (`karat/24`). It is an HTML page, so the
-   parser is the most fragile one: on failure the universe goes stale, and the manual value
-   is always there.
+   IBJA's daily rates (latest PM row, else AM). Other karats are prorated (`karat/24`). The
+   HTML parser is the most fragile: on failure the universe goes stale; manual value stays.
 5. **Universe file.** One per kind per day: `{ kind, date, fetchedAt, source, currency,
    prices: { code: price } }`, validated by `universe` in `src/domain/prices/universe.ts`.
    Optional maps carry `names` (picker), `isins` (ISIN → code, M6 import) and `dates`
