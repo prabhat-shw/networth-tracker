@@ -22,6 +22,13 @@ import {
   parseRupees,
   today,
 } from "./kinds";
+import {
+  fromStored,
+  type NomineeInput,
+  Nominees,
+  type StoredNominee,
+  toStored,
+} from "./nominees";
 import { OwnedBy, type Share } from "./owned-by";
 
 const field =
@@ -91,11 +98,18 @@ export function RecordForm({
         : [],
     ),
   );
+  const [nominees, setNominees] = useState<NomineeInput[]>(() =>
+    fromStored((stored.nominees as StoredNominee[] | undefined) ?? []),
+  );
   const [inputs, setInputs] = useState(() => fieldInputs(specs, stored));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
+  const people = [...profiles].map(([memberId, p]) => ({
+    memberId,
+    name: p.name,
+  }));
   const goalIds = new Set(goals.map((g) => g.id));
   const kindFields = readFields(specs, inputs);
   const paise = parseRupees(value);
@@ -124,6 +138,8 @@ export function RecordForm({
     notes: notes.trim() || undefined,
     owners: shares.map((s) => ({ memberId: s.memberId, shareBps: s.bps ?? 0 })),
     allocations,
+    // Nominees are an asset's (#25); a liability keeps whatever it stored.
+    ...(option.type === "asset" ? { nominees: toStored(nominees) } : {}),
   };
   for (const k of Object.keys(data)) if (data[k] === undefined) delete data[k];
   const parsed = (
@@ -206,16 +222,16 @@ export function RecordForm({
       )}
       <KindFields specs={specs} inputs={inputs} onChange={setInputs} />
       {text("As of", asOf, setAsOf, { type: "date", required: true })}
-      <OwnedBy
-        me={me}
-        people={[...profiles].map(([memberId, p]) => ({
-          memberId,
-          name: p.name,
-        }))}
-        shares={shares}
-        onChange={setShares}
-      />
+      <OwnedBy me={me} people={people} shares={shares} onChange={setShares} />
       <GoalTags goals={goals} tags={tags} onChange={setTags} />
+      {option.type === "asset" && (
+        <Nominees
+          me={me}
+          people={people}
+          rows={nominees}
+          onChange={setNominees}
+        />
+      )}
       <details open={notes !== ""}>
         <summary className="cursor-pointer">Notes (optional)</summary>
         <textarea

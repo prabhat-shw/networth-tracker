@@ -35,6 +35,8 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Nominees on assets (#25): record who receives each asset, a household member or anyone
+  else by name, with shares that must add up to 100%. Encrypted like every other field.
 - Goals (#139): create, edit and delete goals (house, education, retirement and more) with a
   target, date, priority and owners. Each goal shows how much your accounts earmark to it,
   and an Unallocated card shows the rest of your net worth. Deleting a goal frees its money
