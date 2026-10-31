@@ -1,4 +1,4 @@
-_Last updated: 2026-10-31 (session 41: #27, #26, M3 closed, M4 brief, #162, #163) · next session: start here_
+_Last updated: 2026-10-31 (session 42: #164) · next session: start here_
 
 ## Where we are
 
@@ -7,17 +7,18 @@ GitHub 2026-10-31; the M0 milestone is still open there with no issues). M3 ende
 (ADR-0062) and #26 tax lots (ADR-0063). Staging is live on main. The M4 brief has eight design questions for
 ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, amends ADR-0005's sources):
 `src/domain/prices/price.ts` (`marketValue`, 12-decimal prices) and `universe.ts` (file schema, `lookup`, `fxRate`).
-**#163** `parseAmfi` (`src/domain/prices/amfi.ts`): universe gains optional `names`, `isins`, per-code `dates`. **Push needs a recovery method** (ADR-0040).
+**#163** `parseAmfi` (`src/domain/prices/amfi.ts`): universe gains optional `names`, `isins`, per-code `dates`.
+**#164** `parseNse`/`parseBse` (`bhavcopy.ts`): UDiFF CSV by ticker symbol. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. If the M4-brief PR is still open: merge when CI is green and the owner says so.
-2. **#164 bhavcopy**, **#165 US/crypto/FX/metals** (parallel). Feeds verified 2026-10-31: Yahoo `v7/quote` is 401,
+1. **#165 US/crypto/FX/metals**, then **#166** store + route. Feeds verified 2026-10-31: Yahoo `v7/quote` is 401,
    use `v7/finance/spark`; metals from the IBJA HTML page. Fill `names` (picker) and per-code `dates` like #163.
+   Bhavcopy URLs for #166: `nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_<yyyymmdd>_F_0000.csv.zip`
+   (zipped; needs a browser User-Agent) and `www.bseindia.com/download/BhavCopy/Equity/BhavCopy_BSE_CM_0_0_0_<yyyymmdd>_F_0000.CSV` (needs a Referer).
    #171 snapshots is `area:crypto` (HMAC id under the HDK): owner approval before merge.
-3. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
-#140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs.
-Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
+2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
+#140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6).
 Known gap (ADR-0054): a member can tombstone another's profile.
 
@@ -74,5 +75,5 @@ Known gap (ADR-0054): a member can tombstone another's profile.
 ## Resume command
 
 ```
-cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue list -m "M3 Data model & manual entry" -s open
+cd D:/Work/claude-apps/networth-tracker && git switch main && git pull && gh issue list -m "M4 Prices & valuation" -s open
 ```

@@ -23,7 +23,8 @@ still works.
    and ETFs, which covers gold ETFs. `us`: a fixed top-N ticker list in the repo, fetched by
    the server through Yahoo `spark` batches. `crypto`: CoinGecko `coins/markets`, top 500 by
    market cap, in USD. `fx`: Frankfurter (ECB rates) for the currencies the catalogue allows.
-   No source depends on what any household holds.
+   No source depends on what any household holds. Both bhavcopies (UDiFF CSV) are keyed by
+   ticker symbol (not BSE's numeric scrip code) and priced at the close (#164).
 4. **Metals.** A `metal` universe holds rupees per gram for `gold999` and `silver999` from
    IBJA's daily rates. Other karats are prorated (`karat/24`). It is an HTML page, so the
    parser is the most fragile one: on failure the universe goes stale, and the manual value
