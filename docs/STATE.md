@@ -1,22 +1,21 @@
-_Last updated: 2026-10-31 (session 41: #27 linked transfers, #26 tax lots) · next session: start here_
+_Last updated: 2026-10-31 (session 41: #27, #26, M3 closed, M4 brief) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed. M3's deadline scope is
-merged (pure layer ADR-0052–0055, Add anything, Accounts, Home + lens, Goals, E2E #140). Staging is live on main.
-#25 nominees and #27 linked transfers merged (ADR-0061, ADR-0062: `transaction` legs + `src/domain/contributions.ts`,
-no UI yet). **#26 tax lots** (ADR-0063): optional `lots` on priced kinds summing to `quantity` (units as bigint 10⁻⁸ in
-`src/domain/units.ts`), `consumeFifo` in `src/domain/lots.ts`, "Tax lots (optional)" in `src/features/add/lots.tsx`;
-form buttons moved to `form-actions.tsx`. Every M3 issue is now done. **Push needs a recovery method** (ADR-0040).
+**Milestone:** M4 — Prices & valuation (brief: `docs/phases/M4.md`). M0–M3 closed (M3 milestone closed on
+GitHub 2026-10-31; the M0 milestone is still open there with no issues). M3 ended with #27 linked transfers
+(ADR-0062) and #26 tax lots (ADR-0063). Staging is live on main. The M4 brief has eight design questions for
+ADR-0064 and eleven issues, **#162–#172**. No M4 code yet. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. If #26's PR is still open: merge when CI is green and the owner says so. Then close M3 (all issues done) and
-   write the M4 brief (`docs/phases/M4.md`, prices from public universes).
-2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
-3. Sells don't rewrite lots yet: the M5/M6 sell flow calls `consumeFifo`.
+1. If the M4-brief PR is still open: merge when CI is green and the owner says so.
+2. **#162 ADR-0064 + price maths** (`size:M`, pure) comes first: re-verify every feed URL before writing the
+   ADR, since ADR-0005's table dates from 2026-09-08. Then #163/#164/#165 can go in parallel.
+3. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs.
-Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert).
+Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
+the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6).
 Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
