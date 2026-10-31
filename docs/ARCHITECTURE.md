@@ -48,6 +48,9 @@ Those are the *concepts*. Assets and liabilities are 29 + 3 kinds, placed in `sr
 `goal`, `transaction`), each a discriminated union on `data.kind`, versioned per type with
 in-memory upgrades; a record from a newer app is kept and never overwritten
 ([ADR-0051](decisions/0051-record-types-and-common-fields.md), `src/domain/records/`).
+A `transaction` is one leg (`in`/`out` on one account); a transfer between own accounts is two legs
+sharing a `transferId`, which `src/domain/contributions.ts` never counts as new money
+([ADR-0062](decisions/0062-linked-transfers.md)).
 Every asset/liability record carries `owners[] {memberId, shareBps}` (basis points, sum
 10 000), embedded `allocations[] {goalId, mode, bps | amount}`, `includeInNetWorth`,
 `tags[]`, `asOf`, optional `nominees[]`. Screens read typed lists (`useAssets()` etc.) and

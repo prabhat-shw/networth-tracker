@@ -17,11 +17,13 @@ import {
 import { GOAL_CODEC, type GoalData } from "./goal";
 import type { LiabilityData } from "./liability";
 import { MEMBER_CODEC, type MemberData } from "./member";
+import { TRANSACTION_CODEC, type TransactionData } from "./transaction";
 
 export const RECORD_CODECS = {
   ...BALANCE_SHEET_CODECS,
   goal: GOAL_CODEC,
   member: MEMBER_CODEC,
+  transaction: TRANSACTION_CODEC,
 } satisfies Registry;
 
 export interface TypeData {
@@ -29,6 +31,7 @@ export interface TypeData {
   liability: LiabilityData;
   goal: GoalData;
   member: MemberData;
+  transaction: TransactionData;
 }
 export type KnownType = keyof TypeData;
 
@@ -51,6 +54,7 @@ export interface TypedRecords {
   liability: Entry<LiabilityData>[];
   goal: Entry<GoalData>[];
   member: Entry<MemberData>[];
+  transaction: Entry<TransactionData>[];
   /** Types this build doesn't know: kept and shown, never written. */
   unknown: Entry<never>[];
   /** Display profiles by member id: the latest valid self-written profile wins. */
@@ -80,6 +84,7 @@ export function typeRecords(records: readonly StoredRecord[]): TypedRecords {
     liability: [],
     goal: [],
     member: [],
+    transaction: [],
     unknown: [],
     profiles: new Map(),
   };

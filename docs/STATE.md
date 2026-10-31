@@ -1,18 +1,19 @@
-_Last updated: 2026-10-31 (session 40: #25 nominees) · next session: start here_
+_Last updated: 2026-10-31 (session 41: #27 linked transfers) · next session: start here_
 
 ## Where we are
 
 **Milestone:** M3 — Data model & manual entry (brief: `docs/phases/M3.md`). M0–M2 closed. M3's deadline scope is
 merged (pure layer ADR-0052–0055, Add anything, Accounts, Home + lens, Goals, E2E #140). Staging is live on main.
-**#25 nominees** (ADR-0061): `src/features/add/nominees.tsx` in the asset form; `ShareChip` now shared with
-`OwnedBy`; Add-flow browser tests share `test-sync.tsx`. **Push needs a recovery method** (ADR-0040).
+#25 nominees merged (ADR-0061). **#27 linked transfers** (ADR-0062, pure only): `transaction` type
+(`src/domain/records/transaction.ts`, one `in`/`out` leg, `transferId` links a pair) and `src/domain/contributions.ts`
+(per lens; Household ignores transfers, member lenses see the share moved; `transferIssues()` flags broken pairs).
+No transaction UI yet (M5/M6). **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. If #25's PR is still open: merge when CI is green and the owner says so.
+1. If #27's PR is still open: merge when CI is green and the owner says so.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
-3. M3 leftovers: #27 linked transfers (`size:S`, ADR first: the `transaction` type), #26 tax lots (`size:M`), or
-   close M3 and move them on (owner call).
+3. Last M3 leftover: #26 tax lots (`size:M`), or close M3 and move it on (owner call). Then M4 (prices).
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs.
 Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert).
 Known gap (ADR-0054): a member can tombstone another's profile.

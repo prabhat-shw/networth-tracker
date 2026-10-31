@@ -55,8 +55,10 @@ describe("typeRecords", () => {
       rec("asset", { future: true }, { schemaVersion: 9 }),
       rec("transaction", { amount: 1 }),
       rec("budget", {}),
+      rec("ledger", {}),
     ]);
     expect(t.asset[0].result).toEqual({ status: "too-new", schemaVersion: 9 });
+    expect(t.transaction[0].result.status).toBe("invalid");
     expect(t.unknown.map((e) => e.result.status)).toEqual([
       "unknown-type",
       "unknown-type",
