@@ -8,7 +8,7 @@ GitHub 2026-10-31; the M0 milestone is still open there with no issues). M3 ende
 ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, amends ADR-0005's sources):
 `src/domain/prices/price.ts` (`marketValue`, 12-decimal prices) and `universe.ts` (file schema, `lookup`, `fxRate`).
 **#163** `parseAmfi` (`src/domain/prices/amfi.ts`): universe gains optional `names`, `isins`, per-code `dates`.
-**#164** `parseNse`/`parseBse` (`bhavcopy.ts`): UDiFF CSV, keyed by symbol, equity/ETF/InvIT/REIT series. **Push needs a recovery method** (ADR-0040).
+**#164** `parseNse`/`parseBse` (`bhavcopy.ts`): UDiFF CSV by ticker symbol. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
@@ -18,8 +18,7 @@ ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, am
    (zipped; needs a browser User-Agent) and `www.bseindia.com/download/BhavCopy/Equity/BhavCopy_BSE_CM_0_0_0_<yyyymmdd>_F_0000.CSV` (needs a Referer).
    #171 snapshots is `area:crypto` (HMAC id under the HDK): owner approval before merge.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
-#140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs.
-Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
+#140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6).
 Known gap (ADR-0054): a member can tombstone another's profile.
 
