@@ -26,6 +26,49 @@ export function toPriceUnits(price: string): bigint {
   );
 }
 
+const SCALE = BigInt(10) ** BigInt(PRICE_PLACES);
+
+/** Formats 10⁻¹² units as a price string, without trailing zeros. */
+export function fromPriceUnits(units: bigint): string {
+  const whole = units / SCALE;
+  const frac = (units % SCALE)
+    .toString()
+    .padStart(PRICE_PLACES, "0")
+    .replace(/0+$/, "");
+  return frac ? `${whole}.${frac}` : `${whole}`;
+}
+
+/**
+ * A price from a JSON number, the way feeds send it. It goes through the number's shortest
+ * decimal spelling, which is the feed's own text (`3.53699e-7` → `"0.000000353699"`), never
+ * through float arithmetic. Rounded half-up past 12 decimals. Undefined for a negative,
+ * non-finite or too-large number.
+ */
+export function priceFromNumber(n: unknown): string | undefined {
+  if (typeof n !== "number" || !Number.isFinite(n) || n < 0) return undefined;
+  const [mantissa, exp = "0"] = n.toString().split("e");
+  const dot = mantissa.indexOf(".");
+  const digits = mantissa.replace(".", "");
+  const point = (dot < 0 ? mantissa.length : dot) + Number(exp);
+  const whole = point <= 0 ? "0" : digits.slice(0, point).padEnd(point, "0");
+  const frac = point <= 0 ? "0".repeat(-point) + digits : digits.slice(point);
+  const up = (frac[PRICE_PLACES] ?? "0") >= "5" ? BigInt(1) : BigInt(0);
+  const units =
+    BigInt(whole) * SCALE +
+    BigInt(frac.slice(0, PRICE_PLACES).padEnd(PRICE_PLACES, "0")) +
+    up;
+  const price = fromPriceUnits(units);
+  return isPrice(price) ? price : undefined;
+}
+
+/** `a ÷ b` as a price, rounded half-up at 12 decimals. Throws `RangeError` when `b` is 0. */
+export function ratio(a: string, b: string): string {
+  const d = toPriceUnits(b);
+  if (d === BigInt(0)) throw new RangeError("division by zero");
+  const n = toPriceUnits(a) * SCALE * BigInt(2);
+  return fromPriceUnits((n + d) / (d * BigInt(2)));
+}
+
 /** One rupee in rupees: the FX rate of an INR price. */
 export const INR = "1";
 

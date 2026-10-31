@@ -43,11 +43,39 @@ export type Universe = z.infer<typeof universe>;
 
 export type Universes = Partial<Record<UniverseKind, Universe>>;
 
+/** What a feed parser returns. */
+export interface FeedResult {
+  universe: Universe;
+  /** Entries that didn't read or repeated a code: logged by ingest, never fatal. */
+  skipped: number;
+}
+
 export interface Quote {
   price: string;
   currency: string;
   /** The trading day of the price, for the "as of" caption. */
   date: string;
+}
+
+/**
+ * The universe `date` for a feed that dates each code: the most common date (the latest on a
+ * tie), with `dates` listing only the codes priced on another day. Undefined when empty.
+ */
+export function settleDates(
+  perCode: Readonly<Record<string, string>>,
+): { date: string; dates: Record<string, string> } | undefined {
+  const count = new Map<string, number>();
+  for (const d of Object.values(perCode)) count.set(d, (count.get(d) ?? 0) + 1);
+  let date: string | undefined;
+  for (const [d, n] of count) {
+    const best = date === undefined ? 0 : (count.get(date) ?? 0);
+    if (date === undefined || n > best || (n === best && d > date)) date = d;
+  }
+  if (date === undefined) return undefined;
+  const dates: Record<string, string> = {};
+  for (const [code, d] of Object.entries(perCode))
+    if (d !== date) dates[code] = d;
+  return { date, dates };
 }
 
 /** Exchange and coin codes are matched without case; AMFI codes are digits. */

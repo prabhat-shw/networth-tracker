@@ -1,0 +1,478 @@
+[
+  {
+    "spark": {
+      "result": [
+        {
+          "symbol": "AAPL",
+          "response": [
+            {
+              "meta": {
+                "currency": "USD",
+                "symbol": "AAPL",
+                "exchangeName": "NMS",
+                "fullExchangeName": "NasdaqGS",
+                "instrumentType": "EQUITY",
+                "firstTradeDate": 345479400,
+                "regularMarketTime": 1793390401,
+                "hasPrePostMarketData": true,
+                "gmtoffset": -14400,
+                "timezone": "EDT",
+                "exchangeTimezoneName": "America/New_York",
+                "regularMarketPrice": 344.63,
+                "regularMarketChangePercent": -1.227,
+                "fulldayPrice": 344.63,
+                "fulldayChange": -3.81,
+                "fulldayChangePercent": -1.092,
+                "fiftyTwoWeekHigh": 351.73,
+                "fiftyTwoWeekLow": 243.42,
+                "regularMarketDayHigh": 349.19,
+                "regularMarketDayLow": 342.35,
+                "regularMarketVolume": 67842804,
+                "longName": "Apple Inc.",
+                "shortName": "Apple Inc.",
+                "chartPreviousClose": 348.91,
+                "priceHint": 2,
+                "currentTradingPeriod": {
+                  "pre": {
+                    "timezone": "EDT",
+                    "start": 1793347200,
+                    "end": 1793367000,
+                    "gmtoffset": -14400
+                  },
+                  "regular": {
+                    "timezone": "EDT",
+                    "start": 1793367000,
+                    "end": 1793390400,
+                    "gmtoffset": -14400
+                  },
+                  "post": {
+                    "timezone": "EDT",
+                    "start": 1793390400,
+                    "end": 1793404800,
+                    "gmtoffset": -14400
+                  }
+                },
+                "dataGranularity": "1d",
+                "range": "1d",
+                "validRanges": [
+                  "1d",
+                  "5d",
+                  "1mo",
+                  "3mo",
+                  "6mo",
+                  "1y",
+                  "2y",
+                  "5y",
+                  "10y",
+                  "ytd",
+                  "max"
+                ]
+              },
+              "timestamp": [1793367000],
+              "indicators": {
+                "quote": [
+                  {
+                    "close": [344.63]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "VOO",
+          "response": [
+            {
+              "meta": {
+                "currency": "USD",
+                "symbol": "VOO",
+                "exchangeName": "PCX",
+                "fullExchangeName": "NYSEArca",
+                "instrumentType": "ETF",
+                "firstTradeDate": 1284039000,
+                "regularMarketTime": 1793390400,
+                "hasPrePostMarketData": true,
+                "gmtoffset": -14400,
+                "timezone": "EDT",
+                "exchangeTimezoneName": "America/New_York",
+                "regularMarketPrice": 694.81,
+                "regularMarketChangePercent": -1.769,
+                "fulldayPrice": 694.81,
+                "fulldayChange": -11.63,
+                "fulldayChangePercent": -1.644,
+                "fiftyTwoWeekHigh": 718.47,
+                "fiftyTwoWeekLow": 578.46,
+                "regularMarketDayHigh": 700,
+                "regularMarketDayLow": 689.76,
+                "regularMarketVolume": 9939777,
+                "longName": "Vanguard S&P 500 ETF",
+                "shortName": "Vanguard S&P 500 ETF",
+                "chartPreviousClose": 707.32,
+                "priceHint": 2,
+                "currentTradingPeriod": {
+                  "pre": {
+                    "timezone": "EDT",
+                    "start": 1793347200,
+                    "end": 1793367000,
+                    "gmtoffset": -14400
+                  },
+                  "regular": {
+                    "timezone": "EDT",
+                    "start": 1793367000,
+                    "end": 1793390400,
+                    "gmtoffset": -14400
+                  },
+                  "post": {
+                    "timezone": "EDT",
+                    "start": 1793390400,
+                    "end": 1793404800,
+                    "gmtoffset": -14400
+                  }
+                },
+                "dataGranularity": "1d",
+                "range": "1d",
+                "validRanges": [
+                  "1d",
+                  "5d",
+                  "1mo",
+                  "3mo",
+                  "6mo",
+                  "1y",
+                  "2y",
+                  "5y",
+                  "10y",
+                  "ytd",
+                  "max"
+                ]
+              },
+              "timestamp": [1793367000],
+              "indicators": {
+                "quote": [
+                  {
+                    "close": [694.81]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "BRK-B",
+          "response": [
+            {
+              "meta": {
+                "currency": "USD",
+                "symbol": "BRK-B",
+                "exchangeName": "NYQ",
+                "fullExchangeName": "NYSE",
+                "instrumentType": "EQUITY",
+                "firstTradeDate": 831648600,
+                "regularMarketTime": 1793390441,
+                "hasPrePostMarketData": true,
+                "gmtoffset": -14400,
+                "timezone": "EDT",
+                "exchangeTimezoneName": "America/New_York",
+                "regularMarketPrice": 542.49,
+                "regularMarketChangePercent": 0.098,
+                "fulldayPrice": 542.49,
+                "fulldayChange": 1.34,
+                "fulldayChangePercent": 0.247,
+                "fiftyTwoWeekHigh": 550.47,
+                "fiftyTwoWeekLow": 464.01,
+                "regularMarketDayHigh": 550.3,
+                "regularMarketDayLow": 542.32,
+                "regularMarketVolume": 4480941,
+                "longName": "Berkshire Hathaway Inc.",
+                "shortName": "Berkshire Hathaway Inc. New",
+                "chartPreviousClose": 541.96,
+                "priceHint": 2,
+                "currentTradingPeriod": {
+                  "pre": {
+                    "timezone": "EDT",
+                    "start": 1793347200,
+                    "end": 1793367000,
+                    "gmtoffset": -14400
+                  },
+                  "regular": {
+                    "timezone": "EDT",
+                    "start": 1793367000,
+                    "end": 1793390400,
+                    "gmtoffset": -14400
+                  },
+                  "post": {
+                    "timezone": "EDT",
+                    "start": 1793390400,
+                    "end": 1793404800,
+                    "gmtoffset": -14400
+                  }
+                },
+                "dataGranularity": "1d",
+                "range": "1d",
+                "validRanges": [
+                  "1d",
+                  "5d",
+                  "1mo",
+                  "3mo",
+                  "6mo",
+                  "1y",
+                  "2y",
+                  "5y",
+                  "10y",
+                  "ytd",
+                  "max"
+                ]
+              },
+              "timestamp": [1793367000],
+              "indicators": {
+                "quote": [
+                  {
+                    "close": [542.49]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "error": null
+    }
+  },
+  {
+    "spark": {
+      "result": [
+        {
+          "symbol": "MMM",
+          "response": [
+            {
+              "meta": {
+                "currency": "USD",
+                "symbol": "MMM",
+                "exchangeName": "NYQ",
+                "fullExchangeName": "NYSE",
+                "instrumentType": "EQUITY",
+                "firstTradeDate": -252322200,
+                "regularMarketTime": 1793390515,
+                "hasPrePostMarketData": true,
+                "gmtoffset": -14400,
+                "timezone": "EDT",
+                "exchangeTimezoneName": "America/New_York",
+                "regularMarketPrice": 174.34,
+                "regularMarketChangePercent": -1.703,
+                "fulldayPrice": 174.34,
+                "fulldayChange": -3.02,
+                "fulldayChangePercent": -1.703,
+                "fiftyTwoWeekHigh": 184.9,
+                "fiftyTwoWeekLow": 139.34,
+                "regularMarketDayHigh": 178.76,
+                "regularMarketDayLow": 173.28,
+                "regularMarketVolume": 3009903,
+                "longName": "3M Company",
+                "shortName": "3M Company",
+                "chartPreviousClose": 177.36,
+                "priceHint": 2,
+                "currentTradingPeriod": {
+                  "pre": {
+                    "timezone": "EDT",
+                    "start": 1793347200,
+                    "end": 1793367000,
+                    "gmtoffset": -14400
+                  },
+                  "regular": {
+                    "timezone": "EDT",
+                    "start": 1793367000,
+                    "end": 1793390400,
+                    "gmtoffset": -14400
+                  },
+                  "post": {
+                    "timezone": "EDT",
+                    "start": 1793390400,
+                    "end": 1793404800,
+                    "gmtoffset": -14400
+                  }
+                },
+                "dataGranularity": "1d",
+                "range": "1d",
+                "validRanges": [
+                  "1d",
+                  "5d",
+                  "1mo",
+                  "3mo",
+                  "6mo",
+                  "1y",
+                  "2y",
+                  "5y",
+                  "10y",
+                  "ytd",
+                  "max"
+                ]
+              },
+              "timestamp": [1793367000],
+              "indicators": {
+                "quote": [
+                  {
+                    "close": [174.34]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "AKAM",
+          "response": [
+            {
+              "meta": {
+                "currency": "USD",
+                "symbol": "AKAM",
+                "exchangeName": "NMS",
+                "fullExchangeName": "NasdaqGS",
+                "instrumentType": "EQUITY",
+                "firstTradeDate": 941203800,
+                "regularMarketTime": 1793390401,
+                "hasPrePostMarketData": true,
+                "gmtoffset": -14400,
+                "timezone": "EDT",
+                "exchangeTimezoneName": "America/New_York",
+                "regularMarketPrice": 92.72,
+                "regularMarketChangePercent": -6.702,
+                "fulldayPrice": 92.72,
+                "fulldayChange": -6.396,
+                "fulldayChangePercent": -6.435,
+                "fiftyTwoWeekHigh": 165.45,
+                "fiftyTwoWeekLow": 70.82,
+                "regularMarketDayHigh": 96.615,
+                "regularMarketDayLow": 91.605,
+                "regularMarketVolume": 5205116,
+                "longName": "Akamai Technologies, Inc.",
+                "shortName": "Akamai Technologies, Inc.",
+                "chartPreviousClose": 99.38,
+                "priceHint": 2,
+                "currentTradingPeriod": {
+                  "pre": {
+                    "timezone": "EDT",
+                    "start": 1793347200,
+                    "end": 1793367000,
+                    "gmtoffset": -14400
+                  },
+                  "regular": {
+                    "timezone": "EDT",
+                    "start": 1793367000,
+                    "end": 1793390400,
+                    "gmtoffset": -14400
+                  },
+                  "post": {
+                    "timezone": "EDT",
+                    "start": 1793390400,
+                    "end": 1793404800,
+                    "gmtoffset": -14400
+                  }
+                },
+                "dataGranularity": "1d",
+                "range": "1d",
+                "validRanges": [
+                  "1d",
+                  "5d",
+                  "1mo",
+                  "3mo",
+                  "6mo",
+                  "1y",
+                  "2y",
+                  "5y",
+                  "10y",
+                  "ytd",
+                  "max"
+                ]
+              },
+              "timestamp": [1793367000],
+              "indicators": {
+                "quote": [
+                  {
+                    "close": [92.72]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "symbol": "AFL",
+          "response": [
+            {
+              "meta": {
+                "currency": "USD",
+                "symbol": "AFL",
+                "exchangeName": "NYQ",
+                "fullExchangeName": "NYSE",
+                "instrumentType": "EQUITY",
+                "firstTradeDate": 322151400,
+                "regularMarketTime": 1793390403,
+                "hasPrePostMarketData": true,
+                "gmtoffset": -14400,
+                "timezone": "EDT",
+                "exchangeTimezoneName": "America/New_York",
+                "regularMarketPrice": 123.89,
+                "regularMarketChangePercent": 0.283,
+                "fulldayPrice": 123.89,
+                "fulldayChange": 0.35,
+                "fulldayChangePercent": 0.283,
+                "fiftyTwoWeekHigh": 130.22,
+                "fiftyTwoWeekLow": 105.48,
+                "regularMarketDayHigh": 125.69,
+                "regularMarketDayLow": 123.775,
+                "regularMarketVolume": 2158541,
+                "longName": "Aflac Incorporated",
+                "shortName": "AFLAC Incorporated",
+                "chartPreviousClose": 123.54,
+                "priceHint": 2,
+                "currentTradingPeriod": {
+                  "pre": {
+                    "timezone": "EDT",
+                    "start": 1793347200,
+                    "end": 1793367000,
+                    "gmtoffset": -14400
+                  },
+                  "regular": {
+                    "timezone": "EDT",
+                    "start": 1793367000,
+                    "end": 1793390400,
+                    "gmtoffset": -14400
+                  },
+                  "post": {
+                    "timezone": "EDT",
+                    "start": 1793390400,
+                    "end": 1793404800,
+                    "gmtoffset": -14400
+                  }
+                },
+                "dataGranularity": "1d",
+                "range": "1d",
+                "validRanges": [
+                  "1d",
+                  "5d",
+                  "1mo",
+                  "3mo",
+                  "6mo",
+                  "1y",
+                  "2y",
+                  "5y",
+                  "10y",
+                  "ytd",
+                  "max"
+                ]
+              },
+              "timestamp": [1793367000],
+              "indicators": {
+                "quote": [
+                  {
+                    "close": [123.89]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "error": null
+    }
+  }
+]

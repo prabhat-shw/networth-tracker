@@ -1,0 +1,74 @@
+[
+  {
+    "id": "bitcoin",
+    "symbol": "btc",
+    "name": "Bitcoin",
+    "current_price": 77614,
+    "market_cap_rank": 1,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  },
+  {
+    "id": "ethereum",
+    "symbol": "eth",
+    "name": "Ethereum",
+    "current_price": 2253.81,
+    "market_cap_rank": 2,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  },
+  {
+    "id": "tether",
+    "symbol": "usdt",
+    "name": "Tether",
+    "current_price": 0.999524,
+    "market_cap_rank": 3,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  },
+  {
+    "id": "binancecoin",
+    "symbol": "bnb",
+    "name": "BNB",
+    "current_price": 706.59,
+    "market_cap_rank": 4,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  },
+  {
+    "id": "ripple",
+    "symbol": "xrp",
+    "name": "XRP",
+    "current_price": 1.25,
+    "market_cap_rank": 5,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  },
+  {
+    "id": "usd-coin",
+    "symbol": "usdc",
+    "name": "USDC",
+    "current_price": 1,
+    "market_cap_rank": 6,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  },
+  {
+    "id": "bianrensheng",
+    "symbol": "币安人生",
+    "name": "币安人生 (BinanceLife)",
+    "current_price": 0.525637,
+    "market_cap_rank": 101,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  },
+  {
+    "id": "bittorrent",
+    "symbol": "btt",
+    "name": "BitTorrent",
+    "current_price": 3.53699e-7,
+    "market_cap_rank": 124,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  },
+  {
+    "id": "apenft",
+    "symbol": "nft",
+    "name": "AINFT",
+    "current_price": 2.33145e-7,
+    "market_cap_rank": 155,
+    "last_updated": "2026-10-31T18:04:58.000Z"
+  }
+]
