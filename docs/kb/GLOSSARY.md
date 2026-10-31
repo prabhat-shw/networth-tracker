@@ -21,6 +21,7 @@ Finance and engineering terms in one place. Fuller explanations:
 | **FI** | Financial Independence — investments could cover expenses indefinitely |
 | **Folio** | Your account number with a fund house |
 | **Inflated target** | What a goal will cost by its target date, after inflation |
+| **Linked transfer** | Money moved between two of the household's own accounts (savings into an FD). Stored as two legs sharing a `transferId`, so it never counts as money added or withdrawn ([ADR-0062](../decisions/0062-linked-transfers.md)) |
 | **Liquidity** | How fast an asset becomes spendable money |
 | **NAV** | Net Asset Value — price of one mutual fund unit, published daily |
 | **Ownership lens** | Whose view the figures take: *Household* counts everything in full; *Me* or a named member counts only that person's share of each record (half of a 50/50 joint FD). Toggled on Home ([ADR-0055](../decisions/0055-networth-lenses-and-rounding.md), [ADR-0059](../decisions/0059-home-hero-and-sync-status.md)) |
