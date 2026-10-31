@@ -1,0 +1,24 @@
+Scheme Code;ISIN Div Payout/ ISIN Growth;ISIN Div Reinvestment;Scheme Name;Plan;Option;Net Asset Value;Date
+ 
+Open Ended Schemes(Children’s Fund - Childrens' Fund)
+ 
+Axis Mutual Fund
+ 
+135762;INF846K01WO1;-;Axis Children's Fund;Direct Plan;Growth Option;29.1949;30-Oct-2026
+135765;INF846K01WP8;-;Axis Children's Fund;Direct Plan;IDCW Option;26.8938;30-Oct-2026
+135759;INF846K01WJ1;-;Axis Children's Fund;Regular Plan;Growth Option;25.3963;30-Oct-2026
+135760;INF846K01WK9;-;Axis Children's Fund;Regular Plan;IDCW Option;23.4301;30-Oct-2026
+135764;INF846K01WR4;-;Axis Children's Fund;Direct Plan;Growth Option;29.7532;30-Oct-2026
+135763;INF846K01WS2;INF846K01WQ6;Axis Children's Fund;Direct Plan;IDCW Option;26.9446;30-Oct-2026
+140194;INF754K01GY9;-;Edelweiss Liquid Fund;Direct Plan;Bonus;2152.9176;31-Oct-2026
+140196;INF754K01GM4;-;Edelweiss Liquid Fund;Direct Plan;Growth;3700.5674;31-Oct-2026
+140198;INF754K01GO0;INF754K01GN2;Edelweiss Liquid Fund;Direct Plan;IDCW;3548.1577;31-Oct-2026
+108844;INF194K01623;INF194K01631;BANDHAN Arbitrage Fund;;;14.86269632;17-Feb-2017
+108846;INF194K01615;-;BANDHAN Arbitrage Fund;;;21.25167644;17-Feb-2017
+148304;INF090I01VZ8;-;Franklin India Credit Risk Fund (No. of segregated portfolios-3);Direct Plan;Growth;0.0000;30-Oct-2026
+148303;INF090I01VX3;-;Franklin India Credit Risk Fund (No. of segregated portfolios-3);Regular Plan;Growth;0.0000;30-Oct-2026
+111997;INF109K01FE0;INF109K01CC1;ICICI Prudential Dynamic Bond Fund;;;10.9656;25-May-2018
+112002;INF109K01RW7;-;ICICI Prudential Dynamic Bond Fund;;;20.7632;25-May-2018
+111998;INF109K01FF7;INF109K01CD9;ICICI Prudential Dynamic Bond Fund;;;10.4080;25-May-2018
+106290;INF109K01KM3;-;ICICI Prudential Interval Fund - Annual Interval Plan - I;;;10.7894;26-Sep-2017
+130958;INF109KA1C80;-;ICICI Prudential Interval Fund - Annual Interval Plan - I;;;12.6280;26-Sep-2017

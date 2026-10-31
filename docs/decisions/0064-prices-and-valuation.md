@@ -30,6 +30,8 @@ still works.
    is always there.
 5. **Universe file.** One per kind per day: `{ kind, date, fetchedAt, source, currency,
    prices: { code: price } }`, validated by `universe` in `src/domain/prices/universe.ts`.
+   Optional maps carry `names` (picker), `isins` (ISIN → code, M6 import) and `dates`
+   (a code's own price date when it differs, e.g. a wound-up fund), added by #163.
    Codes are matched without case, and prototype keys never match. The server keeps 400 days
    in a plaintext table (public data, never joined to households). The route needs a session
    but never varies by user. The client downloads every kind daily into Dexie.

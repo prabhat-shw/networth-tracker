@@ -1,4 +1,4 @@
-_Last updated: 2026-10-31 (session 41: #27, #26, M3 closed, M4 brief, #162) · next session: start here_
+_Last updated: 2026-10-31 (session 41: #27, #26, M3 closed, M4 brief, #162, #163) · next session: start here_
 
 ## Where we are
 
@@ -6,13 +6,14 @@ _Last updated: 2026-10-31 (session 41: #27, #26, M3 closed, M4 brief, #162) · n
 GitHub 2026-10-31; the M0 milestone is still open there with no issues). M3 ended with #27 linked transfers
 (ADR-0062) and #26 tax lots (ADR-0063). Staging is live on main. The M4 brief has eight design questions for
 ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, amends ADR-0005's sources):
-`src/domain/prices/price.ts` (`marketValue`, 12-decimal prices) and `universe.ts` (file schema, `lookup`, `fxRate`). **Push needs a recovery method** (ADR-0040).
+`src/domain/prices/price.ts` (`marketValue`, 12-decimal prices) and `universe.ts` (file schema, `lookup`, `fxRate`).
+**#163** `parseAmfi` (`src/domain/prices/amfi.ts`): universe gains optional `names`, `isins`, per-code `dates`. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
 1. If the M4-brief PR is still open: merge when CI is green and the owner says so.
-2. **#163 AMFI**, **#164 bhavcopy**, **#165 US/crypto/FX/metals** (parallel). Feeds verified 2026-10-31: AMFI now
-   has Plan;Option columns; Yahoo `v7/quote` is 401, use `v7/finance/spark`; metals from the IBJA HTML page.
+2. **#164 bhavcopy**, **#165 US/crypto/FX/metals** (parallel). Feeds verified 2026-10-31: Yahoo `v7/quote` is 401,
+   use `v7/finance/spark`; metals from the IBJA HTML page. Fill `names` (picker) and per-code `dates` like #163.
    #171 snapshots is `area:crypto` (HMAC id under the HDK): owner approval before merge.
 3. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs.

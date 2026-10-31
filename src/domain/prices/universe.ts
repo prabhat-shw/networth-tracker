@@ -19,11 +19,14 @@ export const UNIVERSE_KINDS = [
 export type UniverseKind = (typeof UNIVERSE_KINDS)[number];
 
 const price = z.string().refine(isPrice, "a price, up to 12 decimals");
+const code = z.string().min(1).max(32);
 
 /**
  * The file the server serves and the client caches. `date` is the trading day the prices are
  * for; `fetchedAt` is when the server ingested them. `fx` prices are rupees per unit of the
- * currency code; `metal` prices are rupees per gram (`gold999`, `silver999`).
+ * currency code; `metal` prices are rupees per gram (`gold999`, `silver999`). The optional maps
+ * serve the instrument picker (`names`), statement import by ISIN (`isins`, ISIN → code), and
+ * codes whose own price date differs from `date`, such as a wound-up fund (`dates`).
  */
 export const universe = z.strictObject({
   kind: z.enum(UNIVERSE_KINDS),
@@ -31,7 +34,10 @@ export const universe = z.strictObject({
   fetchedAt: z.iso.datetime(),
   source: z.string().min(1).max(80),
   currency: z.string().regex(/^[A-Z]{3}$/),
-  prices: z.record(z.string().min(1).max(32), price),
+  prices: z.record(code, price),
+  names: z.record(code, z.string().min(1).max(200)).optional(),
+  isins: z.record(z.string().regex(/^[A-Z]{2}[A-Z0-9]{9}\d$/), code).optional(),
+  dates: z.record(code, z.iso.date()).optional(),
 });
 export type Universe = z.infer<typeof universe>;
 
@@ -56,7 +62,8 @@ export function lookup(
   if (!u) return undefined;
   const code = normaliseCode(instrument.code);
   if (!Object.hasOwn(u.prices, code)) return undefined;
-  return { price: u.prices[code], currency: u.currency, date: u.date };
+  const date = u.dates && Object.hasOwn(u.dates, code) ? u.dates[code] : u.date;
+  return { price: u.prices[code], currency: u.currency, date };
 }
 
 /** Rupees per unit of `currency`: `"1"` for INR, else from the FX universe. */
