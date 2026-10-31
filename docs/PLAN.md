@@ -164,7 +164,7 @@ disk is then the weak point, and the app says so in a banner.
 ┌───────────────▼────────────────────────────────────────────────┬──────┴──────────────────┐
 │  Sync API (thin, replaceable)                                  │  Price service          │
 │   GET|POST …/records (sync)  auth   household/key-wrap   blobs │   AMFI NAVAll daily     │
-│   Postgres via Drizzle — ciphertext only                       │   Yahoo equity/US/crypto│
+│   Postgres via Drizzle — ciphertext only                       │   Bhavcopy·US·crypto    │
 └────────────────────────────────────────────────────────────────┴───  Frankfurter FX ─────┘
 ```
 
@@ -293,7 +293,7 @@ Each milestone is a handful of issues; each issue is one session.
 | **M1** | Identity & crypto core | Key hierarchy, Argon2id, WebCrypto wrappers + test vectors, lock/unlock UX, recovery kit, Better Auth + passkeys, invite-only household; **onboarding v2** (#88–#92, [ADR-0037](decisions/0037-onboarding-v2-key-on-device.md)): email/magic link → in, key on device, recovery method chosen before the first data |
 | **M2** | Encrypted sync engine | Record envelope, versioning, `pull`/`push`, tombstones, offline queue, Dexie store, contract + plaintext-scan tests |
 | **M3** | Data model & manual entry | Households/members/ownership shares, accounts, holdings, transactions, liabilities, **goals + allocations**, nominees (#25), tax lots (#26), linked transfers (#27); entry forms; net-worth engine with tests |
-| **M4** | Prices & valuation | Daily AMFI ingest, Yahoo equity/US/crypto, Frankfurter FX, gold; universe download; client valuation; historical timeline |
+| **M4** | Prices & valuation | Daily AMFI, NSE/BSE bhavcopy, US and crypto top-N lists, Frankfurter FX, IBJA gold/silver (ADR-0064); universe download; client valuation; daily snapshots for the timeline |
 | **M5** | Dashboard, goals & insights | Net worth over time, allocation, per-owner views, XIRR/CAGR, **goal tagging UI, auto-tag rules, inflated targets, required SIP, on-track projections, Unallocated bucket**, drill-down, post-tax net worth (#28), commission drag (#29), Nifty 50 TRI benchmark (#30); mobile + dense desktop |
 | **M6** | Statement import | NSDL/CDSL CAS PDF (on-device), CAMS/KFin, broker + bank CSV, mapping UI, dedupe |
 | **M7** | Long-tail coverage | Insurance surrender values, property, vehicles, money lent, chit funds, EPF/PPF/NPS/SSY accrual calculators, RSU/ESPP vesting, nominee gap alerts (#31) |
