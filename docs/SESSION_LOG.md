@@ -95,3 +95,4 @@ One line per session: date · issue · outcome.
 - 2026-11-01 · M5 brief: `docs/phases/M5.md` (8 design questions for ADR-0071, 16 scope items), filed #191–#201 on the M5 milestone and the Kanban board
 - 2026-11-01 · #191 ADR-0071 (M5 Q1–Q8) + `src/domain/goals/`: `projectGoal` (float64 factors, paise rounded once, SIP rounded up, on track/at risk/off track at 100%/80%, `targetPassed`), `suitability` by record kind; fixtures from 50-digit decimals
 - 2026-11-01 · #192 shared lens: zustand store (new dep, MIT) in memory, reset on lock; `LensBar` on Home, Accounts (member's records at their share) and Goals (earmarks in lens); browser tests incl. a cross-screen switch
+- 2026-11-02 · #193 timeline `/networth`: pure series (later stamp per date, live today), ranges, compare cap 3, breakdown by type/member, table; Recharts (new dep, MIT) on a time axis; chart tokens resolved to hex since SVG attributes don't take `var()`

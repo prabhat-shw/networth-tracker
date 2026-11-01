@@ -122,6 +122,9 @@ export function NetWorthHero({ summary }: { summary: NetWorthSummary }) {
         Assets {formatINR(figure.assets)} · Liabilities{" "}
         {formatINR(figure.liabilities)}
       </p>
+      <Link href="/networth" className="text-sm underline">
+        See it over time
+      </Link>
       {summary.prices.asOf && (
         <PriceCaption
           asOf={summary.prices.asOf}

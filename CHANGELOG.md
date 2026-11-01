@@ -35,6 +35,10 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Net worth over time (#193): a new screen, opened from "See it over time" on Home, draws
+  your net worth from each daily check-in plus today. Pick 1M, 3M, 1Y or All, compare up to
+  two other people, see today's split by asset type or by member, or read it all as a table.
+  It starts once you've had two check-ins.
 - One lens everywhere (#192): Accounts and Goals now have the Me · Household · member
   switch too, and a choice made on one screen holds on the others. Under a member's lens,
   Accounts lists what they own at their share and Goals counts their share of each earmark.
