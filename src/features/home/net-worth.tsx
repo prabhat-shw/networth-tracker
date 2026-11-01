@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { formatINR } from "@/domain/money";
 import {
   type AllLenses,
@@ -16,6 +16,7 @@ import type { AssetData } from "@/domain/records/asset";
 import type { LiabilityData } from "@/domain/records/liability";
 import type { MemberData } from "@/domain/records/member";
 import type { Entry } from "@/domain/records/typed";
+import { LensBar, useLens } from "@/features/lens/lens-bar";
 import { PriceCaption } from "@/features/prices/price-caption";
 import { useHouseholdSync } from "@/features/sync/sync-provider";
 import {
@@ -91,16 +92,11 @@ const ZERO: NetWorth = { assets: 0, liabilities: 0, net: 0 };
 
 /**
  * The Home hero (UX.md §3.2) with the ownership lens (§2.1): Me · Household · each other
- * member. Switching only re-does the arithmetic, so it is instant; no data is fetched.
+ * member. The lens is the device-wide choice (ADR-0071 §1), shared with Accounts and Goals.
  */
 export function NetWorthHero({ summary }: { summary: NetWorthSummary }) {
-  const [lens, setLens] = useState<string>("household");
+  const { id: lens } = useLens();
   const { lenses, me, others, unreadable } = summary;
-  const options = [
-    { id: me, label: "Me" },
-    { id: "household", label: "Household" },
-    ...others.map((o) => ({ id: o.id, label: o.name })),
-  ];
   const figure =
     lens === "household"
       ? lenses.household
@@ -117,22 +113,7 @@ export function NetWorthHero({ summary }: { summary: NetWorthSummary }) {
       aria-label="Net worth"
       className="flex w-full flex-col items-center gap-3 rounded-lg border border-neutral-200 p-6 dark:border-neutral-800"
     >
-      <fieldset
-        aria-label="Whose net worth"
-        className="m-0 flex border-0 max-w-full gap-1 overflow-x-auto rounded-md bg-neutral-100 p-1 text-sm dark:bg-neutral-900"
-      >
-        {options.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            aria-pressed={lens === o.id}
-            onClick={() => setLens(o.id)}
-            className="shrink-0 rounded px-3 py-1 aria-pressed:bg-white aria-pressed:font-medium aria-pressed:shadow-sm dark:aria-pressed:bg-neutral-700"
-          >
-            {o.label}
-          </button>
-        ))}
-      </fieldset>
+      <LensBar />
       <h2 className="text-sm text-neutral-500">{heading}</h2>
       <p className="text-4xl font-semibold tabular-nums">
         {formatINR(figure.net)}

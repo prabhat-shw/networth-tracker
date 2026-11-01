@@ -8,6 +8,7 @@ import type { AssetData } from "@/domain/records/asset";
 import type { GoalData } from "@/domain/records/goal";
 import type { LiabilityData } from "@/domain/records/liability";
 import type { Entry } from "@/domain/records/typed";
+import { LensBar, useLens } from "@/features/lens/lens-bar";
 import { PriceCaption } from "@/features/prices/price-caption";
 import {
   useAssets,
@@ -42,7 +43,8 @@ const card =
   "flex flex-col gap-1 rounded-lg border p-4 text-left text-sm border-neutral-200 dark:border-neutral-800";
 
 /**
- * Goals (UX.md §3.6, ADR-0060), household view: each goal with what accounts earmark to it,
+ * Goals (UX.md §3.6, ADR-0060) in the device's lens (ADR-0071 §1): each goal with what accounts
+ * earmark to it, split by ownership share under a member's lens (ADR-0055),
  * then Unallocated as a dashed, goal-shaped card so it reads as "not yet a goal". Status,
  * progress maths and the allocation editor are M5; earmarks are set on each account.
  */
@@ -51,6 +53,7 @@ export function Goals() {
   const assets = useAssets();
   const liabilities = useLiabilities();
   const valuations = useValuations();
+  const { lens } = useLens();
   const prices = priceSummary([...valuations.values()]);
 
   const readable: { id: string; data: GoalData }[] = [];
@@ -72,12 +75,14 @@ export function Goals() {
   const { byGoal, unallocated } = earmarks(
     all,
     new Set(readable.map((g) => g.id)),
+    lens,
   );
   const earmarked = [...byGoal.values()].reduce((t, p) => t + p, 0);
   const hasNetWorth = all.some((s) => s.includeInNetWorth);
 
   return (
     <section aria-label="Goals" className="flex w-full flex-col gap-4">
+      <LensBar />
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm text-neutral-500">
           {formatINR(earmarked)} earmarked of{" "}

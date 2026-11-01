@@ -35,6 +35,10 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- One lens everywhere (#192): Accounts and Goals now have the Me · Household · member
+  switch too, and a choice made on one screen holds on the others. Under a member's lens,
+  Accounts lists what they own at their share and Goals counts their share of each earmark.
+  It goes back to Household when the app locks.
 - Find a fund or share by name (#170): when adding a mutual fund, stock, US stock, crypto or
   RSU, type part of its name or code and pick it from a list. The list searches the prices
   already on your device, so nothing is sent anywhere. It shows today's price and fills in the

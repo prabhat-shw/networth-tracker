@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatINR } from "@/domain/money";
+import { lensAmount } from "@/domain/networth";
 import type { AssetData } from "@/domain/records/asset";
 import {
   ASSET_PLACEMENT,
@@ -14,6 +15,7 @@ import type { LiabilityData } from "@/domain/records/liability";
 import { FORMER_MEMBER } from "@/domain/records/member";
 import { AddAnything } from "@/features/add/add-anything";
 import { optionFor } from "@/features/add/kinds";
+import { LensBar, useLens } from "@/features/lens/lens-bar";
 import {
   showsCaption,
   ValuationCaption,
@@ -58,7 +60,8 @@ const wide = `${cell} hidden sm:table-cell`;
 /**
  * Accounts (UX.md §3.4): every asset and liability, one section per schema category. Empty
  * sections stay visible so the taxonomy is learnable; a record this build can't read is its
- * own error row and never hides the rest. Tapping a name opens its edit form (#136).
+ * own error row and never hides the rest. Tapping a name opens its edit form (#136). Under a
+ * member's lens (ADR-0071 §1) only what they own is listed, at their share (ADR-0055).
  */
 export function Accounts() {
   const me = useHouseholdSync()?.userId ?? "";
@@ -66,9 +69,18 @@ export function Accounts() {
   const assets = useAssets();
   const liabilities = useLiabilities();
   const valuations = useValuations();
+  const { lens } = useLens();
   const [query, setQuery] = useState("");
   // Priced holdings are worth their market value now; everything else its entered value.
-  const worth = (r: Row) => valuations.get(r.id)?.value ?? r.data.value;
+  const worth = (r: Row) =>
+    lensAmount(
+      valuations.get(r.id)?.value ?? r.data.value,
+      r.data.owners,
+      lens,
+    );
+  const inLens = (r: Row) =>
+    lens === "household" ||
+    r.data.owners.some((o) => o.memberId === lens.memberId && o.shareBps > 0);
 
   const rows: Row[] = [];
   const broken: { id: string; result: ReadResult<unknown> }[] = [];
@@ -100,10 +112,11 @@ export function Accounts() {
       `${r.data.name} ${r.data.institution ?? ""} ${optionFor(r.data.kind)?.label ?? ""}`.toLowerCase();
     return words.every((w) => hay.includes(w));
   };
-  const shown = rows.filter(matches);
+  const shown = rows.filter((r) => inLens(r) && matches(r));
 
   return (
     <section aria-label="Accounts" className="flex w-full flex-col gap-4">
+      <LensBar />
       <div className="flex gap-2">
         <input
           type="search"
