@@ -120,14 +120,16 @@ test("M3: joint FD and solo PPF give the right lens figures on both devices, no 
       await expectNet(page, other, theirs);
     }
 
-    // The server holds two profiles and two holdings, all padded ciphertext.
+    // The server holds two profiles, two holdings and one daily snapshot (ADR-0070: both
+    // devices derive the same id, so there is never a second), all padded ciphertext.
     const [{ householdId }] = await sql<{ householdId: string }[]>`
       select m.household_id as "householdId" from household_members m
       join "user" u on u.id = m.member_id where u.email = ${email.a}`;
-    const rows = await sql<{ ct: Buffer }[]>`
+    const live = () => sql<{ ct: Buffer }[]>`
       select ciphertext as ct from records
       where household_id = ${householdId} and not deleted`;
-    expect(rows).toHaveLength(4);
+    await expect.poll(async () => (await live()).length).toBe(5);
+    const rows = await live();
     for (const row of rows) {
       const body = row.ct.length - OVERHEAD - row.ct[1];
       expect(body % 256, "padded to 256-byte blocks").toBe(0);
@@ -157,6 +159,7 @@ test("M3: joint FD and solo PPF give the right lens figures on both devices, no 
       '"kind":"ppf"',
       '"type":"asset"',
       '"type":"member"',
+      '"type":"snapshot"',
       words.join(" "),
       wordsB.join(" "),
     ]);
