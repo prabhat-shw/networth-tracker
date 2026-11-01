@@ -75,6 +75,12 @@ what type, with which institutions).
   PPF through Add anything; both devices show the hand-computed Me/Household/member figures;
   every envelope is padded; no member name, record name, amount (`"value":…`), share or kind
   in any request, browser storage (incl. the record store) or table; another household gets 404
+- M4 E2E (`e2e/m4-acceptance.spec.ts`, #172): two households with different holdings (MF, US
+  stock via FX, NSE, crypto) send the same price requests (one fixed `latest` URL per kind, no
+  query or body; compared minus cookie and referer); values match hand-computed figures at
+  half-paisa edges; three-day-old files show the stale warning; a poisoned file is rejected by
+  `ingest()` and the last good one keeps serving; no instrument code, units, name or kind in any
+  request, browser storage or table; the other household gets 404
 - Vault wire codec rejects out-of-bounds KDF params and malformed vaults; the server stores
   only re-encoded vaults and refuses a public-key change ([ADR-0022](decisions/0022-identity-vault-relay.md))
 - Member relay: a wrap goes only to an invitee of that household who has a vault, under

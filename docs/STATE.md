@@ -1,4 +1,4 @@
-_Last updated: 2026-11-01 (session 46: #169, #170) · next session: start here_
+_Last updated: 2026-11-01 (session 47: #172, plus #185's M3 spec fix) · next session: start here_
 
 ## Where we are
 
@@ -16,11 +16,13 @@ ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, am
 staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (ADR-0067): Dexie `nwt-prices`
 (`src/db/price-store.ts`), `src/sync/price-refresh.ts` (once per price day, 07:30 IST turnover, ETag) on the sync triggers.
 **#169** (ADR-0068): `valuation`/`valuedItems` (`src/domain/prices/valuation.ts`), `universes()` on the sync handle,
-`useUniverses`/`useValuations`, captions in `src/features/prices/price-caption.tsx` (Accounts per row; Home/Goals oldest date). **#170** (ADR-0069): `searchUniverse` (`search.ts`), `InstrumentPicker` in the add form (local search, fills value). **Push needs a recovery method** (ADR-0040).
+`useUniverses`/`useValuations`, captions in `src/features/prices/price-caption.tsx` (Accounts per row; Home/Goals oldest date). **#170** (ADR-0069): `searchUniverse` (`search.ts`), `InstrumentPicker` in the add form (local search, fills value). **#172** M4 acceptance E2E: `e2e/m4-acceptance.spec.ts`, fixtures seeded through the real `ingest()` by `e2e/prices.ts`. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. **#171** snapshots (`area:crypto`, owner approval; per-lens totals from `valuedItems`), then **#172** M4 E2E.
+1. **PR #185** (#171 snapshots, `area:crypto`) and the **#172** PR (`area:security`) both need the owner's approval.
+   Merge #185 first; then merge `main` into `test/m4-acceptance` (STATE/SESSION_LOG/README conflicts), and the
+   M4 spec still holds (it counts no records). After both: close the M4 milestone, plan M5 (`docs/phases/M5.md`).
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
@@ -70,6 +72,9 @@ the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Kn
   matching text here: assert with `getByText(/…/)` instead. Python edits on Windows:
   open with `newline=''` or files turn CRLF.
 - `src/server/records.pg.test.ts` (and `prices.pg.test.ts`) can time out in a full local `pnpm test` under load; it passes alone.
+- **Price E2E:** seed `price_universes` with `ingestFixtures()` (`e2e/prices.ts`), never real feeds. The spec
+  empties the table first; held values sit on half-paisa edges so the whole-rupee UI still proves paise.
+  The client caches a 404 per page load only: `reload()` after seeding to download.
 - **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).
 
 ## Resume command
