@@ -42,7 +42,7 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M4 — Prices & valuation (brief: `docs/phases/M4.md`). M0–M3 closed (M3 milestone closed on |
+| Milestone | M4 — Prices & valuation (brief: `docs/phases/M4.md`), **closed on GitHub 2026-11-01**; next is M5. M0–M3 closed (M3 milestone closed on |
 | Next up | see docs/STATE.md |
 | Decisions recorded | 70 ADRs |
 
