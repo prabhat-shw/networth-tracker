@@ -42,9 +42,9 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | | |
 | --- | --- |
 | Version | `0.1.0` |
-| Milestone | M5 — Dashboard, goals & insights (brief: `docs/phases/M5.md`). Issues: new **#191–#201**, plus #28, #29, #30, #34 and #183 (last). The brief has eight design questions for ADR-0071 (#191 settles them). M4 — Prices & valuation closed on GitHub 2026-11-01. M0–M3 closed (M3 milestone closed on |
+| Milestone | M5 — Dashboard, goals & insights (brief: `docs/phases/M5.md`). Issues: new **#191–#201**, plus #28, #29, #30, #34 and #183 (last). **#191** settled the brief's eight questions (ADR-0071) and added `src/domain/goals/`: `projectGoal` (inflated target, progress, required SIP rounded up, status at 100%/80%, `targetPassed`) and `suitability` (warns by record kind). M4 — Prices & valuation closed on GitHub 2026-11-01. M0–M3 closed (M3 milestone closed on |
 | Next up | see docs/STATE.md |
-| Decisions recorded | 70 ADRs |
+| Decisions recorded | 71 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.
