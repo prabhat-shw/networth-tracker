@@ -20,8 +20,7 @@ staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (AD
 
 ## Next session picks up
 
-1. **#170** instrument picker (search the cached universe's `names` locally; fill `instrument` + value), then **#171**
-   snapshots (`area:crypto`: owner approval; per-lens totals from `valuedItems`), then #172 E2E.
+1. **#170** picker (search cached `names` locally), then **#171** snapshots (`area:crypto`, owner approval), #172 E2E.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
