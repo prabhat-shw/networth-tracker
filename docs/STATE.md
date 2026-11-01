@@ -1,8 +1,8 @@
-_Last updated: 2026-11-01 (session 51: #192) · next session: start here_
+_Last updated: 2026-11-01 (session 52: #193) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M5 — Dashboard, goals & insights (brief: `docs/phases/M5.md`). Issues: new **#191–#201**, plus #28, #29, #30, #34 and #183 (last). **#191** settled the brief's eight questions (ADR-0071) and added `src/domain/goals/`: `projectGoal` (inflated target, progress, required SIP rounded up, status at 100%/80%, `targetPassed`) and `suitability` (warns by record kind). **#192** shared lens: `src/features/lens/` (zustand `useLensStore`, `useLens`, `LensBar`; resets on lock) on Home, Accounts, Goals. M4 — Prices & valuation closed on GitHub 2026-11-01. M0–M3 closed (M3 milestone closed on
+**Milestone:** M5 — Dashboard, goals & insights (brief: `docs/phases/M5.md`). Issues: new **#191–#201**, plus #28, #29, #30, #34 and #183 (last). **#191** settled the brief's eight questions (ADR-0071) and added `src/domain/goals/`: `projectGoal` (inflated target, progress, required SIP rounded up, status at 100%/80%, `targetPassed`) and `suitability` (warns by record kind). **#192** shared lens: `src/features/lens/` (zustand `useLensStore`, `useLens`, `LensBar`; resets on lock) on Home, Accounts, Goals. **#193** timeline `/networth`: `src/domain/timeline.ts` + `src/features/timeline/` (Recharts, time axis, `--chart-N` tokens in `globals.css` resolved to hex for SVG). M4 — Prices & valuation closed on GitHub 2026-11-01. M0–M3 closed (M3 milestone closed on
 GitHub 2026-10-31; the M0 milestone is still open there with no issues). M3 ended with #27 linked transfers
 (ADR-0062) and #26 tax lots (ADR-0063). Staging is live on main. The M4 brief has eight design questions for
 ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, amends ADR-0005's sources):
@@ -20,7 +20,7 @@ staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (AD
 
 ## Next session picks up
 
-1. **Next: #193** (timeline; read `useLens()` for the lens), then the brief's order; each UI issue follows ADR-0071's answer for it. Owner to decide: #30
+1. **Next: #194** (Home sparkline/composition/nudges: reuse `timelineSeries` and `BUCKET_SLOT`), then the brief's order; each UI issue follows ADR-0071's answer for it. Owner to decide: #30
    resize S→M (new universe kind + history load); where the Insights Forecast panel (UX §3.11) goes in PLAN.md.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: count-up animation, nominee badge in Accounts (M7 alert),
