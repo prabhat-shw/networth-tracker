@@ -1,7 +1,8 @@
 // Home (#105, #138): zero-state until records exist, then the hero per lens and the sync indicator.
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { render } from "vitest-browser-react";
 import type { PlainRecord } from "@/crypto/record-codec";
+import { useLensStore } from "@/features/lens/lens-store";
 import type { KeySession } from "@/features/lock/key-session";
 import { SyncProvider } from "@/features/sync/sync-provider";
 import type { HouseholdSync, SyncStatus } from "@/sync/household-sync";
@@ -101,6 +102,9 @@ const mount = (sync: HouseholdSync) =>
       <Home household={<p>household panel</p>} addMore={<p>add more</p>} />
     </SyncProvider>,
   );
+
+// The lens is device-wide (ADR-0071 §1): start every test from Household.
+afterEach(() => useLensStore.setState({ lens: "household" }));
 
 describe("Home", () => {
   it("leads with the empty state and keeps the invite form out of view", async () => {

@@ -94,3 +94,4 @@ One line per session: date · issue · outcome.
 - 2026-11-01 · #187 recovery-code checksum test: the bad-checksum fixture now picks a last word that fails `validateMnemonic` (the fixed `zoo` fit 1 in 256); fixture checked on 1000 random codes, test run 1000× via a temporary `repeats`
 - 2026-11-01 · M5 brief: `docs/phases/M5.md` (8 design questions for ADR-0071, 16 scope items), filed #191–#201 on the M5 milestone and the Kanban board
 - 2026-11-01 · #191 ADR-0071 (M5 Q1–Q8) + `src/domain/goals/`: `projectGoal` (float64 factors, paise rounded once, SIP rounded up, on track/at risk/off track at 100%/80%, `targetPassed`), `suitability` by record kind; fixtures from 50-digit decimals
+- 2026-11-01 · #192 shared lens: zustand store (new dep, MIT) in memory, reset on lock; `LensBar` on Home, Accounts (member's records at their share) and Goals (earmarks in lens); browser tests incl. a cross-screen switch
