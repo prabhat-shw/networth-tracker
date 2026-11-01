@@ -35,6 +35,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Daily prices (#167): the server now collects every public price list (mutual fund NAVs,
+  NSE/BSE closes, US stocks, crypto, exchange rates, gold) each night at 23:30 IST, with a
+  07:00 retry. A failed or broken feed leaves the previous day's prices in place.
 - Tax lots on holdings (#26): mutual funds, stocks, US stocks, RSUs and crypto can record
   each purchase (units, cost, date, and the 31 Jan 2018 value for grandfathered lots). The
   lots must add up to the units held. Sells will use up the oldest lots first, as Indian tax rules require.

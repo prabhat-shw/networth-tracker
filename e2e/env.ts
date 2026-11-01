@@ -15,6 +15,8 @@ export const E2E_ENV: Record<string, string> = {
   SMTP_PASS: "",
   SMTP_FROM: "NetWorth E2E <e2e@example.test>",
   NEXT_TELEMETRY_DISABLED: "1",
+  // No daily price fetches from the throwaway stack (ADR-0066).
+  PRICE_INGEST: "off",
   // Builds the record probe in (ADR-0036); never set for a real build.
   NEXT_PUBLIC_E2E: "1",
 };

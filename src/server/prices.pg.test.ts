@@ -193,3 +193,23 @@ describe("GET /api/prices/universe/:kind/:date", () => {
     expect((await get("u", "fx", "yesterday")).status).toBe(400);
   });
 });
+
+describe("ingestAll (#167)", () => {
+  it("stores the kinds that fetch while the others fail", async () => {
+    const { ingestAll } = await import("./price-schedule");
+    const results = await ingestAll(
+      {
+        db,
+        fetchUniverse: async (kind) => {
+          if (kind !== "fx") throw new Error("feed down");
+          return { universe: fx("2026-10-30", many(4)), skipped: 0 };
+        },
+      },
+      "2026-10-30",
+      () => {},
+    );
+    expect(results.find((r) => r.kind === "fx")?.status).toBe("stored");
+    expect(results.filter((r) => r.status === "failed")).toHaveLength(6);
+    expect(await rows()).toHaveLength(1);
+  });
+});
