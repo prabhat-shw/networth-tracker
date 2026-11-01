@@ -239,7 +239,7 @@ test("M4: identical price requests, values to the paisa, stale warning, poisoned
       '"kind":"mutualFund"',
       '"kind":"usStock"',
       '"kind":"stock"',
-      '"kind":"crypto"',
+      // Not '"kind":"crypto"': the public price cache names its crypto universe that way.
       '"type":"asset"',
       ...words.map((w) => w.join(" ")),
     ]);
