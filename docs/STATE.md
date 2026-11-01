@@ -20,9 +20,8 @@ staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (AD
 
 ## Next session picks up
 
-1. **Start M5 with #191** (ADR-0071 + pure goal maths, `src/domain/goals/`), then follow the brief's order.
-   Open for the owner: #30 is labelled `size:S` but needs a new universe kind + history load (closer to `M`);
-   the Insights Forecast panel (UX §3.11) is not placed in PLAN.md's roadmap.
+1. **Start M5 with #191** (ADR-0071 + goal maths, `src/domain/goals/`), then the brief's order. Owner to decide: #30
+   resize S→M (new universe kind + history load); where the Insights Forecast panel (UX §3.11) goes in PLAN.md.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
