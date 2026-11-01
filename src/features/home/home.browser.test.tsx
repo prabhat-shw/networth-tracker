@@ -8,6 +8,8 @@ import type { HouseholdSync, SyncStatus } from "@/sync/household-sync";
 import { Home } from "./home";
 import { SyncIndicator } from "./sync-status";
 
+const NO_PRICES = {};
+
 const ASHA = "0a000000-0000-4000-8000-0000000000a1";
 const BALA = "0b000000-0000-4000-8000-0000000000b1";
 
@@ -86,6 +88,7 @@ function fakeSync(records: PlainRecord[], status = SYNCED): HouseholdSync {
     records: () => records,
     write: async () => ({}) as never,
     status: () => status,
+    universes: () => NO_PRICES,
     sync: async () => ({}) as never,
     subscribe: () => () => {},
     stop() {},

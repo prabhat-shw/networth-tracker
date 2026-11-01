@@ -3,14 +3,17 @@
 import { type EarmarkSource, earmarks } from "@/domain/earmarks";
 import { formatINR } from "@/domain/money";
 import { netWorthValue } from "@/domain/networth";
+import { priceSummary, type Valuation } from "@/domain/prices/valuation";
 import type { AssetData } from "@/domain/records/asset";
 import type { GoalData } from "@/domain/records/goal";
 import type { LiabilityData } from "@/domain/records/liability";
 import type { Entry } from "@/domain/records/typed";
+import { PriceCaption } from "@/features/prices/price-caption";
 import {
   useAssets,
   useGoals,
   useLiabilities,
+  useValuations,
 } from "@/features/sync/typed-records";
 import { GoalDialog } from "./goal-form";
 import { GOAL_KIND_LABEL } from "./goal-kinds";
@@ -18,13 +21,14 @@ import { GOAL_KIND_LABEL } from "./goal-kinds";
 function sources(
   side: EarmarkSource["side"],
   list: readonly Entry<AssetData | LiabilityData>[],
+  valuations: ReadonlyMap<string, Valuation> = new Map(),
 ): EarmarkSource[] {
   return list.flatMap((e) =>
     e.result.status === "ok"
       ? [
           {
             side,
-            value: netWorthValue(e.result.value),
+            value: valuations.get(e.id)?.value ?? netWorthValue(e.result.value),
             includeInNetWorth: e.result.value.includeInNetWorth,
             allocations: e.result.value.allocations,
             owners: e.result.value.owners,
@@ -46,6 +50,8 @@ export function Goals() {
   const goals = useGoals();
   const assets = useAssets();
   const liabilities = useLiabilities();
+  const valuations = useValuations();
+  const prices = priceSummary([...valuations.values()]);
 
   const readable: { id: string; data: GoalData }[] = [];
   let unreadable = 0;
@@ -60,7 +66,7 @@ export function Goals() {
   );
 
   const all = [
-    ...sources("asset", assets),
+    ...sources("asset", assets, valuations),
     ...sources("liability", liabilities),
   ];
   const { byGoal, unallocated } = earmarks(
@@ -76,6 +82,16 @@ export function Goals() {
         <p className="text-sm text-neutral-500">
           {formatINR(earmarked)} earmarked of{" "}
           {formatINR(earmarked + unallocated)} net worth
+          {prices.asOf && (
+            <>
+              {" · "}
+              <PriceCaption
+                asOf={prices.asOf}
+                stale={prices.stale}
+                prefix="Prices "
+              />
+            </>
+          )}
         </p>
         <GoalDialog />
       </div>

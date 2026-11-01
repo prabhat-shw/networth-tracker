@@ -1,4 +1,4 @@
-_Last updated: 2026-11-01 (session 45: #167, #168) · next session: start here_
+_Last updated: 2026-11-01 (session 46: #169) · next session: start here_
 
 ## Where we are
 
@@ -14,12 +14,14 @@ ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, am
 `ingest()` + `serveUniverse()` in `src/server/prices.ts`, route `/api/prices/universe/:kind/:date|latest`, `unzip.ts`. **#167** (ADR-0066): `src/server/price-schedule.ts`
 (`ingestAll`, `runDate`, `nextRun`), home timer in `src/instrumentation.ts` (23:30 + 07:00 IST, `PRICE_INGEST=off`),
 staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (ADR-0067): Dexie `nwt-prices`
-(`src/db/price-store.ts`), `src/sync/price-refresh.ts` (once per price day, 07:30 IST turnover, ETag) on the sync triggers. **Push needs a recovery method** (ADR-0040).
+(`src/db/price-store.ts`), `src/sync/price-refresh.ts` (once per price day, 07:30 IST turnover, ETag) on the sync triggers.
+**#169** (ADR-0068): `valuation`/`valuedItems` (`src/domain/prices/valuation.ts`), `universes()` on the sync handle,
+`useUniverses`/`useValuations`, captions in `src/features/prices/price-caption.tsx` (Accounts per row; Home/Goals oldest date). **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. **#169** valuation on read: `valuedItems(records, toUniverses(await priceStore().all()))` → `netWorth()`; re-value on
-   the refresher's `onUpdate` (not yet surfaced by `HouseholdSync`). #171 snapshots is `area:crypto`: owner approval.
+1. **#170** instrument picker (search the cached universe's `names` locally; fill `instrument` + value), then **#171**
+   snapshots (`area:crypto`: owner approval; per-lens totals from `valuedItems`), then #172 E2E.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
@@ -65,10 +67,10 @@ the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Kn
 - New issues are not auto-added to the Kanban: `gh project item-add 2 --owner prabhat-shw --url …`.
 - **Vitest browser port:** Hyper-V can reserve 63315 (`EACCES`); add `api: { port: 51733 }` to the browser project
   in `vitest.config.mts` locally (Vitest 5 ignores CLI/`browser.api`), and don't commit it.
-- Browser tests: `render()` from vitest-browser-react is async; await it. `toHaveTextContent` timed out on
+- Browser tests: `render()` from vitest-browser-react is async; await it. `HouseholdSync` fakes need a **stable** `universes()` object (a fresh `{}` loops). `toHaveTextContent` timed out on
   matching text here: assert with `getByText(/…/)` instead. Python edits on Windows:
   open with `newline=''` or files turn CRLF.
-- `src/server/records.pg.test.ts` can time out in a full local `pnpm test` under load; it passes alone.
+- `src/server/records.pg.test.ts` (and `prices.pg.test.ts`) can time out in a full local `pnpm test` under load; it passes alone.
 - **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).
 
 ## Resume command

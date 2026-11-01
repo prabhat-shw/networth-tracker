@@ -14,12 +14,17 @@ import type { LiabilityData } from "@/domain/records/liability";
 import { FORMER_MEMBER } from "@/domain/records/member";
 import { AddAnything } from "@/features/add/add-anything";
 import { optionFor } from "@/features/add/kinds";
+import {
+  showsCaption,
+  ValuationCaption,
+} from "@/features/prices/price-caption";
 import { useHouseholdSync } from "@/features/sync/sync-provider";
 import {
   useAssets,
   useLiabilities,
   useMembers,
   useRecordWriter,
+  useValuations,
 } from "@/features/sync/typed-records";
 import { ownershipBadge, taggedPercent } from "./badge";
 
@@ -60,7 +65,10 @@ export function Accounts() {
   const profiles = useMembers();
   const assets = useAssets();
   const liabilities = useLiabilities();
+  const valuations = useValuations();
   const [query, setQuery] = useState("");
+  // Priced holdings are worth their market value now; everything else its entered value.
+  const worth = (r: Row) => valuations.get(r.id)?.value ?? r.data.value;
 
   const rows: Row[] = [];
   const broken: { id: string; result: ReadResult<unknown> }[] = [];
@@ -114,7 +122,7 @@ export function Accounts() {
       {SECTIONS.map((section) => {
         const list = shown.filter((r) => sectionOf(r) === section);
         if (words.length > 0 && list.length === 0) return null;
-        const total = list.reduce((t, r) => t + r.data.value, 0);
+        const total = list.reduce((t, r) => t + worth(r), 0);
         return (
           <details key={section} open className="group">
             <summary className="flex cursor-pointer justify-between border-b border-neutral-200 py-1 text-sm font-semibold dark:border-neutral-800">
@@ -145,10 +153,9 @@ export function Accounts() {
                 <tbody>
                   {list.map((r) => {
                     const badge = ownershipBadge(r.data.owners, me, nameOf);
-                    const tagged = taggedPercent(
-                      r.data.allocations,
-                      r.data.value,
-                    );
+                    const value = worth(r);
+                    const valued = valuations.get(r.id);
+                    const tagged = taggedPercent(r.data.allocations, value);
                     return (
                       <tr
                         key={r.id}
@@ -173,12 +180,22 @@ export function Accounts() {
                         </td>
                         <td className={wide}>{r.data.institution}</td>
                         <td className={`${cell} text-right tabular-nums`}>
-                          {formatINR(r.data.value)}
+                          {formatINR(value)}
+                          {showsCaption(valued) && (
+                            <span className="block sm:hidden">
+                              <ValuationCaption v={valued} />
+                            </span>
+                          )}
                         </td>
                         <td className={wide}>
                           {tagged > 0 ? `${tagged}% tagged` : ""}
                         </td>
-                        <td className={wide}>{r.data.asOf}</td>
+                        <td className={wide}>
+                          <ValuationCaption
+                            v={valued}
+                            enteredOn={r.data.asOf}
+                          />
+                        </td>
                       </tr>
                     );
                   })}

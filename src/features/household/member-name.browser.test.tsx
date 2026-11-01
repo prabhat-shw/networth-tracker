@@ -7,6 +7,8 @@ import { SyncProvider } from "@/features/sync/sync-provider";
 import type { HouseholdSync } from "@/sync/household-sync";
 import { MemberName } from "./member-name";
 
+const NO_PRICES = {};
+
 const ASHA = "0a000000-0000-4000-8000-0000000000a1";
 
 /** An in-memory sync: writes land in `records` and notify, like the real handle. */
@@ -34,6 +36,7 @@ function fakeSync(initial: PlainRecord[] = []) {
       return record;
     },
     status: () => ({ state: "synced", lastSyncedAt: null, pending: false }),
+    universes: () => NO_PRICES,
     sync: async () => ({}) as never,
     subscribe(l) {
       listeners.add(l);
