@@ -1,6 +1,9 @@
 "use client";
 
+import type { Paise } from "@/domain/money";
+import type { InstrumentSource } from "@/domain/prices/search";
 import type { FieldInputs, FieldSpec } from "./fields";
+import { InstrumentPicker } from "./instrument-picker";
 
 const field =
   "rounded-md border border-neutral-300 px-2 py-1 dark:border-neutral-700";
@@ -23,10 +26,13 @@ export function KindFields({
   specs,
   inputs,
   onChange,
+  onFillValue,
 }: {
   specs: readonly FieldSpec[];
   inputs: FieldInputs;
   onChange: (next: FieldInputs) => void;
+  /** The instrument picker's "use today's value" (#170). */
+  onFillValue?: (value: Paise) => void;
 }) {
   const set = (key: string, v: string | boolean) =>
     onChange({ ...inputs, [key]: v });
@@ -82,15 +88,25 @@ export function KindFields({
                   </select>
                 </label>
               )}
-              <label className="flex flex-1 flex-col gap-1">
-                {spec.codeLabel}
-                <input
-                  value={String(inputs["instrument.code"] ?? "")}
-                  onChange={(e) => set("instrument.code", e.target.value)}
-                  maxLength={32}
-                  className={field}
-                />
-              </label>
+              <InstrumentPicker
+                sources={spec.sources.map(([v]) => v as InstrumentSource)}
+                label={spec.codeLabel}
+                source={
+                  String(
+                    inputs["instrument.source"] ?? spec.sources[0]?.[0],
+                  ) as InstrumentSource
+                }
+                code={String(inputs["instrument.code"] ?? "")}
+                quantity={String(inputs.quantity ?? "")}
+                onChange={(source, code) =>
+                  onChange({
+                    ...inputs,
+                    "instrument.source": source,
+                    "instrument.code": code,
+                  })
+                }
+                onFill={(v) => onFillValue?.(v)}
+              />
             </div>
           );
         return (

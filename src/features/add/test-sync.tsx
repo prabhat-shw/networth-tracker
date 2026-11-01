@@ -1,12 +1,13 @@
 // Shared by the Add anything browser tests: an in-memory household sync and its mount.
 import { render } from "vitest-browser-react";
 import type { PlainRecord } from "@/crypto/record-codec";
+import type { Universes } from "@/domain/prices/universe";
 import type { KeySession } from "@/features/lock/key-session";
 import { SyncProvider } from "@/features/sync/sync-provider";
 import type { HouseholdSync } from "@/sync/household-sync";
 import { AddAnything } from "./add-anything";
 
-const NO_PRICES = {};
+const NO_PRICES: Universes = {};
 
 export const ASHA = "0a000000-0000-4000-8000-0000000000a1";
 export const BALA = "0b000000-0000-4000-8000-0000000000b1";
@@ -24,7 +25,10 @@ export const balaProfile: PlainRecord = {
 };
 
 /** An in-memory sync: writes land in `records` and notify, like the real handle. */
-export function fakeSync(initial: PlainRecord[] = []) {
+export function fakeSync(
+  initial: PlainRecord[] = [],
+  universes: Universes = NO_PRICES,
+) {
   let records = initial;
   const listeners = new Set<() => void>();
   const sync: HouseholdSync = {
@@ -47,7 +51,7 @@ export function fakeSync(initial: PlainRecord[] = []) {
       return record;
     },
     status: () => ({ state: "synced", lastSyncedAt: null, pending: false }),
-    universes: () => NO_PRICES,
+    universes: () => universes,
     sync: async () => ({}) as never,
     subscribe(l) {
       listeners.add(l);

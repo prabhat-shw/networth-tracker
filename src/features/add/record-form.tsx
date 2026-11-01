@@ -225,7 +225,12 @@ export function RecordForm({
           "aria-invalid": value !== "" && paise === null,
         },
       )}
-      <KindFields specs={specs} inputs={inputs} onChange={setInputs} />
+      <KindFields
+        specs={specs}
+        inputs={inputs}
+        onChange={setInputs}
+        onFillValue={(p) => setValue(paiseToInput(p))}
+      />
       {text("As of", asOf, setAsOf, { type: "date", required: true })}
       <OwnedBy me={me} people={people} shares={shares} onChange={setShares} />
       <GoalTags goals={goals} tags={tags} onChange={setTags} />

@@ -35,6 +35,10 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Find a fund or share by name (#170): when adding a mutual fund, stock, US stock, crypto or
+  RSU, type part of its name or code and pick it from a list. The list searches the prices
+  already on your device, so nothing is sent anywhere. It shows today's price and fills in the
+  value from your units. A code that isn't listed is still accepted with the value you enter.
 - Live values (#169): mutual funds, shares, US stocks, crypto, vested RSUs, foreign bank
   balances and gold/silver with a weight are now valued from the day's public prices, on your
   device. Accounts shows "as of 31 Oct" per holding, a "⚠ price stale" warning once prices are
