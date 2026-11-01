@@ -39,6 +39,7 @@ time; if one is missing, look for the nearest equivalent and fix this file in yo
 | `APP_ORIGIN` | `https://<machine>.<tailnet>.ts.net`, from `tailscale status` or the Tailscale admin console |
 | `BIND_ADDR` | The machine's Tailscale IP, from `tailscale ip -4` (e.g. `100.x.y.z`). **Never `0.0.0.0`** |
 | `DEMO_MODE` | `false` |
+| `PRICE_INGEST` | Leave unset. Prices are fetched daily at 23:30 and 07:00 IST ([ADR-0066](decisions/0066-price-ingest-schedule.md)); `off` stops it |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | Mail server for sign-in codes (ADR-0020). Gmail: `smtp.gmail.com`, `465`, your address, an [app password](https://myaccount.google.com/apppasswords) |
 
 Random value, PowerShell:
@@ -71,6 +72,18 @@ curl -k https://<tailnet-host>/api/health
 
 Expected: `{"status":"ok","app":"ok","db":"ok"}` with HTTP 200. A `503` with `"db":"down"`
 means the app cannot reach Postgres: check `docker compose logs db`.
+
+**Daily prices:** the app fetches every public price universe at 23:30 IST and retries at
+07:00 IST ([ADR-0066](decisions/0066-price-ingest-schedule.md)). The first run comes after
+the first 23:30 following a start. Then check:
+
+```bash
+docker compose logs app | grep price-ingest   # one line per kind: "status":"stored"
+```
+
+`"rejected"` means the feed had under half of yesterday's instruments, and `"failed"` means
+it couldn't be fetched. Either way the previous day's file keeps serving. `flagged` lists
+instruments that moved over 50%.
 
 **First owner (once):** open the app and sign in with your email straight away. On a server
 with no users, the first sign-up becomes the owner without an invite ([ADR-0046](decisions/0046-first-sign-up-owns-empty-server.md)),
@@ -138,6 +151,7 @@ ends with a check.
 | `APP_ORIGIN` | `https://<project-name>.vercel.app` | Corrected in S5 if the final URL differs |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` | a test mailbox | Sign-in codes. Optional: without them no code is sent |
 | `SMTP_DEMO_TO` | your test inbox | Every staging code goes here, whoever it is for |
+| `CRON_SECRET` | a fresh random value | Vercel sends it to `/api/cron/prices` for the daily price ingest ([ADR-0066](decisions/0066-price-ingest-schedule.md)). Unset → every cron call gets `401` |
 
    Generate the secret in PowerShell and paste it straight into the field (not into chat or a file):
    `[Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))`
@@ -245,7 +259,12 @@ In Neon, **Tables** (left sidebar) shows `records` with 7 columns: `id`, `househ
 1. `https://<domain>/api/health` → `{"status":"ok","app":"ok","db":"ok"}` (HTTP 200).
 2. `https://<domain>/` → an amber bar at the top: *"Demo environment: synthetic data only.
    Never enter real financial information here."*
-3. Optional guard test: set `DEMO_MODE` to `false` → Redeploy → the build must fail with
+3. **Daily prices:** **Settings → Cron Jobs** lists `/api/cron/prices` twice (`0 18 * * *`
+   and `30 1 * * *` UTC = 23:30 and 07:00 IST). Click **Run** on one, then open
+   **Logs** and filter for `price-ingest`: one line per kind, `"status":"stored"`. A run
+   that answers `401` means `CRON_SECRET` is missing, or was added without a redeploy.
+   Needs migration `0009` (S4).
+4. Optional guard test: set `DEMO_MODE` to `false` → Redeploy → the build must fail with
    *"Refusing to build"*. Set it back to `true` → Redeploy.
 
 ### S6a. Invite yourself (only if the database already has users)

@@ -185,6 +185,11 @@ session, but never reads whose it is.
 - A day before today (IST) → `Cache-Control: private, max-age=31536000, immutable`. Today's
   or `latest` → `private, no-cache`; `If-None-Match` with the ETag → `304`.
 
+`GET /api/cron/prices` (staging's Vercel cron, [ADR-0066](../decisions/0066-price-ingest-schedule.md)):
+`Authorization: Bearer $CRON_SECRET` or `401`, with nothing run (also when the secret is
+unset). `200 {date, results: [{kind, status, …, flagged: n}]}`, `no-store`. The home
+server runs the same `ingestAll` from an in-process timer instead.
+
 Contract tests (PGlite, #166): same bytes and ETag for two users; `401` signed out; `304` on a
 match; immutable vs no-cache; ingest rejects a file under half the previous count, flags moves
 over 50%, writes nothing on a failed fetch, replaces a same-day retry, keeps 400 days.

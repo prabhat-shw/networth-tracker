@@ -51,6 +51,8 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:?set SMTP_FROM in .env}
+      # Daily price ingest at 23:30 + 07:00 IST (ADR-0066); "off" stops it.
+      PRICE_INGEST: ${PRICE_INGEST:-}
       NODE_ENV: production
     expose:
       - "3000"

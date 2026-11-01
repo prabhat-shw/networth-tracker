@@ -1,4 +1,4 @@
-_Last updated: 2026-11-01 (session 44: #166) · next session: start here_
+_Last updated: 2026-11-01 (session 45: #167) · next session: start here_
 
 ## Where we are
 
@@ -11,22 +11,23 @@ ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, am
 **#164** `parseNse`/`parseBse` (`bhavcopy.ts`): UDiFF CSV by ticker symbol. **#165** `parseSpark` (`us.ts`, list in
 `us-tickers.ts`), `parseCoinGecko`, `parseFrankfurter`, `parseIbja` (`metal.ts`), plus `priceFromNumber`/`ratio`/
 `settleDates`; fetch edge `src/server/price-feeds.ts`. **#166** (ADR-0065): `price_universes` (migration 0009),
-`ingest()` + `serveUniverse()` in `src/server/prices.ts`, route `/api/prices/universe/:kind/:date|latest`, `unzip.ts`. **Push needs a recovery method** (ADR-0040).
+`ingest()` + `serveUniverse()` in `src/server/prices.ts`, route `/api/prices/universe/:kind/:date|latest`, `unzip.ts`. **#167** (ADR-0066): `src/server/price-schedule.ts`
+(`ingestAll`, `runDate`, `nextRun`), home timer in `src/instrumentation.ts` (23:30 + 07:00 IST, `PRICE_INGEST=off`),
+staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. **#167** scheduler: call `ingest({db, fetchUniverse}, kind, todayIst())` for every kind at 23:30 IST, retry 07:00;
-   log `status`/`flagged`/`skipped`. Staging: Vercel cron + `CRON_SECRET`. Then **#168** client cache (ask `/latest`).
-   #171 snapshots is `area:crypto` (HMAC id under the HDK): owner approval before merge.
+1. **#168** client price cache: Dexie table, after unlock download every kind from `/api/prices/universe/:kind/latest`
+   (ETag/304), keep the last good set offline. Then #169 valuation on read. #171 snapshots is `area:crypto`
+   (HMAC id under the HDK): owner approval before merge. **Owner:** set `CRON_SECRET` on Vercel + redeploy; confirm
+   migration 0009 ran on Neon (S4); click **Run** on the cron (DEPLOYMENT S6.3).
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
 
 ## Also open
 
-- Insights UX: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)), tap budgets
-  ([ADR-0017](decisions/0017-tap-budgets.md)). #34's "Home fits one screen" settled in ADR-0059.
-- Issue #14 decided: all six ideas accepted as #25–#32 on M3/M5/M7/M8
+- Insights UX: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)), tap budgets ([ADR-0017](decisions/0017-tap-budgets.md)). Issue #14 decided: all six ideas accepted as #25–#32 on M3/M5/M7/M8
   ([ADR-0016](decisions/0016-features-borrowed-from-other-apps.md)); licence AGPL-3.0-only
   ([ADR-0015](decisions/0015-agpl-licence.md)). New deps must be AGPL-compatible.
 
@@ -35,8 +36,7 @@ the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Kn
 - **Passkey PRF** can't run in headless Chrome (tests fake `PrfApi`): verify fast unlock on a real phone.
 - **Staging migrations are manual**: after any new `drizzle/` migration, run `pnpm db:migrate`
   against Neon's unpooled URL (DEPLOYMENT.md step 4) *before* merging code that needs it ("…already exists, skipping" NOTICEs are harmless).
-- Neon URLs may carry `channel_binding=require`; if staging reports `db:"down"`, strip it in `client.ts`.
-- **Vercel:** import the repo only once (a re-import made a duplicate project, since deleted).
+- Neon URLs may carry `channel_binding=require`; if staging reports `db:"down"`, strip it in `client.ts`. **Vercel:** import the repo only once (a re-import made a duplicate project, since deleted).
   Env vars need a **Redeploy** to take effect. `APP_ORIGIN` = the staging URL (used from M1 auth).
 - **Docker on Windows:** the image only builds because of the new `.dockerignore`; never
   remove `node_modules` from it. Docker Desktop must be running (`docker info`).
