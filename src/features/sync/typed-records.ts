@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { type Valuation, valuation } from "@/domain/prices/valuation";
 import {
   type KnownType,
   ownProfile,
@@ -8,7 +9,7 @@ import {
   type TypeData,
   typeRecords,
 } from "@/domain/records/typed";
-import { useHouseholdSync, useRecords } from "./sync-provider";
+import { useHouseholdSync, useRecords, useUniverses } from "./sync-provider";
 
 /** The live records, typed per envelope type (ADR-0054). Recomputed only when they change. */
 export function useTypedRecords() {
@@ -20,6 +21,23 @@ export const useAssets = () => useTypedRecords().asset;
 export const useLiabilities = () => useTypedRecords().liability;
 export const useGoals = () => useTypedRecords().goal;
 export const useMembers = () => useTypedRecords().profiles;
+
+/**
+ * What each readable asset is worth now, by record id (ADR-0064 §2): from the cached prices
+ * when one matches, else the manual value. Derived on read, never saved.
+ */
+export function useValuations(): ReadonlyMap<string, Valuation> {
+  const assets = useAssets();
+  const universes = useUniverses();
+  return useMemo(() => {
+    const now = new Date();
+    const out = new Map<string, Valuation>();
+    for (const e of assets)
+      if (e.result.status === "ok")
+        out.set(e.id, valuation(e.result.value, universes, now));
+    return out;
+  }, [assets, universes]);
+}
 
 /** This member's own profile, or undefined until they set a name. */
 export function useOwnProfile() {

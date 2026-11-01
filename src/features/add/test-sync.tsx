@@ -6,6 +6,8 @@ import { SyncProvider } from "@/features/sync/sync-provider";
 import type { HouseholdSync } from "@/sync/household-sync";
 import { AddAnything } from "./add-anything";
 
+const NO_PRICES = {};
+
 export const ASHA = "0a000000-0000-4000-8000-0000000000a1";
 export const BALA = "0b000000-0000-4000-8000-0000000000b1";
 
@@ -45,6 +47,7 @@ export function fakeSync(initial: PlainRecord[] = []) {
       return record;
     },
     status: () => ({ state: "synced", lastSyncedAt: null, pending: false }),
+    universes: () => NO_PRICES,
     sync: async () => ({}) as never,
     subscribe(l) {
       listeners.add(l);

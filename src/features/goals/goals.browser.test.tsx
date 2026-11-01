@@ -7,6 +7,8 @@ import { SyncProvider } from "@/features/sync/sync-provider";
 import type { HouseholdSync } from "@/sync/household-sync";
 import { Goals } from "./goals";
 
+const NO_PRICES = {};
+
 const ASHA = "0a000000-0000-4000-8000-0000000000a1";
 const GOAL = "9a000000-0000-4000-8000-000000000001";
 
@@ -78,6 +80,7 @@ function fakeSync(initial: PlainRecord[]) {
       return r;
     },
     status: () => ({ state: "synced", lastSyncedAt: null, pending: false }),
+    universes: () => NO_PRICES,
     sync: async () => ({}) as never,
     subscribe(l) {
       listeners.add(l);

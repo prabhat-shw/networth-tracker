@@ -9,6 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import type { PlainRecord } from "@/crypto/record-codec";
+import type { Universes } from "@/domain/prices/universe";
 import type { KeySession } from "@/features/lock/key-session";
 import {
   type HouseholdSync,
@@ -78,5 +79,18 @@ export function useSyncStatus(): SyncStatus {
     sync ? sync.subscribe : idle,
     sync ? sync.status : notStarted,
     notStarted,
+  );
+}
+
+const NO_PRICES: Universes = {};
+const noPrices = () => NO_PRICES;
+
+/** The device's cached price universes; re-renders when a newer file is saved. */
+export function useUniverses(): Universes {
+  const sync = useHouseholdSync();
+  return useSyncExternalStore(
+    sync ? sync.subscribe : idle,
+    sync ? sync.universes : noPrices,
+    noPrices,
   );
 }

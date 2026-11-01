@@ -6,8 +6,9 @@
  */
 import type { PlainRecord, RecordContent } from "@/crypto/record-codec";
 import { type LocalStore, localStore } from "@/db/local-store";
-import { type PriceStore, priceStore } from "@/db/price-store";
+import { type PriceStore, priceStore, toUniverses } from "@/db/price-store";
 import { createRecordCache } from "@/db/record-cache";
+import type { Universes } from "@/domain/prices/universe";
 import type { KeySession } from "@/features/lock/key-session";
 import { createSyncEngine, type SyncResult, type Transport } from "./engine";
 import { httpTransport, SyncHttpError } from "./http-transport";
@@ -53,11 +54,16 @@ export interface HouseholdSync {
     deleted?: boolean,
     schemaVersion?: number,
   ): Promise<PlainRecord>;
+  /**
+   * The device's cached price universes (ADR-0067), loaded after hydrate and again after a
+   * refresh saves a newer file; the same object until then. Empty until loaded.
+   */
+  universes(): Universes;
   /** The latest sync status; the same object until it changes, like `records()`. */
   status(): SyncStatus;
   /** Runs a sync now (shares a run already in flight). */
   sync(): Promise<SyncResult>;
-  /** Fires after hydrate, after every local write, and when a sync run starts and ends. */
+  /** Fires after hydrate, after every local write, when a sync run starts and ends, and when prices load. */
   subscribe(listener: () => void): () => void;
   stop(): void;
 }
@@ -68,7 +74,10 @@ export interface HouseholdSyncOptions {
   userId: string;
   transport?: Transport;
   store?: LocalStore;
-  /** Public price universes (ADR-0067); refreshed on the same triggers as sync. */
+  /**
+   * Public price universes (ADR-0067); refreshed on the same triggers as sync. Given a store
+   * (or by default), the handle also loads it for `universes()`; a bare refresher does not.
+   */
   prices?: PriceRefresher | PriceStore;
   env?: SyncEnv;
   now?: () => Date;
@@ -145,14 +154,25 @@ export function startHouseholdSync({
   };
   let stopScheduler: (() => void) | null = null;
   let stopped = false;
+  let universes: Universes = {};
+  const owned = prices && "refresh" in prices ? null : (prices ?? priceStore());
+  const loadPrices = () => {
+    if (!owned) return;
+    owned.all().then((rows) => {
+      if (stopped) return;
+      universes = toUniverses(rows);
+      emit();
+    }, onError);
+  };
   const refresher =
-    prices && "refresh" in prices
-      ? prices
-      : createPriceRefresher({ store: prices ?? priceStore() });
+    owned === null
+      ? (prices as PriceRefresher)
+      : createPriceRefresher({ store: owned, onUpdate: loadPrices });
 
   engine.hydrate().then(() => {
     notify();
     if (stopped) return;
+    loadPrices();
     stopScheduler = startSyncScheduler({
       session,
       // Prices ride the same triggers (unlock, online, interval) but never block sync and
@@ -187,6 +207,7 @@ export function startHouseholdSync({
       return record;
     },
     status: () => status,
+    universes: () => universes,
     sync: run,
     subscribe(listener) {
       listeners.add(listener);

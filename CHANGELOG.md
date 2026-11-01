@@ -35,6 +35,11 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Live values (#169): mutual funds, shares, US stocks, crypto, vested RSUs, foreign bank
+  balances and gold/silver with a weight are now valued from the day's public prices, on your
+  device. Accounts shows "as of 31 Oct" per holding, a "⚠ price stale" warning once prices are
+  over 36 hours old, and "manual value" when no price matched. Home and Goals show the price
+  date behind the total.
 - Prices on your device (#168): after you unlock, the app downloads the whole public price
   lists once a day, the same download for every household, and keeps them on the device, so
   values still work offline with the last prices it has.

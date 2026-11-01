@@ -11,15 +11,18 @@ import {
   liabilityItem,
   type NetWorth,
 } from "@/domain/networth";
+import { priceSummary, type Valuation } from "@/domain/prices/valuation";
 import type { AssetData } from "@/domain/records/asset";
 import type { LiabilityData } from "@/domain/records/liability";
 import type { MemberData } from "@/domain/records/member";
 import type { Entry } from "@/domain/records/typed";
+import { PriceCaption } from "@/features/prices/price-caption";
 import { useHouseholdSync } from "@/features/sync/sync-provider";
 import {
   useAssets,
   useLiabilities,
   useMembers,
+  useValuations,
 } from "@/features/sync/typed-records";
 
 export interface NetWorthSummary {
@@ -31,6 +34,8 @@ export interface NetWorthSummary {
   me: string;
   /** The other members with a name, for the lens toggle, by name. */
   others: { id: string; name: string }[];
+  /** The oldest market price behind the figure, and whether any is stale. */
+  prices: { asOf?: string; stale: boolean };
 }
 
 /**
@@ -43,12 +48,16 @@ export function summarize(
   liabilities: readonly Entry<LiabilityData>[],
   profiles: ReadonlyMap<string, MemberData>,
   me: string,
+  valuations: ReadonlyMap<string, Valuation> = new Map(),
 ): NetWorthSummary {
   const items: BalanceItem[] = [];
   let unreadable = 0;
   for (const e of assets)
-    if (e.result.status === "ok") items.push(assetItem(e.result.value));
-    else unreadable++;
+    if (e.result.status === "ok") {
+      const item = assetItem(e.result.value);
+      const v = valuations.get(e.id);
+      items.push(v ? { ...item, value: v.value } : item);
+    } else unreadable++;
   for (const e of liabilities)
     if (e.result.status === "ok") items.push(liabilityItem(e.result.value));
     else unreadable++;
@@ -62,6 +71,7 @@ export function summarize(
     lenses: allLenses(items, [me, ...others.map((o) => o.id)]),
     me,
     others,
+    prices: priceSummary([...valuations.values()]),
   };
 }
 
@@ -70,9 +80,10 @@ export function useNetWorth(): NetWorthSummary {
   const profiles = useMembers();
   const assets = useAssets();
   const liabilities = useLiabilities();
+  const valuations = useValuations();
   return useMemo(
-    () => summarize(assets, liabilities, profiles, me),
-    [assets, liabilities, profiles, me],
+    () => summarize(assets, liabilities, profiles, me, valuations),
+    [assets, liabilities, profiles, me, valuations],
   );
 }
 
@@ -130,6 +141,13 @@ export function NetWorthHero({ summary }: { summary: NetWorthSummary }) {
         Assets {formatINR(figure.assets)} · Liabilities{" "}
         {formatINR(figure.liabilities)}
       </p>
+      {summary.prices.asOf && (
+        <PriceCaption
+          asOf={summary.prices.asOf}
+          stale={summary.prices.stale}
+          prefix="Prices "
+        />
+      )}
       {unreadable > 0 && (
         <p role="alert" className="text-xs text-amber-700 dark:text-amber-300">
           {unreadable === 1

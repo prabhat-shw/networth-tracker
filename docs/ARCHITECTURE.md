@@ -41,6 +41,8 @@
   kind at 23:30 + 07:00 IST, from `src/instrumentation.ts` at home and a Vercel cron on staging ([ADR-0066](decisions/0066-price-ingest-schedule.md)).
   On the device, `src/sync/price-refresh.ts` downloads every kind's `latest` once per price day on the sync
   triggers into Dexie `nwt-prices` (`src/db/price-store.ts`), public data, never cleared ([ADR-0067](decisions/0067-client-price-cache.md)).
+  The sync handle exposes them as `universes()`; `valuation()` / `valuedItems()` (`src/domain/prices/valuation.ts`)
+  value each holding on read before `netWorth()`, with "as of"/stale/"manual value" captions ([ADR-0068](decisions/0068-valuation-on-read.md)).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.
 

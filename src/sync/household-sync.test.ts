@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FIRST_KID, type HouseholdKey } from "@/crypto/household";
 import { generateDataKey, generateIdentityKeyPair } from "@/crypto/keys";
+import { memoryPriceStore } from "@/db/price-store";
 import { createKeySession } from "@/features/lock/key-session";
 import { type FakeServer, fakeServer, memoryStore } from "./fakes";
 import { type HouseholdSync, startHouseholdSync } from "./household-sync";
@@ -185,6 +186,29 @@ describe("household sync", () => {
     expect(a.prices.refresh).toHaveBeenCalledTimes(2);
     await a.sync.write(R1, "account", { name: "PPF" });
     expect(a.prices.refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it("loads the cached price universes from its store after hydrate", async () => {
+    const store = memoryPriceStore();
+    await store.put({
+      kind: "amfi",
+      universe: {
+        kind: "amfi",
+        date: "2026-10-11",
+        fetchedAt: "2026-10-11T18:00:00.000Z",
+        source: "fixture",
+        currency: "INR",
+        prices: { "119551": "29.7532" },
+      },
+      etag: null,
+      checkedOn: "2026-10-12",
+    });
+    // The refresher it builds finds nothing to fetch: amfi is checked, others fail offline.
+    const a = await device(ASHA, { prices: store as never });
+    await vi.waitFor(() =>
+      expect(a.sync.universes().amfi?.prices["119551"]).toBe("29.7532"),
+    );
+    expect(a.sync.universes()).toBe(a.sync.universes());
   });
 
   it("keeps the status object stable between changes", async () => {
