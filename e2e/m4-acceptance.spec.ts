@@ -189,9 +189,14 @@ test("M4: identical price requests, values to the paisa, stale warning, poisoned
       await page.goto("/accounts");
       for (const value of expected[who].rows)
         await expect(
-          page.getByText(value, { exact: true }).first(),
+          page
+            .getByText(value, { exact: true })
+            .filter({ visible: true })
+            .first(),
         ).toBeVisible({ timeout: 30_000 });
-      await expect(page.getByText(stale).first()).toBeVisible();
+      await expect(
+        page.getByText(stale).filter({ visible: true }).first(),
+      ).toBeVisible();
     }
 
     // Different holdings, the same requests (404s first, then the files): one per kind,
