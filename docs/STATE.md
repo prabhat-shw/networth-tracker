@@ -20,9 +20,8 @@ staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (AD
 
 ## Next session picks up
 
-1. **PR #185** (#171 snapshots, `area:crypto`) and the **#172** PR (`area:security`) both need the owner's approval.
-   Merge #185 first; then merge `main` into `test/m4-acceptance` (STATE/SESSION_LOG/README conflicts), and the
-   M4 spec still holds (it counts no records). After both: close the M4 milestone, plan M5 (`docs/phases/M5.md`).
+1. **PR #185** (#171, `area:crypto`) then **PR #186** (#172, `area:security`): owner approval each; after #185, merge `main`
+   into `test/m4-acceptance` (STATE/SESSION_LOG/README conflicts). Then close M4 and plan M5 (`docs/phases/M5.md`).
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
@@ -52,8 +51,7 @@ the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Kn
 - New household-scoped routes: call `guardHousehold` first; never answer 403 (ADR-0021).
 - Server tests that touch SQL: use PGlite with the real migrations (`migratedDb()` from `db/test-db.ts`), not
   the Better Auth memory adapter, which hides schema bugs.
-- Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`).
-- Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
+- Repo is **public** (ADR-0010); `main` protected (PR + green `verify`/`security`). Kanban: https://github.com/users/prabhat-shw/projects/2. Move cards as you go.
 - **Merging:** `gh pr merge <N> --squash` works from this machine (runs as the owner's account) once checks are green.
 - Merge policy (owner): merge when CI is green **and the owner says so** in the session
   (the auto-mode classifier blocks unrequested merges). `area:crypto`/`area:security` always wait for approval.
@@ -69,12 +67,9 @@ the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Kn
 - **Vitest browser port:** Hyper-V can reserve 63315 (`EACCES`); add `api: { port: 51733 }` to the browser project
   in `vitest.config.mts` locally (Vitest 5 ignores CLI/`browser.api`), and don't commit it.
 - Browser tests: `render()` from vitest-browser-react is async; await it. `HouseholdSync` fakes need a **stable** `universes()` object (a fresh `{}` loops). `toHaveTextContent` timed out on
-  matching text here: assert with `getByText(/…/)` instead. Python edits on Windows:
-  open with `newline=''` or files turn CRLF.
+  matching text here: assert with `getByText(/…/)` instead. Python edits on Windows: open with `newline=''` or files turn CRLF.
 - `src/server/records.pg.test.ts` (and `prices.pg.test.ts`) can time out in a full local `pnpm test` under load; it passes alone.
-- **Price E2E:** seed `price_universes` with `ingestFixtures()` (`e2e/prices.ts`), never real feeds. The spec
-  empties the table first; held values sit on half-paisa edges so the whole-rupee UI still proves paise.
-  The client caches a 404 per page load only: `reload()` after seeding to download.
+- **Price E2E:** seed with `ingestFixtures()` (`e2e/prices.ts`), never real feeds; `reload()` after seeding (404s are remembered per page load).
 - **Check exit codes, not output text** (Biome's ANSI output hides failures; use `NO_COLOR=1`).
 
 ## Resume command
