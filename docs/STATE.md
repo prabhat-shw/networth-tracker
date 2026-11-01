@@ -1,4 +1,4 @@
-_Last updated: 2026-11-01 (session 46: #169) · next session: start here_
+_Last updated: 2026-11-01 (session 46: #169, #170) · next session: start here_
 
 ## Where we are
 
@@ -16,11 +16,11 @@ ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, am
 staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (ADR-0067): Dexie `nwt-prices`
 (`src/db/price-store.ts`), `src/sync/price-refresh.ts` (once per price day, 07:30 IST turnover, ETag) on the sync triggers.
 **#169** (ADR-0068): `valuation`/`valuedItems` (`src/domain/prices/valuation.ts`), `universes()` on the sync handle,
-`useUniverses`/`useValuations`, captions in `src/features/prices/price-caption.tsx` (Accounts per row; Home/Goals oldest date). **Push needs a recovery method** (ADR-0040).
+`useUniverses`/`useValuations`, captions in `src/features/prices/price-caption.tsx` (Accounts per row; Home/Goals oldest date). **#170** (ADR-0069): `searchUniverse` (`search.ts`), `InstrumentPicker` in the add form (local search, fills value). **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. **#170** picker (search cached `names` locally), then **#171** snapshots (`area:crypto`, owner approval), #172 E2E.
+1. **#171** snapshots (`area:crypto`, owner approval; per-lens totals from `valuedItems`), then **#172** M4 E2E.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.

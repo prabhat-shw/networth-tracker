@@ -43,6 +43,7 @@
   triggers into Dexie `nwt-prices` (`src/db/price-store.ts`), public data, never cleared ([ADR-0067](decisions/0067-client-price-cache.md)).
   The sync handle exposes them as `universes()`; `valuation()` / `valuedItems()` (`src/domain/prices/valuation.ts`)
   value each holding on read before `netWorth()`, with "as of"/stale/"manual value" captions ([ADR-0068](decisions/0068-valuation-on-read.md)).
+  The add form's instrument picker searches those cached files locally (`search.ts`, [ADR-0069](decisions/0069-instrument-picker.md)).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.
 
