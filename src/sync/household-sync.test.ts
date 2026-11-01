@@ -50,6 +50,9 @@ async function device(
     clock = "10:00:00",
     store = memoryStore(),
     transport = server.connect(),
+    prices = {
+      refresh: vi.fn(async () => ({ day: "", outcomes: {} as never })),
+    },
   } = {},
 ) {
   const session = createKeySession({ autoLockMs: 3_600_000 });
@@ -62,11 +65,12 @@ async function device(
     userId,
     transport,
     store,
+    prices,
     env,
     now: () => new Date(`2026-10-12T${at.clock}.000Z`),
   });
   await vi.waitFor(() => expect(env.timers).toBe(1)); // hydrated, scheduler running
-  return { session, transport, env, sync, store, at };
+  return { session, transport, env, sync, store, at, prices };
 }
 
 const texts = (s: HouseholdSync) =>
@@ -172,6 +176,15 @@ describe("household sync", () => {
     await vi.waitFor(() => expect(a.sync.status().state).toBe("recovery"));
     expect(a.sync.status().pending).toBe(true);
     expect(texts(a.sync)).toEqual(["stuck"]); // still shown locally
+  });
+
+  it("refreshes prices on the scheduler's triggers, not on a local write", async () => {
+    const a = await device(ASHA);
+    await vi.waitFor(() => expect(a.prices.refresh).toHaveBeenCalledTimes(1));
+    a.env.online();
+    expect(a.prices.refresh).toHaveBeenCalledTimes(2);
+    await a.sync.write(R1, "account", { name: "PPF" });
+    expect(a.prices.refresh).toHaveBeenCalledTimes(2);
   });
 
   it("keeps the status object stable between changes", async () => {

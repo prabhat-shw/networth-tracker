@@ -39,6 +39,8 @@
   feed there; the server's only network code for feeds is `src/server/price-feeds.ts`, with fixed URLs.
   `src/server/prices.ts` ingests into `price_universes` and serves them ([ADR-0065](decisions/0065-price-store-and-route.md)); `price-schedule.ts` runs every
   kind at 23:30 + 07:00 IST, from `src/instrumentation.ts` at home and a Vercel cron on staging ([ADR-0066](decisions/0066-price-ingest-schedule.md)).
+  On the device, `src/sync/price-refresh.ts` downloads every kind's `latest` once per price day on the sync
+  triggers into Dexie `nwt-prices` (`src/db/price-store.ts`), public data, never cleared ([ADR-0067](decisions/0067-client-price-cache.md)).
 - **features/ui** — client components only; they never touch crypto directly, only the
   repository layer that hands back decrypted domain objects.
 

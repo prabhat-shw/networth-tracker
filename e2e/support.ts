@@ -235,7 +235,7 @@ ${r.postData() ?? ""}`),
 /**
  * No secret a person typed or read appears in any request, in local or session storage, in
  * the local record store, or in any server table (as text or hex). IndexedDB may hold only
- * the device slot's database and the ciphertext-only record store (#116).
+ * the device slot's database, the ciphertext-only record store (#116) and public prices (#168).
  * Private keys and the HDK are non-extractable CryptoKeys with no raw form to search for;
  * the unit suites assert they never leave (SECURITY.md).
  */
@@ -250,12 +250,13 @@ export async function expectNoLeaks(
   for (const page of run.pages) {
     const stored = await page.evaluate(async () => {
       const idb = (await indexedDB.databases()).map((d) => d.name);
-      // Every row of the record store, bytes as Latin-1 text. Opened only if it exists:
-      // opening it here would create it empty.
+      // Every row of the record store and the public price store (ADR-0067), bytes as
+      // Latin-1 text. Opened only if it exists: opening it here would create it empty.
       let records = "";
-      if (idb.includes("nwt-records")) {
+      for (const store of ["nwt-records", "nwt-prices"]) {
+        if (!idb.includes(store)) continue;
         const db = await new Promise<IDBDatabase>((resolve, reject) => {
-          const req = indexedDB.open("nwt-records");
+          const req = indexedDB.open(store);
           req.onsuccess = () => resolve(req.result);
           req.onerror = () => reject(req.error);
         });
@@ -282,7 +283,7 @@ export async function expectNoLeaks(
       };
     });
     for (const name of stored.idb)
-      expect(["nwt-device", "nwt-records"]).toContain(name);
+      expect(["nwt-device", "nwt-records", "nwt-prices"]).toContain(name);
     for (const s of secrets) {
       expect(stored.local).not.toContain(s);
       expect(stored.session).not.toContain(s);

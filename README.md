@@ -44,7 +44,7 @@ This tracks all of it — and knows **who owns what share**, and **what each rup
 | Version | `0.1.0` |
 | Milestone | M4 — Prices & valuation (brief: `docs/phases/M4.md`). M0–M3 closed (M3 milestone closed on |
 | Next up | see docs/STATE.md |
-| Decisions recorded | 66 ADRs |
+| Decisions recorded | 67 ADRs |
 
 Live detail lives in [`docs/STATE.md`](docs/STATE.md) — it is rewritten at the end of every
 work session.

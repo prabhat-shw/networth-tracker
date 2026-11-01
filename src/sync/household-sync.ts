@@ -6,10 +6,12 @@
  */
 import type { PlainRecord, RecordContent } from "@/crypto/record-codec";
 import { type LocalStore, localStore } from "@/db/local-store";
+import { type PriceStore, priceStore } from "@/db/price-store";
 import { createRecordCache } from "@/db/record-cache";
 import type { KeySession } from "@/features/lock/key-session";
 import { createSyncEngine, type SyncResult, type Transport } from "./engine";
 import { httpTransport, SyncHttpError } from "./http-transport";
+import { createPriceRefresher, type PriceRefresher } from "./price-refresh";
 import { browserEnv, type SyncEnv, startSyncScheduler } from "./scheduler";
 
 const NONE: PlainRecord[] = [];
@@ -66,6 +68,8 @@ export interface HouseholdSyncOptions {
   userId: string;
   transport?: Transport;
   store?: LocalStore;
+  /** Public price universes (ADR-0067); refreshed on the same triggers as sync. */
+  prices?: PriceRefresher | PriceStore;
   env?: SyncEnv;
   now?: () => Date;
   onError?: (error: unknown) => void;
@@ -76,6 +80,7 @@ export function startHouseholdSync({
   userId,
   transport,
   store,
+  prices,
   env = browserEnv(),
   now = () => new Date(),
   // Offline or server down: the next trigger retries, so a failed run is not fatal.
@@ -140,13 +145,24 @@ export function startHouseholdSync({
   };
   let stopScheduler: (() => void) | null = null;
   let stopped = false;
+  const refresher =
+    prices && "refresh" in prices
+      ? prices
+      : createPriceRefresher({ store: prices ?? priceStore() });
 
   engine.hydrate().then(() => {
     notify();
     if (stopped) return;
     stopScheduler = startSyncScheduler({
       session,
-      engine: { sync: run },
+      // Prices ride the same triggers (unlock, online, interval) but never block sync and
+      // need no key: a refresh is a no-op once every kind is checked today (ADR-0067).
+      engine: {
+        sync: () => {
+          refresher.refresh().catch(onError);
+          return run();
+        },
+      },
       env,
       onError,
     });

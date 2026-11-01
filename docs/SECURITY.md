@@ -61,6 +61,9 @@ what type, with which institutions).
   test dumps every row and finds no plaintext); versions and the cursor never move backwards;
   the in-memory plaintext cache empties on lock and auto-lock and refuses writes while locked;
   the E2E leak scan searches the record store too
+- Local price store ([ADR-0067](decisions/0067-client-price-cache.md)): IndexedDB `nwt-prices` holds only the public
+  universe files the server serves to everyone; the refresher never reads a record, so every device asks for all
+  seven kinds in the same order; the E2E leak scan allows this database and searches it too
 - Sync engine ([ADR-0049](decisions/0049-sync-engine.md)): an envelope that fails to decrypt is skipped and never stored or
   shown; a locked session stops every run (`LockedError`); conflict retries are bounded
 - M2 E2E (`e2e/m2-acceptance.spec.ts`, [ADR-0050](decisions/0050-sync-wire-up.md)): an offline write reaches the other member
