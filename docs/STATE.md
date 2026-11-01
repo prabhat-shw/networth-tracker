@@ -27,8 +27,7 @@ the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Kn
 
 ## Also open
 
-- Insights UX: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)), tap budgets ([ADR-0017](decisions/0017-tap-budgets.md)).
-- Issue #14 decided: all six ideas accepted as #25–#32 on M3/M5/M7/M8
+- Insights UX: inflation 8% ([ADR-0014](decisions/0014-projection-defaults.md)), tap budgets ([ADR-0017](decisions/0017-tap-budgets.md)). Issue #14 decided: all six ideas accepted as #25–#32 on M3/M5/M7/M8
   ([ADR-0016](decisions/0016-features-borrowed-from-other-apps.md)); licence AGPL-3.0-only
   ([ADR-0015](decisions/0015-agpl-licence.md)). New deps must be AGPL-compatible.
 
