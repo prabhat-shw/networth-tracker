@@ -1,4 +1,4 @@
-_Last updated: 2026-11-01 (session 47: #172, plus #185's M3 spec fix) · next session: start here_
+_Last updated: 2026-11-01 (session 48: #187) · next session: start here_
 
 ## Where we are
 
@@ -20,8 +20,8 @@ staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (AD
 
 ## Next session picks up
 
-1. **M4 is complete** (#185, #186 merged 2026-11-01): close the M4 milestone on GitHub (after #187, the
-   1-in-256 recovery-code checksum test flake, `size:S`), then plan M5 (`docs/phases/M5.md`).
+1. **M4 is complete** (#185, #186 merged 2026-11-01). **#187** (recovery-code checksum test flake, `area:crypto`)
+   PR awaits the owner's approval; once merged, close the M4 milestone and plan M5 (`docs/phases/M5.md`).
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.

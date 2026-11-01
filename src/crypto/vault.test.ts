@@ -1,3 +1,4 @@
+import { validateMnemonic } from "@scure/bip39";
 import { wordlist } from "@scure/bip39/wordlists/english.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DecryptError } from "./aead";
@@ -140,10 +141,13 @@ describe("recovery code", () => {
     const { vault, recoveryCode } = await createIdentity(PASS);
     const other = await createIdentity(PASS);
     const words = recoveryCode.split(" ");
-    const badChecksum = [
-      ...words.slice(0, 23),
-      words[23] === "zoo" ? "abandon" : "zoo",
-    ];
+    // Only 8 of the 2048 last words fit a 24-word code's checksum, so pick one that fails it
+    // rather than a fixed word (which fits 1 time in 256, #187).
+    const lastWord = wordlist.find(
+      (w) => !validateMnemonic([...words.slice(0, 23), w].join(" "), wordlist),
+    );
+    const badChecksum = [...words.slice(0, 23), lastWord as string];
+    expect(validateMnemonic(badChecksum.join(" "), wordlist)).toBe(false);
     for (const code of [
       words.slice(1).join(" "),
       [...words.slice(1), "notaword"].join(" "),
