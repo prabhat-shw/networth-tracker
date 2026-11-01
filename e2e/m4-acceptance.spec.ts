@@ -187,16 +187,14 @@ test("M4: identical price requests, values to the paisa, stale warning, poisoned
       ).toBeVisible({ timeout: 30_000 });
       await expect(hero(page).getByText(stale)).toBeVisible();
       await page.goto("/accounts");
-      for (const value of expected[who].rows)
+      // Each holding's row: its value cell, and its As-of cell in the stale tone.
+      for (const [i, value] of expected[who].rows.entries()) {
+        const row = page.getByRole("row", { name: holdings[who][i].name });
         await expect(
-          page
-            .getByText(value, { exact: true })
-            .filter({ visible: true })
-            .first(),
+          row.getByRole("cell", { name: value, exact: true }),
         ).toBeVisible({ timeout: 30_000 });
-      await expect(
-        page.getByText(stale).filter({ visible: true }).first(),
-      ).toBeVisible();
+        await expect(row.getByRole("cell", { name: stale })).toBeVisible();
+      }
     }
 
     // Different holdings, the same requests (404s first, then the files): one per kind,
