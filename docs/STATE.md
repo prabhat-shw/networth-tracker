@@ -1,8 +1,8 @@
-_Last updated: 2026-11-01 (session 48: #187) · next session: start here_
+_Last updated: 2026-11-01 (session 49: M5 brief) · next session: start here_
 
 ## Where we are
 
-**Milestone:** M4 — Prices & valuation (brief: `docs/phases/M4.md`), **closed on GitHub 2026-11-01**; next is M5. M0–M3 closed (M3 milestone closed on
+**Milestone:** M5 — Dashboard, goals & insights (brief: `docs/phases/M5.md`). Issues: new **#191–#201**, plus #28, #29, #30, #34 and #183 (last). The brief has eight design questions for ADR-0071 (#191 settles them). M4 — Prices & valuation closed on GitHub 2026-11-01. M0–M3 closed (M3 milestone closed on
 GitHub 2026-10-31; the M0 milestone is still open there with no issues). M3 ended with #27 linked transfers
 (ADR-0062) and #26 tax lots (ADR-0063). Staging is live on main. The M4 brief has eight design questions for
 ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, amends ADR-0005's sources):
@@ -20,8 +20,8 @@ staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (AD
 
 ## Next session picks up
 
-1. **M4 is closed** (#185, #186, #188 merged 2026-11-01). Next: **M5 Dashboard, goals & insights** has no brief
-   yet. Write `docs/phases/M5.md` first (scope from `docs/PLAN.md` + its 5 open issues), then work its issues.
+1. **Start M5 with #191** (ADR-0071 + goal maths, `src/domain/goals/`), then the brief's order. Owner to decide: #30
+   resize S→M (new universe kind + history load); where the Insights Forecast panel (UX §3.11) goes in PLAN.md.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
