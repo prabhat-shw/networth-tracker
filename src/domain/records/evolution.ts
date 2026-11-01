@@ -16,6 +16,7 @@ export const RECORD_TYPES = [
   "liability",
   "goal",
   "transaction",
+  "snapshot",
 ] as const;
 export type RecordType = (typeof RECORD_TYPES)[number];
 
