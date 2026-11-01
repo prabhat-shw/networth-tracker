@@ -17,7 +17,7 @@ client.
 |  src/crypto/    locks and unlocks data                                  |
 |  src/domain/    the maths: net worth, ownership shares, goals, XIRR      |
 |  src/parsers/   reads statement files (PDF/CSV) - never uploaded         |
-|  src/db/        Dexie -> IndexedDB: local store of encrypted records     |
+|  src/db/        Dexie -> IndexedDB: encrypted records + public prices    |
 |  src/features/  the screens                                             |
 +---------------+---------------------------------------------------------+
                 | encrypted blobs in, encrypted blobs out

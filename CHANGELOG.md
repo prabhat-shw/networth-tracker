@@ -35,6 +35,9 @@ semantic versioning (see ADR-0009). Entries are written from Conventional Commit
   way back in is chosen at the first invite. iPhone users get an "Add to Home Screen" hint.
 
 ### Added
+- Prices on your device (#168): after you unlock, the app downloads the whole public price
+  lists once a day, the same download for every household, and keeps them on the device, so
+  values still work offline with the last prices it has.
 - Daily prices (#167): the server now collects every public price list (mutual fund NAVs,
   NSE/BSE closes, US stocks, crypto, exchange rates, gold) each night at 23:30 IST, with a
   07:00 retry. A failed or broken feed leaves the previous day's prices in place.

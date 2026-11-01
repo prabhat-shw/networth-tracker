@@ -1,4 +1,4 @@
-_Last updated: 2026-11-01 (session 45: #167) · next session: start here_
+_Last updated: 2026-11-01 (session 45: #167, #168) · next session: start here_
 
 ## Where we are
 
@@ -13,14 +13,13 @@ ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, am
 `settleDates`; fetch edge `src/server/price-feeds.ts`. **#166** (ADR-0065): `price_universes` (migration 0009),
 `ingest()` + `serveUniverse()` in `src/server/prices.ts`, route `/api/prices/universe/:kind/:date|latest`, `unzip.ts`. **#167** (ADR-0066): `src/server/price-schedule.ts`
 (`ingestAll`, `runDate`, `nextRun`), home timer in `src/instrumentation.ts` (23:30 + 07:00 IST, `PRICE_INGEST=off`),
-staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **Push needs a recovery method** (ADR-0040).
+staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (ADR-0067): Dexie `nwt-prices`
+(`src/db/price-store.ts`), `src/sync/price-refresh.ts` (once per price day, 07:30 IST turnover, ETag) on the sync triggers. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. **#168** client price cache: Dexie table, after unlock download every kind from `/api/prices/universe/:kind/latest`
-   (ETag/304), keep the last good set offline. Then #169 valuation on read. #171 snapshots is `area:crypto`
-   (HMAC id under the HDK): owner approval before merge. **Owner:** set `CRON_SECRET` on Vercel + redeploy; confirm
-   migration 0009 ran on Neon (S4); click **Run** on the cron (DEPLOYMENT S6.3).
+1. **#169** valuation on read: `valuedItems(records, toUniverses(await priceStore().all()))` → `netWorth()`; re-value on
+   the refresher's `onUpdate` (not yet surfaced by `HouseholdSync`). #171 snapshots is `area:crypto`: owner approval.
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.
