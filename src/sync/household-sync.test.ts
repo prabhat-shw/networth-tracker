@@ -211,6 +211,34 @@ describe("household sync", () => {
     expect(a.sync.universes()).toBe(a.sync.universes());
   });
 
+  it("writes one daily snapshot per household, whichever device syncs first", async () => {
+    const a = await device(ASHA);
+    const b = await device(BALA, { clock: "10:05:00" });
+    await a.sync.write(R1, "asset", {
+      kind: "cash",
+      name: "Cash",
+      value: 5_000_00,
+      owners: [{ memberId: ASHA, shareBps: 10_000 }],
+      includeInNetWorth: true,
+      tags: [],
+      asOf: "2026-10-12",
+      allocations: [],
+    });
+    await a.sync.sync();
+    const snaps = (s: HouseholdSync) =>
+      s.records().filter((r) => r.type === "snapshot");
+    await vi.waitFor(() => expect(snaps(a.sync)).toHaveLength(1));
+    await a.sync.sync(); // push it
+    await b.sync.sync();
+    await vi.waitFor(() => expect(snaps(b.sync)).toHaveLength(1));
+    await b.sync.sync();
+    expect(snaps(b.sync)[0]).toMatchObject({
+      id: snaps(a.sync)[0].id,
+      modifiedBy: ASHA,
+    });
+    expect(server.rows.size).toBe(2); // the asset and one snapshot
+  });
+
   it("keeps the status object stable between changes", async () => {
     const a = await device(ASHA);
     await vi.waitFor(() => expect(a.sync.status().state).toBe("synced"));

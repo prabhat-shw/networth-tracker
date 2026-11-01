@@ -99,6 +99,10 @@ what type, with which institutions).
   exact key whose code was shown; *It doesn't match* cancels the invite and wraps nothing ([ADR-0031](decisions/0031-inviter-household-panel.md))
 - E2E security specs: *household B cannot read household A*, *DB contains no plaintext*
 
+- Snapshot ids ([ADR-0070](decisions/0070-daily-snapshots.md)): derived from the HDK without exporting it (AES-GCM keystream
+  → HKDF → non-extractable HMAC key, sign only); tests assert two devices agree, ids differ per
+  date and household, and the key can't be exported.
+
 ## Explicitly accepted risks
 
 - Lose passphrase + recovery kit + spouse's copy ⇒ data unrecoverable (disclosed in-app).

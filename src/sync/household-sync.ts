@@ -14,6 +14,7 @@ import { createSyncEngine, type SyncResult, type Transport } from "./engine";
 import { httpTransport, SyncHttpError } from "./http-transport";
 import { createPriceRefresher, type PriceRefresher } from "./price-refresh";
 import { browserEnv, type SyncEnv, startSyncScheduler } from "./scheduler";
+import { createSnapshotWriter } from "./snapshot-writer";
 
 const NONE: PlainRecord[] = [];
 
@@ -144,6 +145,8 @@ export function startHouseholdSync({
         lastSyncedAt: now(),
         pending: result.pending,
       });
+      // This device now has every snapshot the others wrote; add today's if none did.
+      snapshots.maybeWrite().catch(onError);
       return result;
     } catch (error) {
       setStatus({ state: failedState(error) });
@@ -169,6 +172,39 @@ export function startHouseholdSync({
       ? (prices as PriceRefresher)
       : createPriceRefresher({ store: owned, onUpdate: loadPrices });
 
+  async function write(
+    id: string,
+    type: string,
+    data: unknown,
+    deleted = false,
+    schemaVersion = 1,
+  ): Promise<PlainRecord> {
+    const content: RecordContent = {
+      type,
+      schemaVersion,
+      data,
+      modifiedAt: now().toISOString(),
+      modifiedBy: userId,
+    };
+    const record = await engine.write(id, content, deleted);
+    setStatus({ pending: true });
+    notify();
+    run().catch(onError);
+    return record;
+  }
+  const snapshots = createSnapshotWriter({
+    userId,
+    hdk,
+    records: () => snapshot,
+    // Today's prices first (a no-op once checked), so the snapshot values with them.
+    universes: async () => {
+      await refresher.refresh().catch(() => {});
+      return owned ? toUniverses(await owned.all()) : universes;
+    },
+    write,
+    now,
+  });
+
   engine.hydrate().then(() => {
     notify();
     if (stopped) return;
@@ -192,20 +228,7 @@ export function startHouseholdSync({
     householdId,
     userId,
     records: () => snapshot,
-    async write(id, type, data, deleted = false, schemaVersion = 1) {
-      const content: RecordContent = {
-        type,
-        schemaVersion,
-        data,
-        modifiedAt: now().toISOString(),
-        modifiedBy: userId,
-      };
-      const record = await engine.write(id, content, deleted);
-      setStatus({ pending: true });
-      notify();
-      run().catch(onError);
-      return record;
-    },
+    write,
     status: () => status,
     universes: () => universes,
     sync: run,

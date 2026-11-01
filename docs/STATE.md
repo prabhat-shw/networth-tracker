@@ -16,12 +16,12 @@ ADR-0064 and eleven issues, **#162–#172**. **#162** settled them (ADR-0064, am
 staging `vercel.json` crons → `/api/cron/prices` (`CRON_SECRET`). **#168** (ADR-0067): Dexie `nwt-prices`
 (`src/db/price-store.ts`), `src/sync/price-refresh.ts` (once per price day, 07:30 IST turnover, ETag) on the sync triggers.
 **#169** (ADR-0068): `valuation`/`valuedItems` (`src/domain/prices/valuation.ts`), `universes()` on the sync handle,
-`useUniverses`/`useValuations`, captions in `src/features/prices/price-caption.tsx` (Accounts per row; Home/Goals oldest date). **#170** (ADR-0069): `searchUniverse` (`search.ts`), `InstrumentPicker` in the add form (local search, fills value). **#172** M4 acceptance E2E: `e2e/m4-acceptance.spec.ts`, fixtures seeded through the real `ingest()` by `e2e/prices.ts`. **Push needs a recovery method** (ADR-0040).
+`useUniverses`/`useValuations`, captions in `src/features/prices/price-caption.tsx` (Accounts per row; Home/Goals oldest date). **#170** (ADR-0069): `searchUniverse` (`search.ts`), `InstrumentPicker` in the add form (local search, fills value). **#171** (ADR-0070): `snapshot` type, id from `crypto/snapshot-id.ts`, `sync/snapshot-writer.ts`. **#172** M4 acceptance E2E: `e2e/m4-acceptance.spec.ts`, fixtures seeded through the real `ingest()` by `e2e/prices.ts`. **Push needs a recovery method** (ADR-0040).
 
 ## Next session picks up
 
-1. **PR #185** (#171, `area:crypto`) then **PR #186** (#172, `area:security`): owner approval each; after #185, merge `main`
-   into `test/m4-acceptance` (STATE/SESSION_LOG/README conflicts). Then close M4 and plan M5 (`docs/phases/M5.md`).
+1. **M4 is complete** (#185, #186 merged 2026-11-01): close the M4 milestone on GitHub (after #187, the
+   1-in-256 recovery-code checksum test flake, `size:S`), then plan M5 (`docs/phases/M5.md`).
 2. **Home server upgrade** is the owner's (not this machine): DEPLOYMENT.md H4, then smoke-test on a real phone.
 #140 E2E nudges sync with the probe's "Open records"; "Owned by" lists a member only after their profile syncs. Deferred: a lens store shared by Home/Accounts/Goals, count-up animation, nominee badge in Accounts (M7 alert),
 the sell flow that calls `consumeFifo` (M5/M6), transaction entry UI (M5/M6). Known gap (ADR-0054): a member can tombstone another's profile.

@@ -11,7 +11,7 @@ ARCHITECTURE.md also disagreed on where goal allocations live.
 ## Decision
 
 1. **Five envelope types**: `member`, `asset`, `liability`, `goal`, `transaction`
-   (`RECORD_TYPES`). Each is a Zod discriminated union on `data.kind` (FD, PPF, home loan, …,
+   (`RECORD_TYPES`); [ADR-0070](0070-daily-snapshots.md) adds a sixth, `snapshot`. Each is a Zod discriminated union on `data.kind` (FD, PPF, home loan, …,
    in #131). The type is sealed and padded, so the server never sees it, and five codecs are easier to version than thirty.
 2. **Allocations are embedded** in the record they fund: `allocations[] { goalId, mode:
    percent, bps } | { goalId, mode: fixed, amount }`. LWW is per whole record, so the
